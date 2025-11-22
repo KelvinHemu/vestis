@@ -1,0 +1,53 @@
+export interface User {
+  id: number;
+  email: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
+  role?: string;
+}
+
+export interface AuthState {
+  user: User | null;
+  token: string | null;
+  isLoading: boolean;
+  error: string | null;
+  isAuthenticated: boolean;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface SignupCredentials {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  user: User;
+  token: string;
+  refresh_token?: string;
+}
+
+export interface OAuthResponse {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in: number;
+  user: User;
+}
+
+export interface VerifyTokenResponse {
+  valid: boolean;
+  user_id: number;
+  email: string;
+  message: string;
+}
+
+export interface RefreshTokenResponse {
+  token: string;
+  message?: string;
+}

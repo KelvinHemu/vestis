@@ -1,0 +1,12 @@
+{
+  "buildCommand": "bash build.sh",
+  "outputDirectory": "dist",
+  "installCommand": "pnpm install --shamefully-hoist",
+  "devCommand": "pnpm dev",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
