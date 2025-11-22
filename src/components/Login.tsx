@@ -38,8 +38,8 @@ export function Login({ onSuccess }: LoginProps) {
 
   return (
     <MainContent showBackButton={false}>
-      <div className="flex items-start justify-center mt-8">
-        <Card className="w-full max-w-md bg-white border-gray-200">
+      <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4">
+        <Card className="w-full max-w-md bg-white border-gray-200 shadow-lg">
           <div className="flex items-start justify-between p-6">
             <div>
               <CardTitle className="text-2xl font-bold text-gray-900">Login to your account</CardTitle>

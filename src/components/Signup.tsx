@@ -49,8 +49,8 @@ export function Signup({ onSuccess }: SignupProps) {
 
   return (
     <MainContent showBackButton={false}>
-      <div className="flex items-start justify-center mt-8">
-        <Card className="w-full max-w-md bg-white border-gray-200">
+      <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4">
+        <Card className="w-full max-w-md bg-white border-gray-200 shadow-lg">
           <div className="flex items-start p-4">
             <div>
               <CardTitle className="text-xl font-bold text-gray-900">Create your account</CardTitle>

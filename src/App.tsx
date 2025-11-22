@@ -20,16 +20,13 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Simple layout for public pages (login/signup)
+// Simple layout for public pages (login/signup) - no sidebar
 function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-white">
-      <Sidebar />
-      <div className="flex-1 ml-16">
-        <main className="min-h-screen bg-gray-100">
-          {children}
-        </main>
-      </div>
+      <main className="min-h-screen w-full bg-white">
+        {children}
+      </main>
     </div>
   );
 }
