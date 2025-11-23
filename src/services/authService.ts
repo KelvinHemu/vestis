@@ -23,8 +23,9 @@ class AuthService {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Login failed');
+        const error = await response.json().catch(() => ({}));
+        // Throw error with message from API or default
+        throw new Error(error.error || error.message || 'Login failed');
       }
 
       const data: AuthResponse = await response.json();
@@ -38,6 +39,7 @@ class AuthService {
       
       return data;
     } catch (error) {
+      // Re-throw to be handled by error handler
       throw error;
     }
   }
@@ -58,8 +60,9 @@ class AuthService {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Signup failed');
+        const error = await response.json().catch(() => ({}));
+        // Throw error with message from API or default
+        throw new Error(error.error || error.message || 'Signup failed');
       }
 
       const data: AuthResponse = await response.json();
@@ -73,6 +76,7 @@ class AuthService {
       
       return data;
     } catch (error) {
+      // Re-throw to be handled by error handler
       throw error;
     }
   }
