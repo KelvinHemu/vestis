@@ -104,7 +104,7 @@ function App() {
     <Routes>
       {/* Public routes - with sidebar/topbar */}
       <Route path="/login" element={<PublicLayout><Login onSuccess={() => { }} /></PublicLayout>} />
-      <Route path="/signup" element={<PublicLayout><Signup onSuccess={() => { }} /></PublicLayout>} />
+      <Route path="/signup" element={<PublicLayout><Signup /></PublicLayout>} />
 
       {/* OAuth callback route - no layout needed */}
       <Route path="/auth/callback" element={<OAuthCallback />} />

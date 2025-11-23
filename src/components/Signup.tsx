@@ -1,82 +1,9 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, EyeOff, Mail } from 'lucide-react';
-import { useSignup } from '../hooks/useAuth';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardTitle } from './ui/card';
-import { ErrorMessage } from './ui/ErrorMessage';
 import { MainContent } from './MainContent';
 
-interface SignupProps {
-  onSuccess?: () => void;
-}
-
-export function Signup({ onSuccess }: SignupProps) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [localError, setLocalError] = useState('');
-
-  const { signup, isLoading, error, clearError } = useSignup(onSuccess);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Signup form submitted');
-    setLocalError('');
-    clearError(); // Clear any previous API errors
-
-    // Validate name
-    if (name.trim().length < 2) {
-      setLocalError('Name must be at least 2 characters long');
-      return;
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setLocalError('Please enter a valid email address');
-      return;
-    }
-
-    // Validate password strength
-    if (password.length < 8) {
-      setLocalError('Password must be at least 8 characters long');
-      return;
-    }
-
-    if (!/[A-Z]/.test(password)) {
-      setLocalError('Password must contain at least one uppercase letter');
-      return;
-    }
-
-    if (!/[a-z]/.test(password)) {
-      setLocalError('Password must contain at least one lowercase letter');
-      return;
-    }
-
-    if (!/[0-9]/.test(password)) {
-      setLocalError('Password must contain at least one number');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setLocalError('Passwords do not match');
-      return;
-    }
-
-    await signup({ name, email, password });
-  };
-
-  const handleClearError = () => {
-    console.log('Manually clearing errors');
-    clearError();
-    setLocalError('');
-  };
+export function Signup() {
 
 
   return (
