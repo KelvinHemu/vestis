@@ -1,7 +1,10 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, User, Grid, LogOut, Plus} from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Home, User, Grid, Zap, Plus} from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { useAuthStore } from '../contexts/authStore';
+import userService from '../services/userService';
+import type { User as UserType } from '../types/user';
 
 const menuItems = [
     { icon: Home, label: 'Home', path: '/dashboard', badge: null },
@@ -11,20 +14,26 @@ const menuItems = [
     // { icon: History, label: 'History', path: '/history', badge: null },
 ];
 
-const bottomMenuItems = [
-  { icon: User, label: 'Profile', path: '/profile', badge: null },
-];
-
 export function Sidebar() {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { logout } = useAuthStore();
+  const { token } = useAuthStore();
+  const [user, setUser] = useState<UserType | null>(null);
 
-  // Handle logout functionality
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  // Fetch user data
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!token) return;
+
+      try {
+        const response = await userService.getCurrentUser(token);
+        setUser(response.user);
+      } catch (err) {
+        console.error('Failed to fetch user data:', err);
+      }
+    };
+
+    fetchUserData();
+  }, [token]);
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-20 bg-white flex flex-col items-center py-4 z-40">
@@ -66,39 +75,29 @@ export function Sidebar() {
 
       {/* Bottom Menu Items */}
       <div className="flex flex-col items-center space-y-3 mb-4">
-        {/* Profile Button */}
-        {bottomMenuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path;
-          
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "relative group flex flex-col items-center justify-center w-16 py-2 rounded-lg transition-all duration-200",
-                isActive 
-                  ? "bg-gray-100 text-gray-900" 
-                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-              )}
-            >
-              <Icon className="w-5 h-5 mb-1" />
-              <span className="text-[10px] font-medium">{item.label}</span>
-            </Link>
-          );
-        })}
-
-        {/* Logout Button */}
-        <button
-          onClick={handleLogout}
-          className={cn(
-            "relative group flex flex-col items-center justify-center w-16 py-2 rounded-lg transition-all duration-200",
-            "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-          )}
+        {/* Profile Button with Avatar */}
+        <Link
+          to="/profile"
+          className="relative group transition-all duration-200"
         >
-          <LogOut className="w-5 h-5 mb-1" />
-          <span className="text-[10px] font-medium">Logout</span>
-        </button>
+          {user?.profile_picture ? (
+            <img
+              src={user.profile_picture}
+              alt={user.name}
+              className="w-9 h-9 rounded-lg object-cover"
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-lg bg-gray-200 flex items-center justify-center">
+              <User className="w-5 h-5 text-gray-400" />
+            </div>
+          )}
+        </Link>
+
+        {/* Credits Display */}
+        <div className="flex flex-col items-center justify-center w-9 h-9 rounded-lg bg-gray-100 border border-gray-200">
+          <Zap className="w-3 h-3 fill-gray-900 text-gray-900 mb-0.5" />
+          <span className="text-xs font-bold text-gray-900 leading-none">200</span>
+        </div>
       </div>
     </aside>
   );

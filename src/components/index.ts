@@ -30,3 +30,4 @@ export { FeatureCard, features } from './FeatureCard';
 export { FloatingSearchBar } from './FloatingSearchBar';
 export { CreatePage } from './CreatePage';
 export { GenerationHistory } from './GenerationHistory/GenerationHistory';
+export { Profile } from './Profile';

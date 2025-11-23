@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Login, Signup, OAuthCallback, Sidebar, OnModelPhotos, FlatLayPhotos, MannequinPhotos, BackgroundChange, CreatePage, GenerationHistory } from './components';
+import { Login, Signup, OAuthCallback, Sidebar, OnModelPhotos, FlatLayPhotos, MannequinPhotos, BackgroundChange, CreatePage, GenerationHistory, Profile } from './components';
 import { AuthProvider } from './providers';
 import { ProtectedRoute } from './routes';
 import { useAuthStore } from './contexts/authStore';
@@ -193,7 +193,16 @@ function App() {
           </ProtectedRoute>
         }
       />
-      <Route path="/profile" element={<ProtectedRoute><AppLayout><div className="p-8 text-gray-900">Profile Page</div></AppLayout></ProtectedRoute>} />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Profile />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
       <Route path="/story" element={<ProtectedRoute><AppLayout><div className="p-8 text-gray-900">Story Page (Beta)</div></AppLayout></ProtectedRoute>} />
       <Route path="/video" element={<ProtectedRoute><AppLayout><div className="p-8 text-gray-900">Video Page</div></AppLayout></ProtectedRoute>} />
       <Route path="/image" element={<ProtectedRoute><AppLayout><div className="p-8 text-gray-900">Image Page</div></AppLayout></ProtectedRoute>} />
