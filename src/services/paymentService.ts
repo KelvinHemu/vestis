@@ -129,14 +129,21 @@ class PaymentService {
    */
   async getPaymentStatus(orderId: string): Promise<PaymentStatus> {
     try {
-      const response = await api.get(`/v1/payments/zenopay/status?order_id=${orderId}`);
+      const endpoint = `/v1/payments/zenopay/status?order_id=${orderId}`;
+      console.log('📡 Fetching payment status from:', endpoint);
+      console.log('🌐 Base URL:', API_BASE_URL);
+      
+      const response = await api.get(endpoint);
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
+        console.error('❌ Payment status error:', error);
         throw new Error(error.error || 'Failed to check payment status');
       }
 
-      return await response.json();
+      const data = await response.json();
+      console.log('✅ Payment status response:', data);
+      return data;
     } catch (error) {
       console.error('Failed to check payment status:', error);
       throw error;
@@ -195,9 +202,10 @@ class PaymentService {
         const status = await this.getPaymentStatus(orderId);
         onUpdate(status);
 
-        if (status.payment_status === 'COMPLETED' || 
-            status.payment_status === 'FAILED' || 
-            status.payment_status === 'CANCELLED') {
+        const statusUpper = status.payment_status.toUpperCase();
+        if (statusUpper === 'COMPLETED' || 
+            statusUpper === 'FAILED' || 
+            statusUpper === 'CANCELLED') {
           return status;
         }
 

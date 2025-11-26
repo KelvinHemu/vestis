@@ -68,9 +68,10 @@ export const PaymentPage: React.FC = () => {
   const handlePaymentStatusUpdate = (status: PaymentStatus) => {
     setPaymentResult(status);
     
-    if (status.payment_status === 'COMPLETED') {
+    const statusUpper = status.payment_status.toUpperCase();
+    if (statusUpper === 'COMPLETED') {
       setStep('success');
-    } else if (status.payment_status === 'FAILED' || status.payment_status === 'CANCELLED') {
+    } else if (statusUpper === 'FAILED' || statusUpper === 'CANCELLED') {
       setError(`Payment ${status.payment_status.toLowerCase()}`);
       setStep('failed');
     }
@@ -84,12 +85,7 @@ export const PaymentPage: React.FC = () => {
   };
 
   const handleClose = () => {
-    setStep('packages');
-    setSelectedPackage(null);
-    setError(null);
-    setOrderId(null);
-    setPaymentResult(null);
-    loadUserData(); // Refresh user credits
+    navigate('/create');
   };
 
   if (showHistory) {

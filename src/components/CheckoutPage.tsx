@@ -49,16 +49,21 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     setError(null);
 
     try {
+      console.log('💳 Creating payment for package:', selectedPackage.id);
       const response = await paymentService.createPayment({
         package_id: selectedPackage.id,
         buyer_phone: phoneNumber.trim(),
       });
+
+      console.log('✅ Payment created successfully:', response);
+      console.log('📝 Order ID:', response.order_id);
 
       if (response.success) {
         onPaymentInitiated(response.order_id);
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to initiate payment';
+      console.error('❌ Payment creation failed:', err);
       setError(errorMessage);
       onError(errorMessage);
     } finally {
@@ -96,7 +101,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
         {/* Footer */}
         <div className="text-gray-600 text-xs">
-          Secure payment powered by ZenoPay
+          Secure payment powered by Vestis
         </div>
       </div>
 
@@ -209,7 +214,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
             By subscribing, you authorize Vestis to charge you according to the terms until you cancel.
           </p>
           <div className="flex items-center justify-center gap-1 text-xs text-gray-400 font-light">
-            <span>Powered by <span className="font-normal text-gray-600">ZenoPay</span></span>
+            <span>Powered by <span className="font-normal text-gray-600">Vestis</span></span>
             <span className="mx-2">|</span>
             <a href="#" className="hover:text-gray-600 transition-colors">Terms</a>
             <span>·</span>
