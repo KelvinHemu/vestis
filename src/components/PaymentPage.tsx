@@ -173,9 +173,6 @@ export const PaymentPage: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-6 md:mb-8 text-center px-4">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 md:mb-3">
-              Vestis Credits
-            </h1>
             <p className="text-base md:text-lg text-gray-600 mb-1">
               Choose the perfect plan for your needs
             </p>
