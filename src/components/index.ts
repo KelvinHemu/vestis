@@ -33,6 +33,7 @@ export { GenerationHistory } from './GenerationHistory/GenerationHistory';
 export { Profile } from './profile';
 export { PaymentPage } from './PaymentPage';
 export { PricingCard } from './PricingCard';
+export { CheckoutPage } from './CheckoutPage';
 export { FreePlanCard } from './FreePlanCard';
 export { PaymentHistory } from './PaymentHistory';
 export { PaymentProgress, PaymentSuccess, PaymentFailed } from './PaymentProgress';

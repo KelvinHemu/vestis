@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Smartphone, AlertCircle, X } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PricingCard } from './PricingCard';
+import { CheckoutPage } from './CheckoutPage';
 import { PaymentProgress, PaymentSuccess, PaymentFailed } from './PaymentProgress';
 import { PaymentHistory } from './PaymentHistory';
 import paymentService, { type CreditPackage, type PaymentStatus } from '../services/paymentService';
@@ -17,9 +18,6 @@ export const PaymentPage: React.FC = () => {
   const [, setUser] = useState<User | null>(null);
   const [packages, setPackages] = useState<CreditPackage[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(null);
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [phoneError, setPhoneError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<PaymentStep>('packages');
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -50,63 +48,21 @@ export const PaymentPage: React.FC = () => {
     }
   };
 
-  const validatePhoneNumber = (phone: string) => {
-    if (!phone.trim()) {
-      setPhoneError('Phone number is required');
-      return false;
-    }
-    if (!paymentService.validatePhoneNumber(phone)) {
-      setPhoneError('Invalid phone number. Use format: 0712345678 or 255712345678');
-      return false;
-    }
-    setPhoneError('');
-    return true;
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setPhoneNumber(value);
-    if (phoneError) {
-      validatePhoneNumber(value);
-    }
-  };
-
-  const handleInitiatePayment = async () => {
-    if (!validatePhoneNumber(phoneNumber) || !selectedPackage) {
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await paymentService.createPayment({
-        package_id: selectedPackage.id,
-        buyer_phone: phoneNumber.trim(),
-      });
-
-      if (response.success) {
-        setOrderId(response.order_id);
-        setStep('progress');
-        
-        // Start polling for status
-        paymentService.pollPaymentStatus(
-          response.order_id,
-          (status) => {
-            handlePaymentStatusUpdate(status);
-          }
-        ).catch((err) => {
-          console.error('Polling error:', err);
-          setError('Payment status check timeout. Please check your payment history.');
-          setStep('failed');
-        });
+  const handlePaymentInitiated = (newOrderId: string) => {
+    setOrderId(newOrderId);
+    setStep('progress');
+    
+    // Start polling for status
+    paymentService.pollPaymentStatus(
+      newOrderId,
+      (status) => {
+        handlePaymentStatusUpdate(status);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to initiate payment');
+    ).catch((err) => {
+      console.error('Polling error:', err);
+      setError('Payment status check timeout. Please check your payment history.');
       setStep('failed');
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   const handlePaymentStatusUpdate = (status: PaymentStatus) => {
@@ -130,17 +86,10 @@ export const PaymentPage: React.FC = () => {
   const handleClose = () => {
     setStep('packages');
     setSelectedPackage(null);
-    setPhoneNumber('');
-    setPhoneError('');
     setError(null);
     setOrderId(null);
     setPaymentResult(null);
     loadUserData(); // Refresh user credits
-  };
-
-  const handleBackToPackages = () => {
-    setStep('packages');
-    setPhoneError('');
   };
 
   if (showHistory) {
@@ -159,6 +108,17 @@ export const PaymentPage: React.FC = () => {
           </div>
         </div>
       </div>
+    );
+  }
+
+  // Checkout screen - Using new CheckoutPage component
+  if (step === 'checkout' && selectedPackage) {
+    return (
+      <CheckoutPage
+        selectedPackage={selectedPackage}
+        onPaymentInitiated={handlePaymentInitiated}
+        onError={(err) => setError(err)}
+      />
     );
   }
 
@@ -215,144 +175,37 @@ export const PaymentPage: React.FC = () => {
 
       <div className="container mx-auto p-4 md:p-8 pb-16">
         <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-6 md:mb-8 text-center px-4">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 md:mb-3">
-            Vestis Credits
-          </h1>
-          <p className="text-base md:text-lg text-gray-600 mb-1">
-            Choose the perfect plan for your needs
-          </p>
-          <p className="text-xs md:text-sm text-gray-500">
-            Unlock powerful AI generation capabilities
-          </p>
-        </div>
-
-        {/* Checkout Step */}
-        {step === 'checkout' && selectedPackage && (
-          <div className="max-w-2xl mx-auto px-4">
-            <div className="mb-6 md:mb-8 text-center">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 md:mb-3">
-                Complete Payment
-              </h1>
-              <p className="text-sm md:text-base text-gray-600">
-                Enter your mobile money details to complete the purchase
-              </p>
-            </div>
-
-            <button
-              onClick={handleBackToPackages}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              Back to Packages
-            </button>
-
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
-              {/* Selected Package Summary */}
-              <div className="mb-6 p-4 bg-gray-50 rounded-xl">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600">Selected Package:</span>
-                  <span className="text-xl font-bold text-gray-900">{selectedPackage.name}</span>
-                </div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600">Credits:</span>
-                  <span className="text-lg font-semibold text-gray-900">{selectedPackage.credits.toLocaleString()}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Amount:</span>
-                  <span className="text-2xl font-bold text-gray-900">
-                    TZS {selectedPackage.price_tzs.toLocaleString()}
-                  </span>
-                </div>
-              </div>
-
-              {/* Phone Number Input */}
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Mobile Money Number
-                </label>
-                <div className="relative">
-                  <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={handlePhoneChange}
-                    onBlur={() => validatePhoneNumber(phoneNumber)}
-                    placeholder="0712345678 or 255712345678"
-                    className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-colors ${
-                      phoneError 
-                        ? 'border-red-300 focus:border-red-500 focus:ring-red-200' 
-                        : 'border-gray-300 focus:border-gray-900 focus:ring-gray-200'
-                    }`}
-                  />
-                </div>
-                {phoneError && (
-                  <div className="flex items-center gap-2 mt-2 text-sm text-red-600">
-                    <AlertCircle className="h-4 w-4" />
-                    {phoneError}
-                  </div>
-                )}
-                <p className="mt-2 text-xs text-gray-500">
-                  Enter your M-Pesa, Tigo Pesa, or Airtel Money number
-                </p>
-              </div>
-
-              {/* Payment Info */}
-              <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-                <p className="text-sm text-gray-700">
-                  You will receive an USSD prompt on your phone to authorize the payment.
-                  Enter your mobile money PIN to complete the transaction.
-                </p>
-              </div>
-
-              {/* Error Message */}
-              {error && (
-                <div className="mb-6 p-4 bg-red-50 rounded-xl border border-red-200">
-                  <div className="flex items-center gap-2 text-red-600">
-                    <AlertCircle className="h-5 w-5" />
-                    <span className="text-sm font-medium">{error}</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Submit Button */}
-              <button
-                onClick={handleInitiatePayment}
-                disabled={isLoading || !phoneNumber.trim()}
-                className="w-full py-4 px-6 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
-              >
-                {isLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                    Processing...
-                  </span>
-                ) : (
-                  `Pay TZS ${selectedPackage.price_tzs.toLocaleString()}`
-                )}
-              </button>
-            </div>
+          {/* Header */}
+          <div className="mb-6 md:mb-8 text-center px-4">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 md:mb-3">
+              Vestis Credits
+            </h1>
+            <p className="text-base md:text-lg text-gray-600 mb-1">
+              Choose the perfect plan for your needs
+            </p>
+            <p className="text-xs md:text-sm text-gray-500">
+              Unlock powerful AI generation capabilities
+            </p>
           </div>
-        )}
 
-        {/* Package Selection */}
-        {step === 'packages' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-4">
-            {/* Paid Package Cards */}
-            {packages.map((pkg) => (
-              <PricingCard
-                key={pkg.id}
-                package={pkg}
-                isSelected={selectedPackage?.id === pkg.id}
-                onSelect={() => setSelectedPackage(pkg)}
-                onUpgrade={() => {
-                  setSelectedPackage(pkg);
-                  setStep('checkout');
-                }}
-              />
-            ))}
-          </div>
-        )}
+          {/* Package Selection */}
+          {step === 'packages' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-4">
+              {/* Paid Package Cards */}
+              {packages.map((pkg) => (
+                <PricingCard
+                  key={pkg.id}
+                  package={pkg}
+                  isSelected={selectedPackage?.id === pkg.id}
+                  onSelect={() => setSelectedPackage(pkg)}
+                  onUpgrade={() => {
+                    setSelectedPackage(pkg);
+                    setStep('checkout');
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
