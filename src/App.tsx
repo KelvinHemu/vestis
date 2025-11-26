@@ -207,9 +207,7 @@ function App() {
         path="/payment"
         element={
           <ProtectedRoute>
-            <AppLayout>
-              <PaymentPage />
-            </AppLayout>
+            <PaymentPage />
           </ProtectedRoute>
         }
       />

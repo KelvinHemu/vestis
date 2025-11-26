@@ -6,9 +6,10 @@ interface PricingCardProps {
   package: CreditPackage;
   isSelected: boolean;
   onSelect: () => void;
+  onUpgrade: () => void;
 }
 
-export const PricingCard: React.FC<PricingCardProps> = ({ package: pkg, isSelected, onSelect }) => {
+export const PricingCard: React.FC<PricingCardProps> = ({ package: pkg, isSelected, onSelect, onUpgrade }) => {
   return (
     <div
       onClick={onSelect}
@@ -56,17 +57,15 @@ export const PricingCard: React.FC<PricingCardProps> = ({ package: pkg, isSelect
         </div>
       </div>
 
-      {/* Select Button - Moved up */}
+      {/* Upgrade Button */}
       <button
-        className={`
-          w-full py-2 px-3 rounded-lg text-sm font-semibold transition-all mb-4
-          ${isSelected 
-            ? 'bg-gray-900 text-white shadow-lg' 
-            : 'bg-white text-gray-900 border-2 border-gray-900 hover:bg-gray-900 hover:text-white'
-          }
-        `}
+        onClick={(e) => {
+          e.stopPropagation();
+          onUpgrade();
+        }}
+        className="w-full py-2.5 px-3 rounded-lg text-sm font-semibold transition-all mb-4 bg-gray-900 text-white hover:bg-gray-800 shadow-lg"
       >
-        {isSelected ? 'Selected' : `Upgrade to ${pkg.name}`}
+        Upgrade to {pkg.name}
       </button>
 
       {/* Credits Badge */}
