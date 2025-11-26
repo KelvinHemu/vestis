@@ -144,7 +144,7 @@ export function Profile() {
               {/* Credits Badge */}
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100 border border-gray-200">
                 <Zap className="w-3.5 h-3.5 fill-gray-900 text-gray-900" />
-                <span className="text-sm font-semibold text-gray-900">200 Credits</span>
+                <span className="text-sm font-semibold text-gray-900">{user.credits} Credits</span>
               </div>
             </div>
           </CardContent>

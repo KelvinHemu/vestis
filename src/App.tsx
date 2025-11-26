@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Login, Signup, OAuthCallback, Sidebar, OnModelPhotos, FlatLayPhotos, MannequinPhotos, BackgroundChange, CreatePage, GenerationHistory, Profile } from './components';
+import { Login, Signup, OAuthCallback, Sidebar, OnModelPhotos, FlatLayPhotos, MannequinPhotos, BackgroundChange, CreatePage, GenerationHistory, Profile, PaymentPage } from './components';
 import { AuthProvider } from './providers';
 import { ProtectedRoute } from './routes';
 import { useAuthStore } from './contexts/authStore';
@@ -199,6 +199,16 @@ function App() {
           <ProtectedRoute>
             <AppLayout>
               <Profile />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payment"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <PaymentPage />
             </AppLayout>
           </ProtectedRoute>
         }

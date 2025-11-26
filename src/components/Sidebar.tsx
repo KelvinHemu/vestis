@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, User, Grid, Zap, Plus} from 'lucide-react';
+import { Home, User, Grid, Zap, Plus, CreditCard } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { useAuthStore } from '../contexts/authStore';
@@ -10,6 +10,7 @@ const menuItems = [
     { icon: Home, label: 'Home', path: '/dashboard', badge: null },
     { icon: Plus, label: 'Create', path: '/create', badge: null },
     { icon: Grid, label: 'Projects', path: '/projects', badge: null },
+    { icon: CreditCard, label: 'Payment', path: '/payment', badge: null },
     // { icon: Image, label: 'Assets', path: '/assets', badge: null },
     // { icon: History, label: 'History', path: '/history', badge: null },
 ];
@@ -94,10 +95,14 @@ export function Sidebar() {
         </Link>
 
         {/* Credits Display */}
-        <div className="flex flex-col items-center justify-center w-9 h-9 rounded-lg bg-gray-100 border border-gray-200">
+        <Link
+          to="/payment"
+          className="flex flex-col items-center justify-center w-9 h-9 rounded-lg bg-gray-100 border border-gray-200 hover:bg-gray-200 transition-colors cursor-pointer"
+          title="Buy credits"
+        >
           <Zap className="w-3 h-3 fill-gray-900 text-gray-900 mb-0.5" />
-          <span className="text-xs font-bold text-gray-900 leading-none">200</span>
-        </div>
+          <span className="text-xs font-bold text-gray-900 leading-none">{user?.credits ?? 0}</span>
+        </Link>
       </div>
     </aside>
   );
