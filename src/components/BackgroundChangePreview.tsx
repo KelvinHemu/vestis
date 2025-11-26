@@ -9,6 +9,7 @@ interface BackgroundChangePreviewProps {
   onReset: () => void;
   onUndo: () => void;
   aspectRatio: string;
+  onImageDoubleClick?: () => void;
 }
 
 export function BackgroundChangePreview({
@@ -19,6 +20,7 @@ export function BackgroundChangePreview({
   onReset,
   onUndo,
   aspectRatio,
+  onImageDoubleClick,
 }: BackgroundChangePreviewProps) {
   return (
     <div className="space-y-6">
@@ -63,7 +65,11 @@ export function BackgroundChangePreview({
           </div>
         ) : generatedImageUrl ? (
           <>
-            <div className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500" style={{ width: '380px', aspectRatio }}>
+            <div 
+              className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer" 
+              style={{ width: '380px', aspectRatio }}
+              onDoubleClick={onImageDoubleClick}
+            >
               <img
                 src={generatedImageUrl}
                 alt="Generated background change"

@@ -8,6 +8,7 @@ import { OnModelPreviewPanel } from './OnModelPreviewPanel';
 import { FloatingPromptInput } from './FloatingPromptInput';
 import { ImageFeedbackActions } from './ImageFeedbackActions';
 import { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';
+import { FullscreenImageViewer } from './ui/FullscreenImageViewer';
 import { useOnModelGeneration } from '../hooks/useOnModelGeneration';
 import { chatService } from '../services/chatService';
 import type { ModelPhoto } from '../types/onModel';
@@ -33,6 +34,7 @@ export function OnModelPhotos() {
   const [isLocalGenerating, setIsLocalGenerating] = useState(false);
   const [aspectRatio, setAspectRatio] = useState<AspectRatioValue>('auto');
   const [resolution, setResolution] = useState<ResolutionValue>('2K');
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
   const {
     isGenerating,
@@ -302,7 +304,11 @@ export function OnModelPhotos() {
                   </div>
                 </div>
               ) : generatedImageUrl ? (
-                <div className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto" style={{ width: '380px', aspectRatio: getAspectRatioValue(aspectRatio) }}>
+                <div 
+                  className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer" 
+                  style={{ width: '380px', aspectRatio: getAspectRatioValue(aspectRatio) }}
+                  onDoubleClick={() => setIsFullscreenOpen(true)}
+                >
                   <img
                     src={generatedImageUrl}
                     alt="Generated on-model"
@@ -428,6 +434,21 @@ export function OnModelPhotos() {
         creditsAvailable={insufficientCredits?.available || 0}
         creditsRequired={insufficientCredits?.required || 1}
       />
+
+      {/* Fullscreen Image Viewer */}
+      {generatedImageUrl && (
+        <FullscreenImageViewer
+          isOpen={isFullscreenOpen}
+          imageUrl={generatedImageUrl}
+          onClose={() => setIsFullscreenOpen(false)}
+          onDownload={() => {
+            const link = document.createElement('a');
+            link.href = generatedImageUrl;
+            link.download = 'on-model-image.png';
+            link.click();
+          }}
+        />
+      )}
       
       {/* Content Area with Left and Right Sections */}
       <div className="flex gap-0 h-full border-2 border-gray-300">

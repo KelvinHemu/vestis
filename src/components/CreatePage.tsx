@@ -5,6 +5,7 @@ import { FloatingAskBar } from './FloatingAskBar';
 import { UploadedImagesGrid } from './UploadedImagesGrid';
 import { LoadingSpinner } from './LoadingSpinner';
 import { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';
+import { FullscreenImageViewer } from './ui/FullscreenImageViewer';
 import { chatService } from '../services/chatService';
 import { InsufficientCreditsError } from '../types/errors';
 
@@ -23,6 +24,7 @@ export const CreatePage: React.FC = () => {
   const [generationHistory, setGenerationHistory] = useState<string[]>([]);
   const [showInsufficientCreditsDialog, setShowInsufficientCreditsDialog] = useState(false);
   const [creditsInfo, setCreditsInfo] = useState({ available: 0, required: 1 });
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
   // Check for image from history on mount
   React.useEffect(() => {
@@ -113,6 +115,10 @@ export const CreatePage: React.FC = () => {
     setError(null);
   };
 
+  const handleImageDoubleClick = () => {
+    setIsFullscreenOpen(true);
+  };
+
   const handleUndoEdit = () => {
     if (generationHistory.length > 0) {
       const previousImage = generationHistory[generationHistory.length - 1];
@@ -177,6 +183,17 @@ export const CreatePage: React.FC = () => {
         creditsAvailable={creditsInfo.available}
         creditsRequired={creditsInfo.required}
       />
+
+      {/* Fullscreen Image Viewer */}
+      {generatedImage && (
+        <FullscreenImageViewer
+          isOpen={isFullscreenOpen}
+          imageUrl={generatedImage}
+          onClose={() => setIsFullscreenOpen(false)}
+          onDownload={handleDownload}
+          onShare={handleShare}
+        />
+      )}
       
       {isGenerating ? (
         <div className="flex items-center justify-center min-h-[calc(100vh-12rem)] p-8">
@@ -211,7 +228,11 @@ export const CreatePage: React.FC = () => {
             </button>
           </div>
           
-          <div className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500" style={{ width: '380px', aspectRatio: '3/4' }}>
+          <div 
+            className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer" 
+            style={{ width: '380px', aspectRatio: '3/4' }}
+            onDoubleClick={handleImageDoubleClick}
+          >
             <img 
               src={generatedImage} 
               alt="Generated Image" 

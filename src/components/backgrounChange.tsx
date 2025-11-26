@@ -7,6 +7,7 @@ import { BackgroundChangePreviewPanel } from './BackgroundChangePreviewPanel';
 import { FloatingPromptInput } from './FloatingPromptInput';
 import { BackgroundChangePreview } from './BackgroundChangePreview';
 import { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';
+import { FullscreenImageViewer } from './ui/FullscreenImageViewer';
 import { useBackgroundChange } from '../hooks/useBackgroundChange';
 import type { BackgroundChangePhoto } from '../types/backgroundChange';
 import type { Background } from '../types/background';
@@ -26,6 +27,7 @@ export function BackgroundChange() {
   const [generationHistory, setGenerationHistory] = useState<string[]>([]);
   const [aspectRatio, setAspectRatio] = useState<AspectRatioValue>('auto');
   const [resolution, setResolution] = useState<ResolutionValue>('2K');
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
   // Helper function to convert aspect ratio string to CSS format
   const getAspectRatioValue = (ratio: AspectRatioValue): string => {
@@ -194,6 +196,7 @@ export function BackgroundChange() {
             onReset={resetGeneration}
             onUndo={handleUndoEdit}
             aspectRatio={getAspectRatioValue(aspectRatio)}
+            onImageDoubleClick={() => setIsFullscreenOpen(true)}
           />
         );
       default:
@@ -298,6 +301,21 @@ export function BackgroundChange() {
         creditsAvailable={insufficientCredits?.available || 0}
         creditsRequired={insufficientCredits?.required || 1}
       />
+
+      {/* Fullscreen Image Viewer */}
+      {generatedImageUrl && (
+        <FullscreenImageViewer
+          isOpen={isFullscreenOpen}
+          imageUrl={generatedImageUrl}
+          onClose={() => setIsFullscreenOpen(false)}
+          onDownload={() => {
+            const link = document.createElement('a');
+            link.href = generatedImageUrl;
+            link.download = 'background-change.png';
+            link.click();
+          }}
+        />
+      )}
       
       {/* Content Area with Left and Right Sections */}
       <div className="flex gap-0 h-full border-2 border-gray-300">

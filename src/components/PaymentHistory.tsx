@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Clock, CheckCircle2, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
-import paymentService, { type Payment, type PaymentHistoryResponse } from '../services/paymentService';
+import paymentService, {type PaymentHistoryResponse } from '../services/paymentService';
 
 export const PaymentHistory: React.FC = () => {
   const [history, setHistory] = useState<PaymentHistoryResponse | null>(null);
