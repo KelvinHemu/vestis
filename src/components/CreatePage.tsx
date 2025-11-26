@@ -4,7 +4,9 @@ import { FeatureCard, features } from './FeatureCard';
 import { FloatingAskBar } from './FloatingAskBar';
 import { UploadedImagesGrid } from './UploadedImagesGrid';
 import { LoadingSpinner } from './LoadingSpinner';
+import { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';
 import { chatService } from '../services/chatService';
+import { InsufficientCreditsError } from '../types/errors';
 
 interface UploadedImage {
   id: string;
@@ -19,6 +21,8 @@ export const CreatePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [generationHistory, setGenerationHistory] = useState<string[]>([]);
+  const [showInsufficientCreditsDialog, setShowInsufficientCreditsDialog] = useState(false);
+  const [creditsInfo, setCreditsInfo] = useState({ available: 0, required: 1 });
 
   // Check for image from history on mount
   React.useEffect(() => {
@@ -83,7 +87,20 @@ export const CreatePage: React.FC = () => {
       }
     } catch (err) {
       console.error('❌ Generation error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to generate image');
+      
+      // Handle insufficient credits error specifically
+      if (err instanceof InsufficientCreditsError) {
+        setCreditsInfo({
+          available: err.creditsAvailable,
+          required: err.creditsRequired,
+        });
+        setShowInsufficientCreditsDialog(true);
+        // Clear generic error when showing the credits dialog
+        setError(null);
+      } else {
+        // For other errors, show generic error message
+        setError(err instanceof Error ? err.message : 'Failed to generate image');
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -153,6 +170,14 @@ export const CreatePage: React.FC = () => {
 
   return (
     <div className="relative min-h-screen pb-28">
+      {/* Insufficient Credits Dialog */}
+      <InsufficientCreditsDialog
+        isOpen={showInsufficientCreditsDialog}
+        onClose={() => setShowInsufficientCreditsDialog(false)}
+        creditsAvailable={creditsInfo.available}
+        creditsRequired={creditsInfo.required}
+      />
+      
       {isGenerating ? (
         <div className="flex items-center justify-center min-h-[calc(100vh-12rem)] p-8">
           <LoadingSpinner/>

@@ -30,3 +30,23 @@ export class AuthError extends Error {
     this.field = field;
   }
 }
+
+/**
+ * Custom error for insufficient credits scenarios
+ */
+export class InsufficientCreditsError extends Error {
+  public readonly creditsAvailable: number;
+  public readonly creditsRequired: number;
+
+  constructor(creditsAvailable: number = 0, creditsRequired: number = 1, message?: string) {
+    super(message || `Insufficient credits. You have ${creditsAvailable} credits but need ${creditsRequired} credits.`);
+    this.name = 'InsufficientCreditsError';
+    this.creditsAvailable = creditsAvailable;
+    this.creditsRequired = creditsRequired;
+    
+    // Maintains proper stack trace for where our error was thrown (only available on V8)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, InsufficientCreditsError);
+    }
+  }
+}

@@ -6,6 +6,7 @@ import { BackgroundSelector } from './BackgroundSelector';
 import { BackgroundChangePreviewPanel } from './BackgroundChangePreviewPanel';
 import { FloatingPromptInput } from './FloatingPromptInput';
 import { BackgroundChangePreview } from './BackgroundChangePreview';
+import { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';
 import { useBackgroundChange } from '../hooks/useBackgroundChange';
 import type { BackgroundChangePhoto } from '../types/backgroundChange';
 import type { Background } from '../types/background';
@@ -39,6 +40,7 @@ export function BackgroundChange() {
     generateBackgroundChange,
     resetGeneration,
     setGeneratedImageUrl,
+    insufficientCredits,
   } = useBackgroundChange();
 
   // Fetch full background object when background ID changes
@@ -289,6 +291,14 @@ export function BackgroundChange() {
     <MainContent
       showBackButton={false}
     >
+      {/* Insufficient Credits Dialog */}
+      <InsufficientCreditsDialog
+        isOpen={!!insufficientCredits}
+        onClose={() => resetGeneration()}
+        creditsAvailable={insufficientCredits?.available || 0}
+        creditsRequired={insufficientCredits?.required || 1}
+      />
+      
       {/* Content Area with Left and Right Sections */}
       <div className="flex gap-0 h-full border-2 border-gray-300">
         {/* Left Component - 3/4 width */}

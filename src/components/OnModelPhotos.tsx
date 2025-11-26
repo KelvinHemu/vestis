@@ -7,6 +7,7 @@ import { BackgroundSelector } from './BackgroundSelector';
 import { OnModelPreviewPanel } from './OnModelPreviewPanel';
 import { FloatingPromptInput } from './FloatingPromptInput';
 import { ImageFeedbackActions } from './ImageFeedbackActions';
+import { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';
 import { useOnModelGeneration } from '../hooks/useOnModelGeneration';
 import { chatService } from '../services/chatService';
 import type { ModelPhoto } from '../types/onModel';
@@ -40,6 +41,7 @@ export function OnModelPhotos() {
     generateOnModel,
     resetGeneration,
     setGeneratedImageUrl,
+    insufficientCredits,
   } = useOnModelGeneration();
 
   // Fetch full model object when model ID changes
@@ -419,6 +421,14 @@ export function OnModelPhotos() {
     <MainContent
       showBackButton={false}
     >
+      {/* Insufficient Credits Dialog */}
+      <InsufficientCreditsDialog
+        isOpen={!!insufficientCredits}
+        onClose={() => resetGeneration()}
+        creditsAvailable={insufficientCredits?.available || 0}
+        creditsRequired={insufficientCredits?.required || 1}
+      />
+      
       {/* Content Area with Left and Right Sections */}
       <div className="flex gap-0 h-full border-2 border-gray-300">
         {/* Left Component - 3/4 width */}

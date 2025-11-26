@@ -8,8 +8,10 @@ import { FlatLayPreviewPanel } from './FlatLayPreviewPanel';
 import { FlatLayActionButton } from './FlatLayActionButton';
 import { FloatingPromptInput } from './FloatingPromptInput';
 import { ImageFeedbackActions } from './ImageFeedbackActions';
+import { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';
 import { flatLayService } from '../services/flatLayService';
 import { chatService } from '../services/chatService';
+import { InsufficientCreditsError } from '../types/errors';
 import type { ProductImage } from '../types/flatlay';
 import { RotateCw } from 'lucide-react';
 import AspectRatio, { type AspectRatioValue } from './aspectRatio';
@@ -34,6 +36,7 @@ export function FlatLayPhotos() {
   // Generation states
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
+  const [insufficientCredits, setInsufficientCredits] = useState<{ available: number; required: number } | null>(null);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [additionalInfo, setAdditionalInfo] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
@@ -256,9 +259,19 @@ export function FlatLayPhotos() {
       }
     } catch (error) {
       console.error('Error generating flatlay:', error);
-      setGenerationError(
-        error instanceof Error ? error.message : 'Failed to generate image'
-      );
+      
+      // Handle insufficient credits error specifically
+      if (error instanceof InsufficientCreditsError) {
+        setInsufficientCredits({
+          available: error.creditsAvailable,
+          required: error.creditsRequired,
+        });
+        setGenerationError(null);
+      } else {
+        setGenerationError(
+          error instanceof Error ? error.message : 'Failed to generate image'
+        );
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -526,6 +539,14 @@ export function FlatLayPhotos() {
     <MainContent
       showBackButton={false}
     >
+      {/* Insufficient Credits Dialog */}
+      <InsufficientCreditsDialog
+        isOpen={!!insufficientCredits}
+        onClose={() => setInsufficientCredits(null)}
+        creditsAvailable={insufficientCredits?.available || 0}
+        creditsRequired={insufficientCredits?.required || 1}
+      />
+      
       {/* Content Area with Left and Right Sections */}
       <div className="flex gap-0 h-full border-2 border-gray-300">
         {/* Left Component - 3/4 width */}

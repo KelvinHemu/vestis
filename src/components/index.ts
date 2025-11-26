@@ -37,3 +37,4 @@ export { CheckoutPage } from './CheckoutPage';
 export { FreePlanCard } from './FreePlanCard';
 export { PaymentHistory } from './PaymentHistory';
 export { PaymentProgress, PaymentSuccess, PaymentFailed } from './PaymentProgress';
+export { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';

@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { backgroundChangeService } from '../services/backgroundChangeService';
+import { InsufficientCreditsError } from '../types/errors';
 import type { GenerateBackgroundChangeRequest, GenerateBackgroundChangeResponse, BackgroundChangeJobStatus } from '../types/backgroundChange';
 
 interface UseBackgroundChangeResult {
@@ -10,6 +11,7 @@ interface UseBackgroundChangeResult {
   generateBackgroundChange: (request: GenerateBackgroundChangeRequest) => Promise<void>;
   resetGeneration: () => void;
   setGeneratedImageUrl: (url: string | null) => void;
+  insufficientCredits: { available: number; required: number } | null;
 }
 
 export function useBackgroundChange(): UseBackgroundChangeResult {
@@ -17,6 +19,7 @@ export function useBackgroundChange(): UseBackgroundChangeResult {
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [jobStatus, setJobStatus] = useState<BackgroundChangeJobStatus | null>(null);
+  const [insufficientCredits, setInsufficientCredits] = useState<{ available: number; required: number } | null>(null);
 
   const generateBackgroundChange = useCallback(async (request: GenerateBackgroundChangeRequest) => {
     try {
@@ -24,6 +27,7 @@ export function useBackgroundChange(): UseBackgroundChangeResult {
       setGenerationError(null);
       setGeneratedImageUrl(null);
       setJobStatus(null);
+      setInsufficientCredits(null);
 
       console.log('🎬 Starting background change generation...');
       
@@ -66,7 +70,17 @@ export function useBackgroundChange(): UseBackgroundChangeResult {
       }
     } catch (error) {
       console.error('❌ Error generating background change:', error);
-      setGenerationError(error instanceof Error ? error.message : 'An error occurred');
+      
+      // Handle insufficient credits error specifically
+      if (error instanceof InsufficientCreditsError) {
+        setInsufficientCredits({
+          available: error.creditsAvailable,
+          required: error.creditsRequired,
+        });
+        // Don't set generic error when we have insufficient credits
+      } else {
+        setGenerationError(error instanceof Error ? error.message : 'An error occurred');
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -77,6 +91,7 @@ export function useBackgroundChange(): UseBackgroundChangeResult {
     setGenerationError(null);
     setGeneratedImageUrl(null);
     setJobStatus(null);
+    setInsufficientCredits(null);
   }, []);
 
   return {
@@ -87,5 +102,6 @@ export function useBackgroundChange(): UseBackgroundChangeResult {
     generateBackgroundChange,
     resetGeneration,
     setGeneratedImageUrl,
+    insufficientCredits,
   };
 }

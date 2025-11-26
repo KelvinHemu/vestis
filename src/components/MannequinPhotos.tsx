@@ -9,8 +9,10 @@ import { FlatLayActionButton } from './FlatLayActionButton';
 import { RotateCw } from 'lucide-react';
 import { FloatingPromptInput } from './FloatingPromptInput';
 import { ImageFeedbackActions } from './ImageFeedbackActions';
+import { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';
 import { mannequinService } from '../services/mannequinService';
 import { chatService } from '../services/chatService';
+import { InsufficientCreditsError } from '../types/errors';
 import type { GenerateFlatLayRequest } from '../types/flatlay';
 import AspectRatio, { type AspectRatioValue } from './aspectRatio';
 import Resolution, { type ResolutionValue } from './resolution';
@@ -34,6 +36,7 @@ export function MannequinPhotos() {
   // Generation states
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
+  const [insufficientCredits, setInsufficientCredits] = useState<{ available: number; required: number } | null>(null);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [additionalInfo, setAdditionalInfo] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
@@ -232,9 +235,19 @@ export function MannequinPhotos() {
       }
     } catch (error) {
       console.error('❌ Error generating mannequin:', error);
-      setGenerationError(
-        error instanceof Error ? error.message : 'Failed to generate image'
-      );
+      
+      // Handle insufficient credits error specifically
+      if (error instanceof InsufficientCreditsError) {
+        setInsufficientCredits({
+          available: error.creditsAvailable,
+          required: error.creditsRequired,
+        });
+        setGenerationError(null);
+      } else {
+        setGenerationError(
+          error instanceof Error ? error.message : 'Failed to generate image'
+        );
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -518,6 +531,14 @@ export function MannequinPhotos() {
     <MainContent
       showBackButton={false}
     >
+      {/* Insufficient Credits Dialog */}
+      <InsufficientCreditsDialog
+        isOpen={!!insufficientCredits}
+        onClose={() => setInsufficientCredits(null)}
+        creditsAvailable={insufficientCredits?.available || 0}
+        creditsRequired={insufficientCredits?.required || 1}
+      />
+      
       {/* Content Area with Left and Right Sections */}
       <div className="flex gap-0 h-full border-2 border-gray-300">
         {/* Left Component - 3/4 width */}

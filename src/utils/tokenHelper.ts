@@ -40,12 +40,7 @@ export function isTokenExpired(token: string): boolean {
     // Add 30 second buffer to consider token expired slightly early
     const isExpired = currentTime >= expirationTime - 30000;
     
-    if (isExpired) {
-      console.warn('⚠️ Token is expired:', {
-        expirationTime: new Date(expirationTime).toISOString(),
-        currentTime: new Date(currentTime).toISOString(),
-      });
-    }
+ 
     
     return isExpired;
   } catch (error) {

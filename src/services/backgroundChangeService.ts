@@ -4,6 +4,7 @@
  */
 
 import api from '../utils/apiClient';
+import { InsufficientCreditsError } from '../types/errors';
 import type {
   GenerateBackgroundChangeRequest,
   GenerateBackgroundChangeResponse,
@@ -102,6 +103,18 @@ class BackgroundChangeService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error('❌ API Error Response:', errorData);
+        
+        // Handle 402 Payment Required - Insufficient Credits
+        if (response.status === 402) {
+          const creditsAvailable = errorData.credits_available || 0;
+          const creditsRequired = errorData.credits_required || 1;
+          throw new InsufficientCreditsError(
+            creditsAvailable,
+            creditsRequired,
+            errorData.error || errorData.message
+          );
+        }
+        
         throw new Error(
           errorData.message || `Failed to generate background change: ${response.statusText}`
         );

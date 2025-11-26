@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { onModelPhotosService } from '../services/onModelPhotosService';
+import { InsufficientCreditsError } from '../types/errors';
 import type { GenerateOnModelRequest, GenerateOnModelResponse, OnModelJobStatus } from '../types/onModel';
 
 interface UseOnModelGenerationResult {
@@ -10,6 +11,7 @@ interface UseOnModelGenerationResult {
   generateOnModel: (request: GenerateOnModelRequest) => Promise<void>;
   resetGeneration: () => void;
   setGeneratedImageUrl: (url: string | null) => void;
+  insufficientCredits: { available: number; required: number } | null;
 }
 
 export function useOnModelGeneration(): UseOnModelGenerationResult {
@@ -17,6 +19,7 @@ export function useOnModelGeneration(): UseOnModelGenerationResult {
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [jobStatus, setJobStatus] = useState<OnModelJobStatus | null>(null);
+  const [insufficientCredits, setInsufficientCredits] = useState<{ available: number; required: number } | null>(null);
 
   const generateOnModel = useCallback(async (request: GenerateOnModelRequest) => {
     try {
@@ -24,6 +27,7 @@ export function useOnModelGeneration(): UseOnModelGenerationResult {
       setGenerationError(null);
       setGeneratedImageUrl(null);
       setJobStatus(null);
+      setInsufficientCredits(null);
 
       console.log('🎬 Starting on-model generation...');
       
@@ -66,7 +70,17 @@ export function useOnModelGeneration(): UseOnModelGenerationResult {
       }
     } catch (error) {
       console.error('❌ Error generating on-model photos:', error);
-      setGenerationError(error instanceof Error ? error.message : 'An error occurred');
+      
+      // Handle insufficient credits error specifically
+      if (error instanceof InsufficientCreditsError) {
+        setInsufficientCredits({
+          available: error.creditsAvailable,
+          required: error.creditsRequired,
+        });
+        // Don't set generic error when we have insufficient credits
+      } else {
+        setGenerationError(error instanceof Error ? error.message : 'An error occurred');
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -77,6 +91,7 @@ export function useOnModelGeneration(): UseOnModelGenerationResult {
     setGenerationError(null);
     setGeneratedImageUrl(null);
     setJobStatus(null);
+    setInsufficientCredits(null);
   }, []);
 
   return {
@@ -87,5 +102,6 @@ export function useOnModelGeneration(): UseOnModelGenerationResult {
     generateOnModel,
     resetGeneration,
     setGeneratedImageUrl,
+    insufficientCredits,
   };
 }
