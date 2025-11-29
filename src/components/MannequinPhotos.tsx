@@ -14,37 +14,60 @@ import { FullscreenImageViewer } from './ui/FullscreenImageViewer';
 import { mannequinService } from '../services/mannequinService';
 import { chatService } from '../services/chatService';
 import { InsufficientCreditsError } from '../types/errors';
+import { useInvalidateGenerations } from '../hooks/useGenerations';
+import { useInvalidateMannequin } from '../hooks/useMannequin';
+import { useMannequinStore } from '../contexts/featureStores';
 import type { GenerateFlatLayRequest } from '../types/flatlay';
-import AspectRatio, { type AspectRatioValue } from './aspectRatio';
-import Resolution, { type ResolutionValue } from './resolution';
+import AspectRatio from './aspectRatio';
+import Resolution from './resolution';
 
 // Helper function to convert aspect ratio string to CSS aspect-ratio value
-const getAspectRatioValue = (ratio: AspectRatioValue): string => {
+const getAspectRatioValue = (ratio: string): string => {
   if (ratio === 'auto') return '3/4'; // Default to 3:4
   // Convert ratio like '16:9' to '16/9' for CSS
   return ratio.replace(':', '/');
 };
 
 export function MannequinPhotos() {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [maxUnlockedStep, setMaxUnlockedStep] = useState(0);
-  const [selectionType, setSelectionType] = useState<('top' | 'bottom')[]>(['top', 'bottom']);
-  const [topImages, setTopImages] = useState<{[key: number]: string}>({});
-  const [bottomImages, setBottomImages] = useState<{[key: number]: string}>({});
-  const [selectedModel, setSelectedModel] = useState<string | null>(null);
-  const [selectedBackground, setSelectedBackground] = useState<number | string | null>(null);
+  // Get persisted state from store
+  const {
+    currentStep,
+    maxUnlockedStep,
+    selectionType,
+    topImages,
+    bottomImages,
+    selectedModel,
+    selectedBackground,
+    generatedImageUrl,
+    additionalInfo,
+    isEditMode,
+    generationHistory,
+    aspectRatio,
+    resolution,
+    setCurrentStep,
+    setMaxUnlockedStep,
+    setSelectionType,
+    setTopImages,
+    setBottomImages,
+    setSelectedModel,
+    setSelectedBackground,
+    setGeneratedImageUrl,
+    setAdditionalInfo,
+    setIsEditMode,
+    setGenerationHistory,
+    setAspectRatio,
+    setResolution,
+  } = useMannequinStore();
   
-  // Generation states
+  // Local (non-persisted) state for transient UI states
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [insufficientCredits, setInsufficientCredits] = useState<{ available: number; required: number } | null>(null);
-  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
-  const [additionalInfo, setAdditionalInfo] = useState('');
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [generationHistory, setGenerationHistory] = useState<string[]>([]);
-  const [aspectRatio, setAspectRatio] = useState<AspectRatioValue>('auto');
-  const [resolution, setResolution] = useState<ResolutionValue>('2K');
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+
+  // Cache invalidation hooks
+  const invalidateGenerations = useInvalidateGenerations();
+  const invalidateMannequin = useInvalidateMannequin();
 
   const handleFileUpload = (index: number, file: File | null) => {
     console.log('handleFileUpload called with index:', index, 'file:', file);
@@ -232,6 +255,9 @@ export function MannequinPhotos() {
         setGeneratedImageUrl(response.imageUrl);
         setIsEditMode(true);
         setAdditionalInfo('');
+        // Invalidate caches to show new generation in history
+        invalidateGenerations();
+        invalidateMannequin();
       } else {
         throw new Error(response.message || 'No image URL returned from server');
       }

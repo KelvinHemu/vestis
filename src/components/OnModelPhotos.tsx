@@ -10,6 +10,9 @@ import { ImageFeedbackActions } from './ImageFeedbackActions';
 import { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';
 import { FullscreenImageViewer } from './ui/FullscreenImageViewer';
 import { useOnModelGeneration } from '../hooks/useOnModelGeneration';
+import { useInvalidateGenerations } from '../hooks/useGenerations';
+import { useInvalidateOnModel } from '../hooks/useOnModel';
+import { useOnModelStore } from '../contexts/featureStores';
 import { chatService } from '../services/chatService';
 import type { ModelPhoto } from '../types/onModel';
 import type { Model } from '../types/model';
@@ -17,24 +20,45 @@ import type { Background } from '../types/background';
 import modelService from '../services/modelService';
 import { getBackgroundById } from '../services/backgroundService';
 import { RotateCw } from 'lucide-react';
-import AspectRatio, { type AspectRatioValue } from './aspectRatio';
-import Resolution, { type ResolutionValue } from './resolution';
+import AspectRatio from './aspectRatio';
+import Resolution from './resolution';
 
 export function OnModelPhotos() {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [maxUnlockedStep, setMaxUnlockedStep] = useState(0);
-  const [photos, setPhotos] = useState<{ [key: number]: string }>({});
-  const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
-  const [selectedBackgroundId, setSelectedBackgroundId] = useState<number | string | null>(null);
+  // Get persisted state from store
+  const {
+    currentStep,
+    maxUnlockedStep,
+    photos,
+    selectedModelId,
+    selectedBackgroundId,
+    prompt,
+    isEditMode,
+    generationHistory,
+    aspectRatio,
+    resolution,
+    generatedImageUrl: storedGeneratedImageUrl,
+    setCurrentStep,
+    setMaxUnlockedStep,
+    setPhotos,
+    setSelectedModelId,
+    setSelectedBackgroundId,
+    setPrompt,
+    setIsEditMode,
+    setGenerationHistory,
+    setAspectRatio,
+    setResolution,
+    setGeneratedImageUrl: setStoredGeneratedImageUrl,
+  } = useOnModelStore();
+  
+  // Local (non-persisted) state
   const [selectedModel, setSelectedModel] = useState<Model | null>(null);
   const [selectedBackground, setSelectedBackground] = useState<Background | null>(null);
-  const [prompt, setPrompt] = useState<string>('');
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [generationHistory, setGenerationHistory] = useState<string[]>([]);
   const [isLocalGenerating, setIsLocalGenerating] = useState(false);
-  const [aspectRatio, setAspectRatio] = useState<AspectRatioValue>('auto');
-  const [resolution, setResolution] = useState<ResolutionValue>('2K');
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+
+  // Cache invalidation hooks
+  const invalidateGenerations = useInvalidateGenerations();
+  const invalidateOnModel = useInvalidateOnModel();
 
   const {
     isGenerating,
@@ -45,6 +69,20 @@ export function OnModelPhotos() {
     setGeneratedImageUrl,
     insufficientCredits,
   } = useOnModelGeneration();
+
+  // Sync generated image with store for persistence
+  useEffect(() => {
+    if (generatedImageUrl) {
+      setStoredGeneratedImageUrl(generatedImageUrl);
+    }
+  }, [generatedImageUrl, setStoredGeneratedImageUrl]);
+
+  // Restore generated image from store on mount
+  useEffect(() => {
+    if (storedGeneratedImageUrl && !generatedImageUrl) {
+      setGeneratedImageUrl(storedGeneratedImageUrl);
+    }
+  }, []);
 
   // Fetch full model object when model ID changes
   useEffect(() => {
@@ -107,7 +145,7 @@ export function OnModelPhotos() {
   };
 
   // Helper function to convert aspect ratio string to CSS format
-  const getAspectRatioValue = (ratio: AspectRatioValue): string => {
+  const getAspectRatioValue = (ratio: string): string => {
     if (ratio === 'auto') return '3/4'; // Default to 3:4
     return ratio.replace(':', '/'); // Convert '16:9' to '16/9'
   };
@@ -190,6 +228,10 @@ export function OnModelPhotos() {
       // Enable edit mode and clear prompt after generation
       setIsEditMode(true);
       setPrompt('');
+      
+      // Invalidate caches to show new generation in history
+      invalidateGenerations();
+      invalidateOnModel();
     } catch (error) {
       console.error('Error in handleGenerateImage:', error);
       // Error handling is done in the hook or chat service

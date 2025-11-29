@@ -9,28 +9,51 @@ import { BackgroundChangePreview } from './BackgroundChangePreview';
 import { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';
 import { FullscreenImageViewer } from './ui/FullscreenImageViewer';
 import { useBackgroundChange } from '../hooks/useBackgroundChange';
+import { useInvalidateGenerations } from '../hooks/useGenerations';
+import { useInvalidateBackgroundChange } from '../hooks/useBackgroundChangeQuery';
+import { useBackgroundChangeStore } from '../contexts/featureStores';
 import type { BackgroundChangePhoto } from '../types/backgroundChange';
 import type { Background } from '../types/background';
 import { getBackgroundById } from '../services/backgroundService';
 import { RotateCw } from 'lucide-react';
-import AspectRatio, { type AspectRatioValue } from './aspectRatio';
-import Resolution, { type ResolutionValue } from './resolution';
+import AspectRatio from './aspectRatio';
+import Resolution from './resolution';
 
 export function BackgroundChange() {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [maxUnlockedStep, setMaxUnlockedStep] = useState(0);
-  const [photos, setPhotos] = useState<{ [key: number]: string }>({});
-  const [selectedBackgroundId, setSelectedBackgroundId] = useState<number | string | null>(null);
+  // Get persisted state from store
+  const {
+    currentStep,
+    maxUnlockedStep,
+    photos,
+    selectedBackgroundId,
+    additionalInfo,
+    isEditMode,
+    generationHistory,
+    aspectRatio,
+    resolution,
+    generatedImageUrl: storedGeneratedImageUrl,
+    setCurrentStep,
+    setMaxUnlockedStep,
+    setPhotos,
+    setSelectedBackgroundId,
+    setAdditionalInfo,
+    setIsEditMode,
+    setGenerationHistory,
+    setAspectRatio,
+    setResolution,
+    setGeneratedImageUrl: setStoredGeneratedImageUrl,
+  } = useBackgroundChangeStore();
+  
+  // Local (non-persisted) state
   const [selectedBackground, setSelectedBackground] = useState<Background | null>(null);
-  const [additionalInfo, setAdditionalInfo] = useState('');
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [generationHistory, setGenerationHistory] = useState<string[]>([]);
-  const [aspectRatio, setAspectRatio] = useState<AspectRatioValue>('auto');
-  const [resolution, setResolution] = useState<ResolutionValue>('2K');
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
+  // Cache invalidation hooks
+  const invalidateGenerations = useInvalidateGenerations();
+  const invalidateBackgroundChangeCache = useInvalidateBackgroundChange();
+
   // Helper function to convert aspect ratio string to CSS format
-  const getAspectRatioValue = (ratio: AspectRatioValue): string => {
+  const getAspectRatioValue = (ratio: string): string => {
     if (ratio === 'auto') return '3/4'; // Default to 3:4
     return ratio.replace(':', '/'); // Convert '16:9' to '16/9'
   };
@@ -44,6 +67,20 @@ export function BackgroundChange() {
     setGeneratedImageUrl,
     insufficientCredits,
   } = useBackgroundChange();
+
+  // Sync generated image with store for persistence
+  useEffect(() => {
+    if (generatedImageUrl) {
+      setStoredGeneratedImageUrl(generatedImageUrl);
+    }
+  }, [generatedImageUrl, setStoredGeneratedImageUrl]);
+
+  // Restore generated image from store on mount
+  useEffect(() => {
+    if (storedGeneratedImageUrl && !generatedImageUrl) {
+      setGeneratedImageUrl(storedGeneratedImageUrl);
+    }
+  }, []);
 
   // Fetch full background object when background ID changes
   useEffect(() => {
@@ -133,6 +170,10 @@ export function BackgroundChange() {
     // Enable edit mode and clear prompt after generation
     setIsEditMode(true);
     setAdditionalInfo('');
+    
+    // Invalidate caches to show new generation in history
+    invalidateGenerations();
+    invalidateBackgroundChangeCache();
   };
 
   const handleUndoEdit = () => {
