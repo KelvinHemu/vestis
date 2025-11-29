@@ -5,11 +5,15 @@ import { useNavigate } from 'react-router-dom';
 interface InsufficientCreditsDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  creditsAvailable?: number;
+  creditsRequired?: number;
 }
 
 export const InsufficientCreditsDialog: React.FC<InsufficientCreditsDialogProps> = ({
   isOpen,
   onClose,
+  creditsAvailable = 0,
+  creditsRequired = 1,
 }) => {
   const navigate = useNavigate();
 
@@ -51,7 +55,7 @@ export const InsufficientCreditsDialog: React.FC<InsufficientCreditsDialogProps>
             Insufficient Credits
           </h2>
           <p className="text-gray-600 text-sm">
-            Purchase more credits to continue creating.
+            You have <strong className="text-gray-900">{creditsAvailable}</strong> credits but need <strong className="text-gray-900">{creditsRequired}</strong> to continue. Purchase more credits to continue creating.
           </p>
         </div>
 

@@ -45,8 +45,9 @@ export class InsufficientCreditsError extends Error {
     this.creditsRequired = creditsRequired;
     
     // Maintains proper stack trace for where our error was thrown (only available on V8)
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, InsufficientCreditsError);
+    // Use a safe cast to avoid TypeScript complaining about captureStackTrace not existing on ErrorConstructor
+    if ((Error as any).captureStackTrace) {
+      (Error as any).captureStackTrace(this, InsufficientCreditsError);
     }
   }
 }
