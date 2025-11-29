@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MainContent } from './MainContent';
 import { Steps } from './Steps';
 import { MannequinSelector } from './MannequinSelector';
@@ -17,6 +17,7 @@ import { InsufficientCreditsError } from '../types/errors';
 import { useInvalidateGenerations } from '../hooks/useGenerations';
 import { useInvalidateMannequin } from '../hooks/useMannequin';
 import { useMannequinStore } from '../contexts/featureStores';
+import { useFeatureGeneration } from '../contexts/generationStore';
 import type { GenerateFlatLayRequest } from '../types/flatlay';
 import AspectRatio from './aspectRatio';
 import Resolution from './resolution';
@@ -59,11 +60,39 @@ export function MannequinPhotos() {
     setResolution,
   } = useMannequinStore();
   
+  // Generation state from global store (persists across navigation)
+  const {
+    isGenerating,
+    error: generationStoreError,
+    generatedImageUrl: newGeneratedImageUrl,
+    startGeneration,
+    completeGeneration,
+    failGeneration,
+  } = useFeatureGeneration('mannequin');
+  
   // Local (non-persisted) state for transient UI states
-  const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [insufficientCredits, setInsufficientCredits] = useState<{ available: number; required: number } | null>(null);
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+
+  // Sync generation store error with local error state
+  useEffect(() => {
+    if (generationStoreError) {
+      setGenerationError(generationStoreError);
+    }
+  }, [generationStoreError]);
+
+  // When generation completes in background, update the persisted state
+  useEffect(() => {
+    if (newGeneratedImageUrl && newGeneratedImageUrl !== generatedImageUrl) {
+      setGeneratedImageUrl(newGeneratedImageUrl);
+      setIsEditMode(true);
+      setAdditionalInfo('');
+      // Invalidate caches to show new generation in history
+      invalidateGenerations();
+      invalidateMannequin();
+    }
+  }, [newGeneratedImageUrl]);
 
   // Cache invalidation hooks
   const invalidateGenerations = useInvalidateGenerations();
@@ -161,7 +190,8 @@ export function MannequinPhotos() {
       setGenerationHistory(prev => [...prev, generatedImageUrl]);
     }
 
-    setIsGenerating(true);
+    // Start generation in global store (persists across navigation)
+    startGeneration();
     setGenerationError(null);
 
     try {
@@ -175,12 +205,10 @@ export function MannequinPhotos() {
 
         // Chat service returns completed images directly, no need to poll
         if (response.imageUrl) {
-          setGeneratedImageUrl(response.imageUrl);
-          setAdditionalInfo('');
+          completeGeneration(response.imageUrl);
         } else {
           throw new Error(response.message || 'Image editing failed');
         }
-        setIsGenerating(false);
         return;
       }
 
@@ -252,12 +280,7 @@ export function MannequinPhotos() {
 
       // Use the returned image URL directly
       if (response.imageUrl) {
-        setGeneratedImageUrl(response.imageUrl);
-        setIsEditMode(true);
-        setAdditionalInfo('');
-        // Invalidate caches to show new generation in history
-        invalidateGenerations();
-        invalidateMannequin();
+        completeGeneration(response.imageUrl);
       } else {
         throw new Error(response.message || 'No image URL returned from server');
       }
@@ -270,14 +293,11 @@ export function MannequinPhotos() {
           available: error.creditsAvailable,
           required: error.creditsRequired,
         });
-        setGenerationError(null);
+        failGeneration(''); // Clear generating state but don't show error (dialog will show)
       } else {
-        setGenerationError(
-          error instanceof Error ? error.message : 'Failed to generate image'
-        );
+        const errorMessage = error instanceof Error ? error.message : 'Failed to generate image';
+        failGeneration(errorMessage);
       }
-    } finally {
-      setIsGenerating(false);
     }
   };
 

@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
 import { backgroundChangeService } from '../services/backgroundChangeService';
 import { InsufficientCreditsError } from '../types/errors';
-import type { GenerateBackgroundChangeRequest, GenerateBackgroundChangeResponse, BackgroundChangeJobStatus } from '../types/backgroundChange';
+import { useFeatureGeneration } from '../contexts/generationStore';
+import type { GenerateBackgroundChangeRequest, BackgroundChangeJobStatus } from '../types/backgroundChange';
 
 interface UseBackgroundChangeResult {
   isGenerating: boolean;
@@ -15,31 +16,37 @@ interface UseBackgroundChangeResult {
 }
 
 export function useBackgroundChange(): UseBackgroundChangeResult {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generationError, setGenerationError] = useState<string | null>(null);
-  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  // Use global generation store for state that persists across navigation
+  const {
+    isGenerating,
+    error: generationError,
+    generatedImageUrl,
+    startGeneration,
+    completeGeneration,
+    failGeneration,
+    resetGeneration: resetStore,
+  } = useFeatureGeneration('backgroundchange');
+  
+  // Local state for transient UI
   const [jobStatus, setJobStatus] = useState<BackgroundChangeJobStatus | null>(null);
   const [insufficientCredits, setInsufficientCredits] = useState<{ available: number; required: number } | null>(null);
 
   const generateBackgroundChange = useCallback(async (request: GenerateBackgroundChangeRequest) => {
     try {
-      setIsGenerating(true);
-      setGenerationError(null);
-      setGeneratedImageUrl(null);
+      startGeneration();
       setJobStatus(null);
       setInsufficientCredits(null);
 
       console.log('🎬 Starting background change generation...');
       
       // Call the API to generate background change
-      const response: GenerateBackgroundChangeResponse = await backgroundChangeService.generateBackgroundChange(request);
+      const response = await backgroundChangeService.generateBackgroundChange(request);
       
       console.log('✅ Generation initiated:', response);
 
       // If we get an immediate image URL, use it
       if (response.imageUrl) {
-        setGeneratedImageUrl(response.imageUrl);
-        setIsGenerating(false);
+        completeGeneration(response.imageUrl);
         return;
       }
 
@@ -58,15 +65,15 @@ export function useBackgroundChange(): UseBackgroundChangeResult {
         console.log('🏁 Final job status:', finalStatus);
         
         if (finalStatus.status === 'completed' && finalStatus.imageUrl) {
-          setGeneratedImageUrl(finalStatus.imageUrl);
+          completeGeneration(finalStatus.imageUrl);
           setJobStatus(finalStatus);
         } else if (finalStatus.status === 'failed') {
-          setGenerationError(finalStatus.error || 'Generation failed');
+          failGeneration(finalStatus.error || 'Generation failed');
           setJobStatus(finalStatus);
         }
       } else {
         // No job ID or image URL - something went wrong
-        setGenerationError(response.message || 'Failed to start generation');
+        failGeneration(response.message || 'Failed to start generation');
       }
     } catch (error) {
       console.error('❌ Error generating background change:', error);
@@ -77,22 +84,26 @@ export function useBackgroundChange(): UseBackgroundChangeResult {
           available: error.creditsAvailable,
           required: error.creditsRequired,
         });
-        // Don't set generic error when we have insufficient credits
+        failGeneration(''); // Clear generating state
       } else {
-        setGenerationError(error instanceof Error ? error.message : 'An error occurred');
+        failGeneration(error instanceof Error ? error.message : 'An error occurred');
       }
-    } finally {
-      setIsGenerating(false);
     }
-  }, []);
+  }, [startGeneration, completeGeneration, failGeneration]);
 
   const resetGeneration = useCallback(() => {
-    setIsGenerating(false);
-    setGenerationError(null);
-    setGeneratedImageUrl(null);
+    resetStore();
     setJobStatus(null);
     setInsufficientCredits(null);
-  }, []);
+  }, [resetStore]);
+
+  const setGeneratedImageUrl = useCallback((url: string | null) => {
+    if (url) {
+      completeGeneration(url);
+    } else {
+      resetStore();
+    }
+  }, [completeGeneration, resetStore]);
 
   return {
     isGenerating,

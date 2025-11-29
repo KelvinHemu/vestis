@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
 import { onModelPhotosService } from '../services/onModelPhotosService';
 import { InsufficientCreditsError } from '../types/errors';
-import type { GenerateOnModelRequest, GenerateOnModelResponse, OnModelJobStatus } from '../types/onModel';
+import { useFeatureGeneration } from '../contexts/generationStore';
+import type { GenerateOnModelRequest, OnModelJobStatus } from '../types/onModel';
 
 interface UseOnModelGenerationResult {
   isGenerating: boolean;
@@ -15,31 +16,37 @@ interface UseOnModelGenerationResult {
 }
 
 export function useOnModelGeneration(): UseOnModelGenerationResult {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generationError, setGenerationError] = useState<string | null>(null);
-  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  // Use global generation store for state that persists across navigation
+  const {
+    isGenerating,
+    error: generationError,
+    generatedImageUrl,
+    startGeneration,
+    completeGeneration,
+    failGeneration,
+    resetGeneration: resetStore,
+  } = useFeatureGeneration('onmodel');
+  
+  // Local state for transient UI
   const [jobStatus, setJobStatus] = useState<OnModelJobStatus | null>(null);
   const [insufficientCredits, setInsufficientCredits] = useState<{ available: number; required: number } | null>(null);
 
   const generateOnModel = useCallback(async (request: GenerateOnModelRequest) => {
     try {
-      setIsGenerating(true);
-      setGenerationError(null);
-      setGeneratedImageUrl(null);
+      startGeneration();
       setJobStatus(null);
       setInsufficientCredits(null);
 
       console.log('🎬 Starting on-model generation...');
       
       // Call the API to generate on-model photos
-      const response: GenerateOnModelResponse = await onModelPhotosService.generateOnModel(request);
+      const response = await onModelPhotosService.generateOnModel(request);
       
       console.log('✅ Generation initiated:', response);
 
       // If we get an immediate image URL, use it
       if (response.imageUrl) {
-        setGeneratedImageUrl(response.imageUrl);
-        setIsGenerating(false);
+        completeGeneration(response.imageUrl);
         return;
       }
 
@@ -58,15 +65,15 @@ export function useOnModelGeneration(): UseOnModelGenerationResult {
         console.log('🏁 Final job status:', finalStatus);
         
         if (finalStatus.status === 'completed' && finalStatus.imageUrl) {
-          setGeneratedImageUrl(finalStatus.imageUrl);
+          completeGeneration(finalStatus.imageUrl);
           setJobStatus(finalStatus);
         } else if (finalStatus.status === 'failed') {
-          setGenerationError(finalStatus.error || 'Generation failed');
+          failGeneration(finalStatus.error || 'Generation failed');
           setJobStatus(finalStatus);
         }
       } else {
         // No job ID or image URL - something went wrong
-        setGenerationError(response.message || 'Failed to start generation');
+        failGeneration(response.message || 'Failed to start generation');
       }
     } catch (error) {
       console.error('❌ Error generating on-model photos:', error);
@@ -77,22 +84,26 @@ export function useOnModelGeneration(): UseOnModelGenerationResult {
           available: error.creditsAvailable,
           required: error.creditsRequired,
         });
-        // Don't set generic error when we have insufficient credits
+        failGeneration(''); // Clear generating state
       } else {
-        setGenerationError(error instanceof Error ? error.message : 'An error occurred');
+        failGeneration(error instanceof Error ? error.message : 'An error occurred');
       }
-    } finally {
-      setIsGenerating(false);
     }
-  }, []);
+  }, [startGeneration, completeGeneration, failGeneration]);
 
   const resetGeneration = useCallback(() => {
-    setIsGenerating(false);
-    setGenerationError(null);
-    setGeneratedImageUrl(null);
+    resetStore();
     setJobStatus(null);
     setInsufficientCredits(null);
-  }, []);
+  }, [resetStore]);
+
+  const setGeneratedImageUrl = useCallback((url: string | null) => {
+    if (url) {
+      completeGeneration(url);
+    } else {
+      resetStore();
+    }
+  }, [completeGeneration, resetStore]);
 
   return {
     isGenerating,

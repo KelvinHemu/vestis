@@ -53,7 +53,6 @@ export function OnModelPhotos() {
   // Local (non-persisted) state
   const [selectedModel, setSelectedModel] = useState<Model | null>(null);
   const [selectedBackground, setSelectedBackground] = useState<Background | null>(null);
-  const [isLocalGenerating, setIsLocalGenerating] = useState(false);
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
   // Cache invalidation hooks
@@ -74,8 +73,13 @@ export function OnModelPhotos() {
   useEffect(() => {
     if (generatedImageUrl) {
       setStoredGeneratedImageUrl(generatedImageUrl);
+      setIsEditMode(true);
+      setPrompt('');
+      // Invalidate caches to show new generation in history
+      invalidateGenerations();
+      invalidateOnModel();
     }
-  }, [generatedImageUrl, setStoredGeneratedImageUrl]);
+  }, [generatedImageUrl]);
 
   // Restore generated image from store on mount
   useEffect(() => {
@@ -159,7 +163,7 @@ export function OnModelPhotos() {
 
   const handleGenerateImage = async () => {
     // Prevent double submission
-    if (isLocalGenerating || isGenerating) {
+    if (isGenerating) {
       console.log('⏳ Generation already in progress, ignoring duplicate request');
       return;
     }
@@ -173,8 +177,6 @@ export function OnModelPhotos() {
     if (generatedImageUrl) {
       setGenerationHistory(prev => [...prev, generatedImageUrl]);
     }
-
-    setIsLocalGenerating(true);
 
     try {
       // If we're in edit mode and have a prompt, use chat service for editing
@@ -192,7 +194,6 @@ export function OnModelPhotos() {
         } else {
           throw new Error(response.message || 'Image editing failed');
         }
-        setIsLocalGenerating(false);
         return;
       }
 
@@ -224,19 +225,9 @@ export function OnModelPhotos() {
       });
       
       await generateOnModel(request);
-      
-      // Enable edit mode and clear prompt after generation
-      setIsEditMode(true);
-      setPrompt('');
-      
-      // Invalidate caches to show new generation in history
-      invalidateGenerations();
-      invalidateOnModel();
     } catch (error) {
       console.error('Error in handleGenerateImage:', error);
       // Error handling is done in the hook or chat service
-    } finally {
-      setIsLocalGenerating(false);
     }
   };
 
@@ -303,7 +294,7 @@ export function OnModelPhotos() {
           </div>
         );
       case 3:
-        const isLoading = isGenerating || isLocalGenerating;
+        const isLoading = isGenerating;
         return (
           <div className="space-y-6">
             <div className="flex flex-col items-center justify-center min-h-[400px] w-full gap-6">
@@ -511,7 +502,7 @@ export function OnModelPhotos() {
           </div>
           
           {/* Floating Input Bar - Only visible on step 3 (Preview & Generate) and not while generating */}
-          {currentStep === 3 && !isGenerating && !isLocalGenerating && (
+          {currentStep === 3 && !isGenerating && (
             <FloatingPromptInput
               value={prompt}
               onChange={setPrompt}

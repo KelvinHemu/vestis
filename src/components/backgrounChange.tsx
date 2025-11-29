@@ -72,8 +72,13 @@ export function BackgroundChange() {
   useEffect(() => {
     if (generatedImageUrl) {
       setStoredGeneratedImageUrl(generatedImageUrl);
+      setIsEditMode(true);
+      setAdditionalInfo('');
+      // Invalidate caches to show new generation in history
+      invalidateGenerations();
+      invalidateBackgroundChangeCache();
     }
-  }, [generatedImageUrl, setStoredGeneratedImageUrl]);
+  }, [generatedImageUrl]);
 
   // Restore generated image from store on mount
   useEffect(() => {

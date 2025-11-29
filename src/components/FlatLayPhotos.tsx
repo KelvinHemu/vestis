@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MainContent } from './MainContent';
 import { Steps } from './Steps';
 import { ProductSelector } from './ProductSelector';
@@ -16,6 +16,7 @@ import { InsufficientCreditsError } from '../types/errors';
 import { useInvalidateGenerations } from '../hooks/useGenerations';
 import { useInvalidateFlatLay } from '../hooks/useFlatLay';
 import { useFlatLayStore } from '../contexts/featureStores';
+import { useFeatureGeneration } from '../contexts/generationStore';
 import type { ProductImage } from '../types/flatlay';
 import { RotateCw } from 'lucide-react';
 import AspectRatio from './aspectRatio';
@@ -59,11 +60,39 @@ export function FlatLayPhotos() {
     setResolution,
   } = useFlatLayStore();
   
+  // Generation state from global store (persists across navigation)
+  const {
+    isGenerating,
+    error: generationStoreError,
+    generatedImageUrl: newGeneratedImageUrl,
+    startGeneration,
+    completeGeneration,
+    failGeneration,
+  } = useFeatureGeneration('flatlay');
+  
   // Local (non-persisted) state for transient UI states
-  const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [insufficientCredits, setInsufficientCredits] = useState<{ available: number; required: number } | null>(null);
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+
+  // Sync generation store error with local error state
+  useEffect(() => {
+    if (generationStoreError) {
+      setGenerationError(generationStoreError);
+    }
+  }, [generationStoreError]);
+
+  // When generation completes in background, update the persisted state
+  useEffect(() => {
+    if (newGeneratedImageUrl && newGeneratedImageUrl !== generatedImageUrl) {
+      setGeneratedImageUrl(newGeneratedImageUrl);
+      setIsEditMode(true);
+      setAdditionalInfo('');
+      // Invalidate caches to show new generation in history
+      invalidateGenerations();
+      invalidateFlatLay();
+    }
+  }, [newGeneratedImageUrl]);
 
   // Cache invalidation hooks
   const invalidateGenerations = useInvalidateGenerations();
@@ -163,7 +192,8 @@ export function FlatLayPhotos() {
       setGenerationHistory(prev => [...prev, generatedImageUrl]);
     }
 
-    setIsGenerating(true);
+    // Start generation in global store (persists across navigation)
+    startGeneration();
     setGenerationError(null);
 
     try {
@@ -177,12 +207,10 @@ export function FlatLayPhotos() {
 
         // Chat service returns completed images directly, no need to poll
         if (response.imageUrl) {
-          setGeneratedImageUrl(response.imageUrl);
-          setAdditionalInfo('');
+          completeGeneration(response.imageUrl);
         } else {
           throw new Error(response.message || 'Image editing failed');
         }
-        setIsGenerating(false);
         return;
       }
 
@@ -231,8 +259,7 @@ export function FlatLayPhotos() {
 
       // Validate we have at least one product with at least one image
       if (products.length === 0) {
-        setGenerationError('Please upload at least one product image');
-        setIsGenerating(false);
+        failGeneration('Please upload at least one product image');
         return;
       }
 
@@ -267,23 +294,13 @@ export function FlatLayPhotos() {
           );
 
           if (finalStatus.status === 'completed' && finalStatus.imageUrl) {
-            setGeneratedImageUrl(finalStatus.imageUrl);
-            setIsEditMode(true);
-            setAdditionalInfo('');
-            // Invalidate caches to show new generation in history
-            invalidateGenerations();
-            invalidateFlatLay();
+            completeGeneration(finalStatus.imageUrl);
           } else {
             throw new Error(finalStatus.error || 'Image generation failed');
           }
         } else if (response.imageUrl) {
           // Immediate response with image URL
-          setGeneratedImageUrl(response.imageUrl);
-          setIsEditMode(true);
-          setAdditionalInfo('');
-          // Invalidate caches to show new generation in history
-          invalidateGenerations();
-          invalidateFlatLay();
+          completeGeneration(response.imageUrl);
         }
       } else {
         throw new Error(response.message || 'Image generation failed');
@@ -297,14 +314,11 @@ export function FlatLayPhotos() {
           available: error.creditsAvailable,
           required: error.creditsRequired,
         });
-        setGenerationError(null);
+        failGeneration('');  // Clear generating state but don't show error (dialog will show)
       } else {
-        setGenerationError(
-          error instanceof Error ? error.message : 'Failed to generate image'
-        );
+        const errorMessage = error instanceof Error ? error.message : 'Failed to generate image';
+        failGeneration(errorMessage);
       }
-    } finally {
-      setIsGenerating(false);
     }
   };
 
