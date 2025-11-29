@@ -58,6 +58,7 @@ export function FlatLayPhotos() {
     setGenerationHistory,
     setAspectRatio,
     setResolution,
+    resetFlatLay,
   } = useFlatLayStore();
   
   // Generation state from global store (persists across navigation)
@@ -68,7 +69,15 @@ export function FlatLayPhotos() {
     startGeneration,
     completeGeneration,
     failGeneration,
+    resetGeneration,
   } = useFeatureGeneration('flatlay');
+
+  // Handle Start Over - reset all state
+  const handleStartOver = () => {
+    resetFlatLay();
+    resetGeneration();
+    setGenerationError(null);
+  };
   
   // Local (non-persisted) state for transient UI states
   const [generationError, setGenerationError] = useState<string | null>(null);
@@ -389,27 +398,37 @@ export function FlatLayPhotos() {
                   <div className="custom-loader"></div>
                 </div>
               ) : generatedImageUrl ? (
-                <div 
-                  className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px]" 
-                  style={{ 
-                    aspectRatio: getAspectRatioValue(aspectRatio)
-                  }}
-                  onDoubleClick={() => setIsFullscreenOpen(true)}
-                >
-                  <img 
-                    src={generatedImageUrl} 
-                    alt="Generated Flatlay" 
-                    className="w-full h-full object-cover"
-                  />
+                <>
+                  {/* Start Over button */}
+                  <button
+                    onClick={handleStartOver}
+                    className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors text-sm sm:text-base"
+                  >
+                    Start Over
+                  </button>
                   
-                  {/* Image Feedback Actions */}
-                  <ImageFeedbackActions
-                    onUndo={handleUndoEdit}
-                    onThumbsUp={() => console.log('Thumbs up')}
-                    onThumbsDown={() => console.log('Thumbs down')}
-                    showUndo={generationHistory.length > 0}
-                  />
-                </div>
+                  <div 
+                    className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px]" 
+                    style={{ 
+                      aspectRatio: getAspectRatioValue(aspectRatio)
+                    }}
+                    onDoubleClick={() => setIsFullscreenOpen(true)}
+                  >
+                    <img 
+                      src={generatedImageUrl} 
+                      alt="Generated Flatlay" 
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    {/* Image Feedback Actions */}
+                    <ImageFeedbackActions
+                      onUndo={handleUndoEdit}
+                      onThumbsUp={() => console.log('Thumbs up')}
+                      onThumbsDown={() => console.log('Thumbs down')}
+                      showUndo={generationHistory.length > 0}
+                    />
+                  </div>
+                </>
               ) : (
                 <div className="text-center space-y-4">
                   <h2 className="text-3xl font-semibold text-gray-900">Ready to Create</h2>
@@ -537,7 +556,7 @@ export function FlatLayPhotos() {
             />
           </div>
 
-          {/* Show Download button after image is generated */}
+          {/* Show Download and Regenerate buttons after image is generated */}
           {currentStep === 3 && generatedImageUrl && (
             <div className="flex gap-2">
               <button

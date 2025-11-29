@@ -58,6 +58,7 @@ export function MannequinPhotos() {
     setGenerationHistory,
     setAspectRatio,
     setResolution,
+    resetMannequin,
   } = useMannequinStore();
   
   // Generation state from global store (persists across navigation)
@@ -68,7 +69,15 @@ export function MannequinPhotos() {
     startGeneration,
     completeGeneration,
     failGeneration,
+    resetGeneration,
   } = useFeatureGeneration('mannequin');
+
+  // Handle Start Over - reset all state
+  const handleStartOver = () => {
+    resetMannequin();
+    resetGeneration();
+    setGenerationError(null);
+  };
   
   // Local (non-persisted) state for transient UI states
   const [generationError, setGenerationError] = useState<string | null>(null);
@@ -532,20 +541,27 @@ export function MannequinPhotos() {
             />
           </div>
 
-          {/* Show Download button after image is generated */}
+          {/* Show Download and Start Over buttons after image is generated */}
           {currentStep === 3 && generatedImageUrl && (
-            <div className="flex gap-2">
+            <>
               <button
-                onClick={() => {
-                  const link = document.createElement('a');
-                  link.href = generatedImageUrl;
-                  link.download = 'mannequin-image.png';
-                  link.click();
-                }}
-                className="flex-1 bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                onClick={handleStartOver}
+                className="w-full px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors text-sm"
               >
-                Download
+                Start Over
               </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = generatedImageUrl;
+                    link.download = 'mannequin-image.png';
+                    link.click();
+                  }}
+                  className="flex-1 bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                >
+                  Download
+                </button>
               <button
                 onClick={async () => {
                   setGeneratedImageUrl(null);
@@ -558,7 +574,8 @@ export function MannequinPhotos() {
               >
                 <RotateCw className={`w-5 h-5 ${isGenerating ? 'animate-spin' : ''}`} />
               </button>
-            </div>
+              </div>
+            </>
           )}
 
           {/* Show action button - hide only after image is generated */}

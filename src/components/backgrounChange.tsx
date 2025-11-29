@@ -42,6 +42,7 @@ export function BackgroundChange() {
     setAspectRatio,
     setResolution,
     setGeneratedImageUrl: setStoredGeneratedImageUrl,
+    resetBackgroundChange,
   } = useBackgroundChangeStore();
   
   // Local (non-persisted) state
@@ -67,6 +68,12 @@ export function BackgroundChange() {
     setGeneratedImageUrl,
     insufficientCredits,
   } = useBackgroundChange();
+
+  // Handle Start Over - reset all state
+  const handleStartOver = () => {
+    resetBackgroundChange();
+    resetGeneration();
+  };
 
   // Sync generated image with store for persistence
   useEffect(() => {
@@ -282,33 +289,41 @@ export function BackgroundChange() {
             />
           </div>
 
-          {/* Show Download button after image is generated */}
+          {/* Show Download and Start Over buttons after image is generated */}
           {currentStep === 2 && generatedImageUrl && (
-          <div className="flex gap-2">
-            <button
-              onClick={() => {
-                const link = document.createElement('a');
-                link.href = generatedImageUrl;
-                link.download = 'background-change.png';
-                link.click();
-              }}
-              className="flex-1 bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
-            >
-              Download
-            </button>
-            <button
-              onClick={async () => {
-                resetGeneration();
-                await handleGenerateImage();
-              }}
-              disabled={isGenerating}
-              className="px-3 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Regenerate Image"
-            >
-              <RotateCw className={`w-5 h-5 ${isGenerating ? 'animate-spin' : ''}`} />
-            </button>
-          </div>
-        )}
+            <>
+              <button
+                onClick={handleStartOver}
+                className="w-full px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors text-sm"
+              >
+                Start Over
+              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = generatedImageUrl;
+                    link.download = 'background-change.png';
+                    link.click();
+                  }}
+                  className="flex-1 bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                >
+                  Download
+                </button>
+                <button
+                  onClick={async () => {
+                    resetGeneration();
+                    await handleGenerateImage();
+                  }}
+                  disabled={isGenerating}
+                  className="px-3 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Regenerate Image"
+                >
+                  <RotateCw className={`w-5 h-5 ${isGenerating ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
+            </>
+          )}
 
         {/* Show action button - hide only after image is generated */}
         {!(currentStep === 2 && generatedImageUrl) && (

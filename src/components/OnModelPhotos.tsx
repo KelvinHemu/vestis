@@ -48,6 +48,7 @@ export function OnModelPhotos() {
     setAspectRatio,
     setResolution,
     setGeneratedImageUrl: setStoredGeneratedImageUrl,
+    resetOnModel,
   } = useOnModelStore();
   
   // Local (non-persisted) state
@@ -68,6 +69,12 @@ export function OnModelPhotos() {
     setGeneratedImageUrl,
     insufficientCredits,
   } = useOnModelGeneration();
+
+  // Handle Start Over - reset all state
+  const handleStartOver = () => {
+    resetOnModel();
+    resetGeneration();
+  };
 
   // Sync generated image with store for persistence
   useEffect(() => {
@@ -337,25 +344,35 @@ export function OnModelPhotos() {
                   </div>
                 </div>
               ) : generatedImageUrl ? (
-                <div 
-                  className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px]" 
-                  style={{ aspectRatio: getAspectRatioValue(aspectRatio) }}
-                  onDoubleClick={() => setIsFullscreenOpen(true)}
-                >
-                  <img
-                    src={generatedImageUrl}
-                    alt="Generated on-model"
-                    className="w-full h-full object-cover"
-                  />
+                <>
+                  {/* Start Over button */}
+                  <button
+                    onClick={handleStartOver}
+                    className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors text-sm sm:text-base"
+                  >
+                    Start Over
+                  </button>
                   
-                  {/* Image Feedback Actions */}
-                  <ImageFeedbackActions
-                    onUndo={handleUndoEdit}
-                    onThumbsUp={() => console.log('Thumbs up')}
-                    onThumbsDown={() => console.log('Thumbs down')}
-                    showUndo={generationHistory.length > 0}
-                  />
-                </div>
+                  <div 
+                    className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px]" 
+                    style={{ aspectRatio: getAspectRatioValue(aspectRatio) }}
+                    onDoubleClick={() => setIsFullscreenOpen(true)}
+                  >
+                    <img
+                      src={generatedImageUrl}
+                      alt="Generated on-model"
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    {/* Image Feedback Actions */}
+                    <ImageFeedbackActions
+                      onUndo={handleUndoEdit}
+                      onThumbsUp={() => console.log('Thumbs up')}
+                      onThumbsDown={() => console.log('Thumbs down')}
+                      showUndo={generationHistory.length > 0}
+                    />
+                  </div>
+                </>
               ) : (
                 <div className="text-center">
                   <p className="text-gray-600 mb-4">Review your selections and generate your on-model photos</p>
@@ -402,7 +419,7 @@ export function OnModelPhotos() {
             />
           </div>
 
-          {/* Show Download button after image is generated */}
+          {/* Show Download and Regenerate buttons after image is generated */}
           {currentStep === 3 && generatedImageUrl && (
             <div className="flex gap-2">
               <button
