@@ -267,10 +267,10 @@ export const CreatePage: React.FC = () => {
       ) : uploadedImages.length > 0 ? (
         <UploadedImagesGrid images={uploadedImages} onRemoveImage={handleRemoveImage} />
       ) : (
-        <div className="container mx-auto px-2 py-3 sm:p-4 md:p-8 pb-28 sm:pb-32">
+        <div className="container mx-auto px-3 py-4 sm:p-4 md:p-8 pb-24 sm:pb-32">
           <div className="max-w-7xl mx-auto">
-            {/* Feature Cards Grid - 2 columns on mobile for compact view */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+            {/* Feature Cards Grid - Single column on mobile, 2 on tablet, 4 on desktop */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
               {features.map((feature) => (
                 <FeatureCard key={feature.id} feature={feature} />
               ))}
@@ -280,8 +280,8 @@ export const CreatePage: React.FC = () => {
       )}
       
       {/* Fixed FloatingAskBar at bottom - responsive positioning */}
-      <div className="fixed bottom-0 left-0 sm:left-16 right-0 px-3 py-4 sm:p-6 bg-gradient-to-t from-gray-100 via-gray-100 to-transparent pointer-events-none z-20">
-        <div className="max-w-3xl mx-auto pointer-events-auto">
+      <div className="fixed bottom-0 left-20 right-0 px-3 py-3 sm:px-6 sm:py-4 bg-gradient-to-t from-gray-100 via-gray-100/95 to-transparent pointer-events-none z-20">
+        <div className="w-full max-w-3xl mx-auto pointer-events-auto">
           <FloatingAskBar 
             onFilesSelected={handleFilesSelected} 
             onSubmit={handleChatSubmit}

@@ -10,6 +10,7 @@ import { RotateCw } from 'lucide-react';
 import { FloatingPromptInput } from './FloatingPromptInput';
 import { ImageFeedbackActions } from './ImageFeedbackActions';
 import { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';
+import { FullscreenImageViewer } from './ui/FullscreenImageViewer';
 import { mannequinService } from '../services/mannequinService';
 import { chatService } from '../services/chatService';
 import { InsufficientCreditsError } from '../types/errors';
@@ -43,6 +44,7 @@ export function MannequinPhotos() {
   const [generationHistory, setGenerationHistory] = useState<string[]>([]);
   const [aspectRatio, setAspectRatio] = useState<AspectRatioValue>('auto');
   const [resolution, setResolution] = useState<ResolutionValue>('2K');
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
   const handleFileUpload = (index: number, file: File | null) => {
     console.log('handleFileUpload called with index:', index, 'file:', file);
@@ -342,10 +344,11 @@ export function MannequinPhotos() {
               ) : generatedImageUrl ? (
                 <>
                   <div 
-                    className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px] mx-auto" 
+                    className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px] mx-auto cursor-pointer" 
                     style={{ 
                       aspectRatio: getAspectRatioValue(aspectRatio)
                     }}
+                    onDoubleClick={() => setIsFullscreenOpen(true)}
                   >
                     <img 
                       src={generatedImageUrl} 
@@ -539,6 +542,21 @@ export function MannequinPhotos() {
         creditsAvailable={insufficientCredits?.available || 0}
         creditsRequired={insufficientCredits?.required || 1}
       />
+
+      {/* Fullscreen Image Viewer */}
+      {generatedImageUrl && (
+        <FullscreenImageViewer
+          isOpen={isFullscreenOpen}
+          imageUrl={generatedImageUrl}
+          onClose={() => setIsFullscreenOpen(false)}
+          onDownload={() => {
+            const link = document.createElement('a');
+            link.href = generatedImageUrl;
+            link.download = 'mannequin-photo.png';
+            link.click();
+          }}
+        />
+      )}
       
       {/* Content Area with Left and Right Sections */}
       <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 overflow-hidden">

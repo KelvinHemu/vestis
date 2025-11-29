@@ -67,7 +67,7 @@ export const FloatingAskBar: React.FC<FloatingAskBarProps> = ({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full px-1 sm:px-0">
       <div className={`
         bg-white rounded-full shadow-lg border-[0.5px] border-gray-200
         transition-all duration-300
