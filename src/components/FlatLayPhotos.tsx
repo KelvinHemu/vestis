@@ -566,9 +566,9 @@ export function FlatLayPhotos() {
       )}
       
       {/* Content Area with Left and Right Sections */}
-      <div className="flex gap-0 h-full border-2 border-gray-300">
-        {/* Left Component - 3/4 width */}
-        <div className="flex-1 bg-white border-r-2 border-gray-300 m-0 overflow-y-auto relative">
+      <div className="flex flex-col lg:flex-row gap-0 h-full border-2 border-gray-300 overflow-hidden">
+        {/* Left Component - 3/4 width on desktop, full width on mobile */}
+        <div className="flex-1 bg-white lg:border-r-2 border-gray-300 m-0 overflow-y-auto relative min-h-0">
           <div className="border-b-2 border-gray-300">
             <Steps 
               steps={steps} 
@@ -592,8 +592,8 @@ export function FlatLayPhotos() {
           )}
         </div>
         
-        {/* Right Component - 1/4 width */}
-        <div className="w-full md:w-1/4 bg-white p-6 m-0 overflow-y-auto flex flex-col justify-end">
+        {/* Right Component - 1/4 width on desktop, collapsible on mobile */}
+        <div className="w-full lg:w-80 xl:w-96 bg-white p-4 sm:p-6 m-0 overflow-y-auto flex flex-col border-t-2 lg:border-t-0 border-gray-300 shrink-0">
           {renderRightPanel()}
         </div>
       </div>

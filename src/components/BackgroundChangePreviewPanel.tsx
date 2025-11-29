@@ -10,11 +10,11 @@ export function BackgroundChangePreviewPanel({
   selectedBackground,
 }: BackgroundChangePreviewPanelProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h3 className="text-sm font-medium text-gray-700 mb-3">Selected Photos</h3>
+        <h3 className="text-sm font-medium text-gray-700 mb-2 sm:mb-3">Selected Photos</h3>
         {photos.length > 0 ? (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
             {photos.slice(0, 4).map((photo, index) => (
               <div
                 key={index}
@@ -55,7 +55,7 @@ export function BackgroundChangePreviewPanel({
       </div>
 
       <div>
-        <h3 className="text-sm font-medium text-gray-700 mb-3">Selected Background</h3>
+        <h3 className="text-sm font-medium text-gray-700 mb-2 sm:mb-3">Selected Background</h3>
         {selectedBackground ? (
           <div className="rounded-lg overflow-hidden bg-gray-100">
             <img
@@ -64,9 +64,9 @@ export function BackgroundChangePreviewPanel({
               className="w-full h-auto object-cover"
               style={{ aspectRatio: '16/9' }}
             />
-            <div className="p-3 bg-white">
-              <p className="text-sm font-medium text-gray-900">{selectedBackground.name}</p>
-              <p className="text-xs text-gray-500 capitalize">{selectedBackground.category}</p>
+            <div className="p-2 sm:p-3 bg-white">
+              <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">{selectedBackground.name}</p>
+              <p className="text-xs text-gray-500 capitalize truncate">{selectedBackground.category}</p>
             </div>
           </div>
         ) : (

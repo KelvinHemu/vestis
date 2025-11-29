@@ -17,10 +17,10 @@ export function FlatLayPreviewPanel({
 
   return (
     <div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
         Preview
       </h3>
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {selectionType.length > 0 ? (
           <>
             {/* Show Full Body card when both are selected */}
