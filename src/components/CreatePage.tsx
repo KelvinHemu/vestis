@@ -175,7 +175,7 @@ export const CreatePage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen pb-28">
+    <div className="relative min-h-screen pb-32 sm:pb-28">
       {/* Insufficient Credits Dialog */}
       <InsufficientCreditsDialog
         isOpen={showInsufficientCreditsDialog}
@@ -196,41 +196,44 @@ export const CreatePage: React.FC = () => {
       )}
       
       {isGenerating ? (
-        <div className="flex items-center justify-center min-h-[calc(100vh-12rem)] p-8">
+        <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-12rem)] p-4 sm:p-8">
           <LoadingSpinner/>
         </div>
       ) : generatedImage ? (
-        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-12rem)] p-8 gap-6">
-          {/* Start Over button centered at top */}
-          <button
-            onClick={handleStartOver}
-            className="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors"
-          >
-            Start Over
-          </button>
-          
-          {/* Download and Share buttons - absolute positioned top right */}
-          <div className="fixed top-8 right-8 flex gap-2 z-10">
+        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-12rem)] px-4 py-6 sm:p-8 gap-4 sm:gap-6">
+          {/* Action buttons row - responsive layout */}
+          <div className="flex items-center justify-between w-full max-w-md sm:max-w-none sm:justify-center gap-2 sm:gap-4">
+            {/* Start Over button */}
             <button
-              onClick={handleDownload}
-              className="p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-all shadow-sm"
-              title="Download image"
+              onClick={handleStartOver}
+              className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors text-sm sm:text-base"
             >
-              <Download className="h-5 w-5" />
+              Start Over
             </button>
             
-            <button
-              onClick={handleShare}
-              className="p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-all shadow-sm"
-              title="Share image"
-            >
-              <Share2 className="h-5 w-5" />
-            </button>
+            {/* Download and Share buttons - inline on mobile, fixed on desktop */}
+            <div className="flex gap-2 sm:fixed sm:top-8 sm:right-8 sm:z-10">
+              <button
+                onClick={handleDownload}
+                className="p-2 sm:p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-all shadow-sm"
+                title="Download image"
+              >
+                <Download className="h-4 w-4 sm:h-5 sm:w-5" />
+              </button>
+              
+              <button
+                onClick={handleShare}
+                className="p-2 sm:p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-all shadow-sm"
+                title="Share image"
+              >
+                <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
+              </button>
+            </div>
           </div>
           
           <div 
-            className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer" 
-            style={{ width: '380px', aspectRatio: '3/4' }}
+            className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px]" 
+            style={{ aspectRatio: '3/4' }}
             onDoubleClick={handleImageDoubleClick}
           >
             <img 
@@ -244,7 +247,7 @@ export const CreatePage: React.FC = () => {
           {generationHistory.length > 0 && (
             <button
               onClick={handleUndoEdit}
-              className="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors flex items-center gap-2"
+              className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors flex items-center gap-2 text-sm sm:text-base"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
@@ -255,19 +258,19 @@ export const CreatePage: React.FC = () => {
           
         </div>
       ) : error ? (
-        <div className="flex items-center justify-center min-h-[calc(100vh-12rem)] p-8">
-          <div className="text-center">
-            <p className="text-red-600 font-medium mb-2">Generation Failed</p>
-            <p className="text-gray-600 text-sm">{error}</p>
+        <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-12rem)] p-4 sm:p-8">
+          <div className="text-center px-4">
+            <p className="text-red-600 font-medium mb-2 text-sm sm:text-base">Generation Failed</p>
+            <p className="text-gray-600 text-xs sm:text-sm">{error}</p>
           </div>
         </div>
       ) : uploadedImages.length > 0 ? (
         <UploadedImagesGrid images={uploadedImages} onRemoveImage={handleRemoveImage} />
       ) : (
-        <div className="container mx-auto p-4 md:p-8 pb-32">
+        <div className="container mx-auto px-2 py-3 sm:p-4 md:p-8 pb-28 sm:pb-32">
           <div className="max-w-7xl mx-auto">
-            {/* Feature Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Feature Cards Grid - 2 columns on mobile for compact view */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
               {features.map((feature) => (
                 <FeatureCard key={feature.id} feature={feature} />
               ))}
@@ -276,8 +279,8 @@ export const CreatePage: React.FC = () => {
         </div>
       )}
       
-      {/* Fixed FloatingAskBar at bottom */}
-      <div className="fixed bottom-0 left-16 right-0 p-6 bg-gradient-to-t from-gray-100 via-gray-100 to-transparent pointer-events-none">
+      {/* Fixed FloatingAskBar at bottom - responsive positioning */}
+      <div className="fixed bottom-0 left-0 sm:left-16 right-0 px-3 py-4 sm:p-6 bg-gradient-to-t from-gray-100 via-gray-100 to-transparent pointer-events-none z-20">
         <div className="max-w-3xl mx-auto pointer-events-auto">
           <FloatingAskBar 
             onFilesSelected={handleFilesSelected} 

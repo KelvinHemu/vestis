@@ -73,7 +73,7 @@ export function MannequinSelector({
         />
       </div>
 
-      <div className="flex gap-8 justify-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 w-full">
         {/* Mannequin photo cards */}
         {[
           { 
@@ -97,10 +97,9 @@ export function MannequinSelector({
         ].map((item) => (
           <div 
             key={item.id} 
-            className="rounded-2xl p-8 shadow-sm relative flex items-center justify-center" 
+            className="rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm relative flex items-center justify-center w-full max-w-[550px] mx-auto md:mx-0" 
             style={{ 
-              aspectRatio: '16/9', 
-              width: '550px',
+              aspectRatio: '16/9',
               backgroundColor: '#e5e7eb'
             }}
           >

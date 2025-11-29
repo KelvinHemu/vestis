@@ -66,8 +66,8 @@ export function BackgroundChangePreview({
         ) : generatedImageUrl ? (
           <>
             <div 
-              className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer" 
-              style={{ width: '380px', aspectRatio }}
+              className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px]" 
+              style={{ aspectRatio }}
               onDoubleClick={onImageDoubleClick}
             >
               <img

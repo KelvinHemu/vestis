@@ -347,9 +347,8 @@ export function FlatLayPhotos() {
                 </div>
               ) : generatedImageUrl ? (
                 <div 
-                  className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer" 
+                  className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px]" 
                   style={{ 
-                    width: '380px', 
                     aspectRatio: getAspectRatioValue(aspectRatio)
                   }}
                   onDoubleClick={() => setIsFullscreenOpen(true)}
@@ -465,18 +464,20 @@ export function FlatLayPhotos() {
 
     return (
       <div className="flex flex-col h-full">
-        {/* Preview section at the top */}
-        <FlatLayPreviewPanel
-          selectionType={selectionType}
-          topImages={topImages}
-          bottomImages={bottomImages}
-        />
+        {/* Preview section - hidden on phone only */}
+        <div className="hidden md:block">
+          <FlatLayPreviewPanel
+            selectionType={selectionType}
+            topImages={topImages}
+            bottomImages={bottomImages}
+          />
+        </div>
         
         {/* Spacer to push content to bottom */}
         <div className="flex-1"></div>
         
         {/* Selected Items and Button at the bottom */}
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {/* Aspect Ratio Selector */}
           <div>
             <AspectRatio
@@ -566,9 +567,9 @@ export function FlatLayPhotos() {
       )}
       
       {/* Content Area with Left and Right Sections */}
-      <div className="flex flex-col lg:flex-row gap-0 h-full border-2 border-gray-300 overflow-hidden">
-        {/* Left Component - 3/4 width on desktop, full width on mobile */}
-        <div className="flex-1 bg-white lg:border-r-2 border-gray-300 m-0 overflow-y-auto relative min-h-0">
+      <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 overflow-hidden">
+        {/* Left Component - full width on phone, flex-1 on tablet+ */}
+        <div className="flex-1 bg-white md:border-r-2 border-gray-300 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
           <div className="border-b-2 border-gray-300">
             <Steps 
               steps={steps} 
@@ -592,8 +593,8 @@ export function FlatLayPhotos() {
           )}
         </div>
         
-        {/* Right Component - 1/4 width on desktop, collapsible on mobile */}
-        <div className="w-full lg:w-80 xl:w-96 bg-white p-4 sm:p-6 m-0 overflow-y-auto flex flex-col border-t-2 lg:border-t-0 border-gray-300 shrink-0">
+        {/* Right Component - fixed bottom bar on phone, sidebar on tablet+ */}
+        <div className="fixed bottom-0 left-0 right-0 md:static md:w-80 lg:w-96 bg-white p-4 sm:p-6 m-0 md:overflow-y-auto flex flex-col border-t-2 md:border-t-0 border-gray-300 shrink-0 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none">
           {renderRightPanel()}
         </div>
       </div>

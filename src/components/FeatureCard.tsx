@@ -19,12 +19,12 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({ feature }) => {
 
   return (
     <Card 
-      className="group cursor-pointer transition-all duration-300 hover:shadow-xl border border-gray-200 rounded-2xl overflow-hidden bg-white h-40"
+      className="group cursor-pointer transition-all duration-300 hover:shadow-xl border border-gray-200 rounded-xl sm:rounded-2xl overflow-hidden bg-white"
       onClick={() => navigate(feature.path)}
     >
-      <div className="flex items-center h-full gap-3 p-3">
-        {/* Image Container - Left Side - Square */}
-        <div className="flex-shrink-0 w-32 h-32 rounded-xl overflow-hidden bg-gradient-to-br from-orange-200 via-yellow-100 to-green-200">
+      <div className="flex items-center h-full gap-2 sm:gap-3 p-1.5 sm:p-3">
+        {/* Image Container - Left Side - Much smaller on mobile */}
+        <div className="flex-shrink-0 w-16 h-16 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-lg sm:rounded-xl overflow-hidden bg-gradient-to-br from-orange-200 via-yellow-100 to-green-200">
           {feature.backgroundImage ? (
             <img 
               src={feature.backgroundImage} 
@@ -37,12 +37,12 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({ feature }) => {
         </div>
 
         {/* Content Container - Right Side */}
-        <div className="flex-1 flex flex-col justify-center">
-          <h3 className="text-base font-semibold text-gray-900 mb-1">
+        <div className="flex-1 flex flex-col justify-center min-w-0 pr-1">
+          <h3 className="text-xs sm:text-sm md:text-base font-semibold text-gray-900 mb-0.5 line-clamp-1 sm:line-clamp-2">
             {feature.title}
           </h3>
           
-          <p className="text-xs text-gray-600 leading-relaxed">
+          <p className="text-[10px] sm:text-xs text-gray-600 leading-snug line-clamp-2">
             {feature.description}
           </p>
         </div>

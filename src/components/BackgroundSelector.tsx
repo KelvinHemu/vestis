@@ -110,7 +110,7 @@ export function BackgroundSelector({
             <p>No backgrounds available in this category.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-4 pt-4 pl-4 pb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 pt-4 pl-0 sm:pl-4 pb-4">
             {filteredBackgrounds.map((background) => {
               console.log('Rendering background:', background.name, 'Image URL:', background.url);
               return (
@@ -119,7 +119,7 @@ export function BackgroundSelector({
                   onClick={() => handleBackgroundClick(background.id)}
                   className={`relative rounded-lg overflow-hidden transition-all transform-gpu ${
                     selectedBackground === background.id
-                      ? 'ring-4 ring-black ring-offset-2'
+                      ? 'ring-2 sm:ring-4 ring-black ring-offset-1 sm:ring-offset-2'
                       : 'ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400'
                   }`}
                 >
@@ -143,17 +143,17 @@ export function BackgroundSelector({
                   </div>
                   
                   {/* Name Label */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-white bg-opacity-90 py-2 px-3 z-10">
-                    <p className="text-sm font-medium text-gray-900 text-center">
+                  <div className="absolute bottom-0 left-0 right-0 bg-white bg-opacity-90 py-1 sm:py-2 px-1.5 sm:px-3 z-10">
+                    <p className="text-xs sm:text-sm font-medium text-gray-900 text-center truncate">
                       {background.name}
                     </p>
                   </div>
                   
                   {/* Selected Checkmark */}
                   {selectedBackground === background.id && (
-                    <div className="absolute top-2 right-2 bg-black rounded-full p-1 z-10">
+                    <div className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-black rounded-full p-0.5 sm:p-1 z-10">
                       <svg
-                        className="w-4 h-4 text-white"
+                        className="w-3 h-3 sm:w-4 sm:h-4 text-white"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >

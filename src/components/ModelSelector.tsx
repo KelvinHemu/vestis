@@ -147,7 +147,7 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
 
           {/* Model Grid */}
           {!isLoading && !error && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 pt-4 pb-8 pl-2">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 md:gap-6 pt-4 pb-8 pl-0 sm:pl-2">
               {currentModels.map((model) => {
                 const mainImage = modelService.getMainImage(model) || '';
                 const ageRange = modelService.formatAgeRange(model.age_range);
