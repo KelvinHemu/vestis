@@ -8,6 +8,7 @@ interface BackgroundChangePreviewProps {
   generationHistory: string[];
   onReset: () => void;
   onUndo: () => void;
+  onStartOver: () => void;
   aspectRatio: string;
   onImageDoubleClick?: () => void;
 }
@@ -19,6 +20,7 @@ export function BackgroundChangePreview({
   generationHistory,
   onReset,
   onUndo,
+  onStartOver,
   aspectRatio,
   onImageDoubleClick,
 }: BackgroundChangePreviewProps) {
@@ -65,6 +67,14 @@ export function BackgroundChangePreview({
           </div>
         ) : generatedImageUrl ? (
           <>
+            {/* Start Over button */}
+            <button
+              onClick={onStartOver}
+              className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors text-sm sm:text-base"
+            >
+              Start Over
+            </button>
+            
             <div 
               className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px]" 
               style={{ aspectRatio }}
