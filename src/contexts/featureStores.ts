@@ -52,7 +52,7 @@ const initialFlatLayState: FlatLayState = {
   additionalInfo: '',
   isEditMode: false,
   generationHistory: [],
-  aspectRatio: 'auto',
+  aspectRatio: '3:4',
   resolution: '2K',
 };
 
@@ -86,6 +86,7 @@ export const useFlatLayStore = create<FlatLayState & FlatLayActions>()(
     }),
     {
       name: 'flatlay-storage',
+      version: 1,
       partialize: (state) => ({
         currentStep: state.currentStep,
         maxUnlockedStep: state.maxUnlockedStep,
@@ -100,6 +101,16 @@ export const useFlatLayStore = create<FlatLayState & FlatLayActions>()(
         aspectRatio: state.aspectRatio,
         resolution: state.resolution,
       }),
+      migrate: (persistedState: unknown, version: number) => {
+        const state = persistedState as FlatLayState;
+        if (version === 0) {
+          // Migrate 'auto' to '3:4' default
+          if (state.aspectRatio === 'auto' || !state.aspectRatio) {
+            state.aspectRatio = '3:4';
+          }
+        }
+        return state;
+      },
     }
   )
 );
@@ -146,7 +157,7 @@ const initialOnModelState: OnModelState = {
   prompt: '',
   isEditMode: false,
   generationHistory: [],
-  aspectRatio: 'auto',
+  aspectRatio: '3:4',
   resolution: '2K',
   generatedImageUrl: null,
 };
@@ -177,6 +188,7 @@ export const useOnModelStore = create<OnModelState & OnModelActions>()(
     }),
     {
       name: 'onmodel-storage',
+      version: 1,
       partialize: (state) => ({
         currentStep: state.currentStep,
         maxUnlockedStep: state.maxUnlockedStep,
@@ -189,6 +201,16 @@ export const useOnModelStore = create<OnModelState & OnModelActions>()(
         resolution: state.resolution,
         generatedImageUrl: state.generatedImageUrl,
       }),
+      migrate: (persistedState: unknown, version: number) => {
+        const state = persistedState as OnModelState;
+        if (version === 0) {
+          // Migrate 'auto' to '3:4' default
+          if (state.aspectRatio === 'auto' || !state.aspectRatio) {
+            state.aspectRatio = '3:4';
+          }
+        }
+        return state;
+      },
     }
   )
 );
@@ -242,7 +264,7 @@ const initialMannequinState: MannequinState = {
   additionalInfo: '',
   isEditMode: false,
   generationHistory: [],
-  aspectRatio: 'auto',
+  aspectRatio: '3:4',
   resolution: '2K',
 };
 
@@ -276,6 +298,7 @@ export const useMannequinStore = create<MannequinState & MannequinActions>()(
     }),
     {
       name: 'mannequin-storage',
+      version: 1,
       partialize: (state) => ({
         currentStep: state.currentStep,
         maxUnlockedStep: state.maxUnlockedStep,
@@ -290,6 +313,16 @@ export const useMannequinStore = create<MannequinState & MannequinActions>()(
         aspectRatio: state.aspectRatio,
         resolution: state.resolution,
       }),
+      migrate: (persistedState: unknown, version: number) => {
+        const state = persistedState as MannequinState;
+        if (version === 0) {
+          // Migrate 'auto' to '3:4' default
+          if (state.aspectRatio === 'auto' || !state.aspectRatio) {
+            state.aspectRatio = '3:4';
+          }
+        }
+        return state;
+      },
     }
   )
 );
@@ -333,7 +366,7 @@ const initialBackgroundChangeState: BackgroundChangeState = {
   additionalInfo: '',
   isEditMode: false,
   generationHistory: [],
-  aspectRatio: 'auto',
+  aspectRatio: '3:4',
   resolution: '2K',
   generatedImageUrl: null,
 };
@@ -363,6 +396,7 @@ export const useBackgroundChangeStore = create<BackgroundChangeState & Backgroun
     }),
     {
       name: 'backgroundchange-storage',
+      version: 1,
       partialize: (state) => ({
         currentStep: state.currentStep,
         maxUnlockedStep: state.maxUnlockedStep,
@@ -374,6 +408,16 @@ export const useBackgroundChangeStore = create<BackgroundChangeState & Backgroun
         resolution: state.resolution,
         generatedImageUrl: state.generatedImageUrl,
       }),
+      migrate: (persistedState: unknown, version: number) => {
+        const state = persistedState as BackgroundChangeState;
+        if (version === 0) {
+          // Migrate 'auto' to '3:4' default
+          if (state.aspectRatio === 'auto' || !state.aspectRatio) {
+            state.aspectRatio = '3:4';
+          }
+        }
+        return state;
+      },
     }
   )
 );
