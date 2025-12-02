@@ -38,3 +38,5 @@ export { FreePlanCard } from './FreePlanCard';
 export { PaymentHistory } from './PaymentHistory';
 export { PaymentProgress, PaymentSuccess, PaymentFailed } from './PaymentProgress';
 export { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';
+export { ModelProfile } from './ModelProfile';
+export { ModelsPage } from './ModelsPage';

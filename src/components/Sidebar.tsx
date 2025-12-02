@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, User, Grid, Zap, Plus, CreditCard } from 'lucide-react';
+import { Home, User, Grid, Zap, Plus, CreditCard, Users } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { useAuthStore } from '../contexts/authStore';
@@ -9,6 +9,7 @@ import type { User as UserType } from '../types/user';
 const menuItems = [
     { icon: Home, label: 'Home', path: '/dashboard', badge: null },
     { icon: Plus, label: 'Create', path: '/create', badge: null },
+    { icon: Users, label: 'Models', path: '/models', badge: null },
     { icon: Grid, label: 'Projects', path: '/projects', badge: null },
     { icon: CreditCard, label: 'Payment', path: '/payment', badge: null },
     // { icon: Image, label: 'Assets', path: '/assets', badge: null },

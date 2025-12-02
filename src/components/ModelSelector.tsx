@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ModelCard } from './model';
-import { ModelPreviewModal } from './ModelPreviewModal';
+import { useModelsByGender } from '@/hooks/useModels';
+import { useModelStore } from '@/contexts/modelStore';
 import modelService from '@/services/modelService';
 import type { Model } from '@/types/model';
 
@@ -10,90 +11,59 @@ interface ModelSelectorProps {
 }
 
 export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorProps) {
+  const navigate = useNavigate();
+
   // ============================================================================
-  // State Management
+  // State Management with Zustand & React Query
   // ============================================================================
-  const [activeCategory, setActiveCategory] = useState<'male' | 'female'>('female');
-  const [selectedModelId, setSelectedModelId] = useState<string | null>(selectedModel || null);
-  const [models, setModels] = useState<Model[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { 
+    activeCategory, 
+    setActiveCategory, 
+    selectedModelId,
+    selectModel,
+    clearSelection,
+    toggleFavorite,
+    isFavorite 
+  } = useModelStore();
   
-  // Favorite and Preview state
-  const [favoriteModelIds, setFavoriteModelIds] = useState<Set<string>>(new Set());
-  const [previewModel, setPreviewModel] = useState<Model | null>(null);
-
-  // ============================================================================
-  // Fetch Models from API
-  // ============================================================================
-  useEffect(() => {
-    const fetchModels = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const response = await modelService.getModels();
-        setModels(response.models);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load models';
-        setError(errorMessage);
-        console.error('Error fetching models:', err);
-        
-        // If it's a session expired error, the apiClient will handle redirect
-        // Otherwise show the error to the user
-        if (!errorMessage.includes('Session expired') && !errorMessage.includes('login again')) {
-          // Show user-friendly error
-          setError('Unable to load models. Please check your connection and try again.');
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchModels();
-  }, []);
+  // Use selected model from props if provided, otherwise use store
+  const effectiveSelectedId = selectedModel || selectedModelId;
+  
+  // Convert category to gender filter for the hook
+  const genderFilter = activeCategory === 'All' ? undefined : activeCategory;
+  const { data: models, isLoading, error } = useModelsByGender(genderFilter);
 
   // ============================================================================
   // Handle Model Selection
   // ============================================================================
   const handleModelSelect = (modelId: string) => {
-    setSelectedModelId(modelId);
+    selectModel(modelId);
     if (onModelSelect) {
       onModelSelect(modelId);
     }
   };
 
   // ============================================================================
-  // Handle Favorite Toggle (Visual State Only)
+  // Handle Clear Selection
   // ============================================================================
-  const handleFavoriteToggle = (modelId: string) => {
-    setFavoriteModelIds(prev => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(modelId)) {
-        newFavorites.delete(modelId);
-      } else {
-        newFavorites.add(modelId);
-      }
-      return newFavorites;
-    });
+  const handleClearSelection = () => {
+    clearSelection();
+    if (onModelSelect) {
+      onModelSelect('');
+    }
   };
 
   // ============================================================================
-  // Handle Preview Modal
+  // Handle Preview - Navigate to Model Profile Page
   // ============================================================================
   const handlePreviewOpen = (model: Model) => {
-    setPreviewModel(model);
-  };
-
-  const handlePreviewClose = () => {
-    setPreviewModel(null);
+    navigate(`/models/${model.id}`);
   };
 
   // ============================================================================
-  // Filter Models by Active Category (male/female) and Active Status
+  // Filter Models by Active Status
   // ============================================================================
-  const currentModels = models.filter(
-    model => model.gender === activeCategory && model.status === 'active'
-  );
+  const currentModels = models.filter(model => model.status === 'active');
 
   // ============================================================================
   // Render Component
@@ -133,14 +103,9 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
                 Male
               </button>
             </div>
-            {selectedModelId && (
+            {effectiveSelectedId && (
               <button
-                onClick={() => {
-                  setSelectedModelId(null);
-                  if (onModelSelect) {
-                    onModelSelect('');
-                  }
-                }}
+                onClick={handleClearSelection}
                 className="py-1.5 px-4 rounded text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all"
               >
                 Clear
@@ -170,7 +135,7 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
                 </svg>
                 <div>
                   <h3 className="text-sm font-medium text-red-800">Failed to load models</h3>
-                  <p className="text-sm text-red-700 mt-1">{error}</p>
+                  <p className="text-sm text-red-700 mt-1">{error instanceof Error ? error.message : 'Unknown error'}</p>
                 </div>
               </div>
             </div>
@@ -192,10 +157,10 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
                     age={ageRange}
                     size="Standard" // Size is not in the new API response
                     image={mainImage}
-                    isSelected={selectedModelId === modelIdStr}
-                    isFavorite={favoriteModelIds.has(modelIdStr)}
+                    isSelected={effectiveSelectedId === modelIdStr}
+                    isFavorite={isFavorite(modelIdStr)}
                     onClick={() => handleModelSelect(modelIdStr)}
-                    onFavorite={() => handleFavoriteToggle(modelIdStr)}
+                    onFavorite={() => toggleFavorite(modelIdStr)}
                     onPreview={() => handlePreviewOpen(model)}
                   />
                 );
@@ -218,17 +183,6 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
         </div>
       </div>
 
-      {/* Model Preview Modal */}
-      {previewModel && (
-        <ModelPreviewModal
-          model={previewModel}
-          isOpen={!!previewModel}
-          isFavorite={favoriteModelIds.has(previewModel.id.toString())}
-          onClose={handlePreviewClose}
-          onFavorite={() => handleFavoriteToggle(previewModel.id.toString())}
-          onSelect={() => handleModelSelect(previewModel.id.toString())}
-        />
-      )}
     </div>
   );
 }

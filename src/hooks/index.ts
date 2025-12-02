@@ -4,3 +4,4 @@ export * from './useFlatLay';
 export * from './useOnModel';
 export * from './useMannequin';
 export * from './useBackgroundChangeQuery';
+export * from './useModels';
