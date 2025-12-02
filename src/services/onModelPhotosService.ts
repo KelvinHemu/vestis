@@ -45,8 +45,8 @@ class OnModelPhotosService {
         throw new Error('Invalid request: photos array is required');
       }
 
-      if (!request.modelId || !request.backgroundId) {
-        throw new Error('Invalid request: modelId and backgroundId are required');
+      if (!request.modelId) {
+        throw new Error('Invalid request: modelId is required');
       }
 
       // Validate photos have required fields
@@ -75,7 +75,7 @@ class OnModelPhotosService {
         backgroundId: request.backgroundId,
       });
 
-      // Backend expects simple structure: { photos, modelId, backgroundId, aspectRatio, resolution }
+      // Backend expects simple structure: { photos, modelId, backgroundId (optional), aspectRatio, resolution }
       // Each photo must have id (string) and image (base64 data URI)
       const payload = {
         photos: request.photos.map(photo => ({
@@ -83,7 +83,7 @@ class OnModelPhotosService {
           image: photo.image,
         })),
         modelId: String(request.modelId), // Ensure string
-        backgroundId: String(request.backgroundId), // Ensure string
+        ...(request.backgroundId && { backgroundId: String(request.backgroundId) }), // Include only if provided
         aspectRatio: request.aspectRatio,
         resolution: request.resolution,
       };

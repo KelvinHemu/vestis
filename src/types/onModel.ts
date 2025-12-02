@@ -20,7 +20,7 @@ export interface ModelPhoto {
 export interface GenerateOnModelRequest {
   photos: ModelPhoto[];
   modelId: string;
-  backgroundId: string;
+  backgroundId?: string; // Optional - if not provided, original background is kept
   aspectRatio?: string; // e.g., 'auto', '1:1', '16:9', etc.
   resolution?: string; // e.g., '1K', '2K', '4K'
   prompt?: string; // Optional prompt for additional instructions
