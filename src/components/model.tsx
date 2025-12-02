@@ -1,4 +1,5 @@
 import { Card } from '@/components/ui/card';
+import { Heart, Eye, Check } from 'lucide-react';
 
 // ============================================================================
 // ModelCardInfo Component - Displays model metadata (name, age, size)
@@ -36,6 +37,7 @@ function ModelCardInfo({ name, age, size }: ModelCardInfoProps) {
 
 // ============================================================================
 // ModelCard Component - Main card displaying model with image and info
+// Features hover overlay with Favorite and Preview actions
 // ============================================================================
 
 interface ModelCardProps {
@@ -45,7 +47,10 @@ interface ModelCardProps {
   size: string;
   image: string;
   isSelected?: boolean;
+  isFavorite?: boolean;
   onClick?: () => void;
+  onFavorite?: () => void;
+  onPreview?: () => void;
 }
 
 export function ModelCard({ 
@@ -53,13 +58,28 @@ export function ModelCard({
   age, 
   size, 
   image, 
-  isSelected = false, 
-  onClick 
+  isSelected = false,
+  isFavorite = false,
+  onClick,
+  onFavorite,
+  onPreview
 }: ModelCardProps) {
+  // Handle favorite click - prevent card selection
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onFavorite?.();
+  };
+
+  // Handle preview click - prevent card selection
+  const handlePreviewClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onPreview?.();
+  };
+
   return (
     <Card
       onClick={onClick}
-      className={`relative cursor-pointer overflow-hidden transition-all bg-white ${
+      className={`relative cursor-pointer overflow-hidden transition-all bg-white group ${
         isSelected
           ? 'ring-2 ring-black shadow-lg'
           : 'hover:shadow-md'
@@ -78,6 +98,50 @@ export function ModelCard({
             <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
             </svg>
+          </div>
+        )}
+
+        {/* Selected Checkmark - Top Right */}
+        {isSelected && (
+          <div className="absolute top-2 right-2 z-20">
+            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center shadow-lg">
+              <Check className="w-4 h-4 text-white" strokeWidth={3} />
+            </div>
+          </div>
+        )}
+
+        {/* Hover Overlay - Hidden when selected */}
+        {!isSelected && (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+            {/* Favorite & Preview Actions - Bottom Center */}
+            <div className="absolute bottom-0 left-0 right-0 p-3">
+              <div className="flex items-center justify-center gap-6">
+                {/* Favorite Button */}
+                <button
+                  onClick={handleFavoriteClick}
+                  className="flex flex-col items-center gap-1 text-white"
+                  title="Add to favorites"
+                >
+                  <span className="text-xs font-medium">Favorite</span>
+                  <Heart 
+                    className={`w-5 h-5 hover:scale-125 transition-transform ${isFavorite ? 'fill-red-500 text-red-500' : 'hover:text-white'}`} 
+                  />
+                </button>
+
+                {/* Divider */}
+                <div className="w-px h-8 bg-white/40" />
+
+                {/* Preview Button */}
+                <button
+                  onClick={handlePreviewClick}
+                  className="flex flex-col items-center gap-1 text-white"
+                  title="Preview model"
+                >
+                  <span className="text-xs font-medium">Preview</span>
+                  <Eye className="w-5 h-5 hover:scale-125 hover:text-white transition-transform" />
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

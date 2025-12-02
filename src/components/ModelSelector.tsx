@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ModelCard } from './model';
+import { ModelPreviewModal } from './ModelPreviewModal';
 import modelService from '@/services/modelService';
 import type { Model } from '@/types/model';
 
@@ -17,6 +18,10 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
   const [models, setModels] = useState<Model[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Favorite and Preview state
+  const [favoriteModelIds, setFavoriteModelIds] = useState<Set<string>>(new Set());
+  const [previewModel, setPreviewModel] = useState<Model | null>(null);
 
   // ============================================================================
   // Fetch Models from API
@@ -55,6 +60,32 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
     if (onModelSelect) {
       onModelSelect(modelId);
     }
+  };
+
+  // ============================================================================
+  // Handle Favorite Toggle (Visual State Only)
+  // ============================================================================
+  const handleFavoriteToggle = (modelId: string) => {
+    setFavoriteModelIds(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(modelId)) {
+        newFavorites.delete(modelId);
+      } else {
+        newFavorites.add(modelId);
+      }
+      return newFavorites;
+    });
+  };
+
+  // ============================================================================
+  // Handle Preview Modal
+  // ============================================================================
+  const handlePreviewOpen = (model: Model) => {
+    setPreviewModel(model);
+  };
+
+  const handlePreviewClose = () => {
+    setPreviewModel(null);
   };
 
   // ============================================================================
@@ -151,17 +182,21 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
               {currentModels.map((model) => {
                 const mainImage = modelService.getMainImage(model) || '';
                 const ageRange = modelService.formatAgeRange(model.age_range);
+                const modelIdStr = model.id.toString();
                 
                 return (
                   <ModelCard
                     key={model.id}
-                    id={model.id.toString()}
+                    id={modelIdStr}
                     name={model.name}
                     age={ageRange}
                     size="Standard" // Size is not in the new API response
                     image={mainImage}
-                    isSelected={selectedModelId === model.id.toString()}
-                    onClick={() => handleModelSelect(model.id.toString())}
+                    isSelected={selectedModelId === modelIdStr}
+                    isFavorite={favoriteModelIds.has(modelIdStr)}
+                    onClick={() => handleModelSelect(modelIdStr)}
+                    onFavorite={() => handleFavoriteToggle(modelIdStr)}
+                    onPreview={() => handlePreviewOpen(model)}
                   />
                 );
               })}
@@ -182,6 +217,18 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
           )}
         </div>
       </div>
+
+      {/* Model Preview Modal */}
+      {previewModel && (
+        <ModelPreviewModal
+          model={previewModel}
+          isOpen={!!previewModel}
+          isFavorite={favoriteModelIds.has(previewModel.id.toString())}
+          onClose={handlePreviewClose}
+          onFavorite={() => handleFavoriteToggle(previewModel.id.toString())}
+          onSelect={() => handleModelSelect(previewModel.id.toString())}
+        />
+      )}
     </div>
   );
 }
