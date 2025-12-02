@@ -6,6 +6,7 @@ interface FloatingPromptInputProps {
   onSubmit?: () => void;
   placeholder?: string;
   maxLength?: number;
+  disabled?: boolean;
 }
 
 export function FloatingPromptInput({
@@ -13,10 +14,11 @@ export function FloatingPromptInput({
   onChange,
   onSubmit,
   placeholder = "Add more details about your image (optional)...",
-  maxLength = 500
+  maxLength = 500,
+  disabled = false
 }: FloatingPromptInputProps) {
   const handleSubmit = () => {
-    if (onSubmit) {
+    if (onSubmit && value.trim() && !disabled) {
       onSubmit();
     }
   };
@@ -34,9 +36,10 @@ export function FloatingPromptInput({
                 handleSubmit();
               }
             }}
-            placeholder={placeholder}
-            className="flex-1 bg-transparent border-none outline-none text-gray-900 placeholder-gray-400 text-base"
+            placeholder={disabled ? "Generating..." : placeholder}
+            className={`flex-1 bg-transparent border-none outline-none text-gray-900 placeholder-gray-400 text-base ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
             maxLength={maxLength}
+            disabled={disabled}
           />
           <div className="flex items-center gap-3">
             <div className="text-xs text-gray-400">
@@ -45,10 +48,11 @@ export function FloatingPromptInput({
             <button
               type="button"
               onClick={handleSubmit}
-              className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+              disabled={disabled || !value.trim()}
+              className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${disabled || !value.trim() ? 'bg-gray-100 cursor-not-allowed opacity-50' : 'bg-gray-100 hover:bg-gray-200'}`}
               aria-label="Generate with AI"
             >
-              <Sparkles className="w-4 h-4 text-gray-700" />
+              <Sparkles className={`w-4 h-4 ${disabled ? 'animate-pulse text-gray-500' : 'text-gray-700'}`} />
             </button>
           </div>
         </div>

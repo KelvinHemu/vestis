@@ -81,7 +81,6 @@ export function OnModelPhotos() {
     if (generatedImageUrl) {
       setStoredGeneratedImageUrl(generatedImageUrl);
       setIsEditMode(true);
-      setPrompt('');
       // Invalidate caches to show new generation in history
       invalidateGenerations();
       invalidateOnModel();
@@ -180,6 +179,12 @@ export function OnModelPhotos() {
       return;
     }
 
+    // Capture prompt value before clearing
+    const currentPrompt = prompt.trim();
+    
+    // Clear prompt immediately for instant UI feedback
+    setPrompt('');
+
     // Add current image to history before generating new one
     if (generatedImageUrl) {
       setGenerationHistory(prev => [...prev, generatedImageUrl]);
@@ -187,17 +192,16 @@ export function OnModelPhotos() {
 
     try {
       // If we're in edit mode and have a prompt, use chat service for editing
-      if (isEditMode && prompt.trim() && generatedImageUrl) {
+      if (isEditMode && currentPrompt && generatedImageUrl) {
         console.log('✏️ Editing image with chat service');
         const response = await chatService.editImage(
           generatedImageUrl,
-          prompt.trim()
+          currentPrompt
         );
 
         // Chat service returns completed images directly, no need to poll
         if (response.imageUrl) {
           setGeneratedImageUrl(response.imageUrl);
-          setPrompt('');
         } else {
           throw new Error(response.message || 'Image editing failed');
         }
@@ -216,7 +220,7 @@ export function OnModelPhotos() {
         photos: modelPhotos,
         modelId: selectedModelId,
         ...(selectedBackgroundId && { backgroundId: String(selectedBackgroundId) }), // Include only if selected
-        ...(prompt.trim() && { prompt: prompt.trim() }), // Include prompt if not empty
+        ...(currentPrompt && { prompt: currentPrompt }), // Include prompt if not empty
         aspectRatio,
         resolution,
       };
@@ -226,7 +230,7 @@ export function OnModelPhotos() {
         modelId: request.modelId,
         backgroundId: request.backgroundId,
         photoIds: modelPhotos.map(p => p.id),
-        hasPrompt: !!prompt.trim(),
+        hasPrompt: !!currentPrompt,
         aspectRatio,
         resolution,
       });
@@ -423,11 +427,22 @@ export function OnModelPhotos() {
           {currentStep === 3 && generatedImageUrl && (
             <div className="flex gap-2">
               <button
-                onClick={() => {
-                  const link = document.createElement('a');
-                  link.href = generatedImageUrl;
-                  link.download = 'on-model-photo.png';
-                  link.click();
+                onClick={async () => {
+                  try {
+                    const response = await fetch(generatedImageUrl);
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'on-model-photo.png';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                  } catch (err) {
+                    console.error('Failed to download image:', err);
+                    alert('Failed to download image');
+                  }
                 }}
                 className="flex-1 bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
               >
@@ -493,11 +508,22 @@ export function OnModelPhotos() {
           isOpen={isFullscreenOpen}
           imageUrl={generatedImageUrl}
           onClose={() => setIsFullscreenOpen(false)}
-          onDownload={() => {
-            const link = document.createElement('a');
-            link.href = generatedImageUrl;
-            link.download = 'on-model-image.png';
-            link.click();
+          onDownload={async () => {
+            try {
+              const response = await fetch(generatedImageUrl);
+              const blob = await response.blob();
+              const url = window.URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = 'on-model-image.png';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              window.URL.revokeObjectURL(url);
+            } catch (err) {
+              console.error('Failed to download image:', err);
+              alert('Failed to download image');
+            }
           }}
         />
       )}
@@ -518,13 +544,14 @@ export function OnModelPhotos() {
             {renderStepContent()}
           </div>
           
-          {/* Floating Input Bar - Only visible on step 3 (Preview & Generate) and not while generating */}
-          {currentStep === 3 && !isGenerating && (
+          {/* Floating Input Bar - Only visible on step 3 (Preview & Generate) */}
+          {currentStep === 3 && (
             <FloatingPromptInput
               value={prompt}
               onChange={setPrompt}
               onSubmit={handleGenerateImage}
               placeholder={isEditMode ? "Describe changes you'd like to make..." : "Add more details about your image (optional)..."}
+              disabled={isGenerating}
             />
           )}
         </div>

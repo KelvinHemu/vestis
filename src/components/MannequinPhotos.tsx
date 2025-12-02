@@ -553,11 +553,22 @@ export function MannequinPhotos() {
           {currentStep === 3 && generatedImageUrl && (
             <div className="flex gap-2">
               <button
-                onClick={() => {
-                  const link = document.createElement('a');
-                  link.href = generatedImageUrl;
-                  link.download = 'mannequin-image.png';
-                  link.click();
+                onClick={async () => {
+                  try {
+                    const response = await fetch(generatedImageUrl);
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'mannequin-image.png';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                  } catch (err) {
+                    console.error('Failed to download image:', err);
+                    alert('Failed to download image');
+                  }
                 }}
                 className="flex-1 bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
               >
@@ -612,11 +623,22 @@ export function MannequinPhotos() {
           isOpen={isFullscreenOpen}
           imageUrl={generatedImageUrl}
           onClose={() => setIsFullscreenOpen(false)}
-          onDownload={() => {
-            const link = document.createElement('a');
-            link.href = generatedImageUrl;
-            link.download = 'mannequin-photo.png';
-            link.click();
+          onDownload={async () => {
+            try {
+              const response = await fetch(generatedImageUrl);
+              const blob = await response.blob();
+              const url = window.URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = 'mannequin-photo.png';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              window.URL.revokeObjectURL(url);
+            } catch (err) {
+              console.error('Failed to download image:', err);
+              alert('Failed to download image');
+            }
           }}
         />
       )}
