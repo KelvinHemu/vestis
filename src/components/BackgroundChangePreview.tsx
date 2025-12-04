@@ -26,7 +26,7 @@ export function BackgroundChangePreview({
 }: BackgroundChangePreviewProps) {
   return (
     <div className="space-y-6">
-      <div className="flex flex-col items-center justify-center min-h-[400px] w-full gap-6">
+      <div className="flex flex-col items-center justify-center min-h-[400px] w-full gap-3 sm:gap-4 md:gap-6">
         {isGenerating ? (
           <div className="flex items-center justify-center">
             <style>{`
@@ -70,13 +70,13 @@ export function BackgroundChangePreview({
             {/* Start Over button */}
             <button
               onClick={onStartOver}
-              className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors text-sm sm:text-base"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors text-xs sm:text-sm"
             >
               Start Over
             </button>
             
             <div 
-              className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px]" 
+              className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[140px] xs:max-w-[160px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[300px] xl:max-w-[340px] mb-20" 
               style={{ aspectRatio }}
               onDoubleClick={onImageDoubleClick}
             >

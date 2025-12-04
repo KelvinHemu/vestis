@@ -375,7 +375,7 @@ export function FlatLayPhotos() {
       case 3:
         return (
           <div className="space-y-6">
-            <div className="flex flex-col items-center justify-center min-h-[400px] w-full gap-6">
+            <div className="flex flex-col items-center justify-center min-h-[400px] w-full gap-3 sm:gap-4 md:gap-6">
               {isGenerating ? (
                 <div className="flex items-center justify-center">
                   <style>{`
@@ -397,26 +397,44 @@ export function FlatLayPhotos() {
                   `}</style>
                   <div className="custom-loader"></div>
                 </div>
+              ) : generationError ? (
+                <div className="text-center max-w-md">
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+                    <svg className="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Generation Failed</h3>
+                    <p className="text-sm text-gray-600 mb-4">{generationError}</p>
+                    <button
+                      onClick={() => {
+                        setGenerationError(null);
+                        handleGenerateImage();
+                      }}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors inline-flex items-center gap-2"
+                    >
+                      <RotateCw className="w-4 h-4" />
+                      Try Again
+                    </button>
+                  </div>
+                </div>
               ) : generatedImageUrl ? (
                 <>
                   {/* Start Over button */}
                   <button
                     onClick={handleStartOver}
-                    className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors text-sm sm:text-base"
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors text-xs sm:text-sm"
                   >
                     Start Over
                   </button>
                   
                   <div 
-                    className="relative rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px]" 
-                    style={{ 
-                      aspectRatio: getAspectRatioValue(aspectRatio)
-                    }}
+                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[140px] xs:max-w-[160px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[300px] xl:max-w-[340px] mb-20" 
+                    style={{ aspectRatio: getAspectRatioValue(aspectRatio) }}
                     onDoubleClick={() => setIsFullscreenOpen(true)}
                   >
-                    <img 
-                      src={generatedImageUrl} 
-                      alt="Generated Flatlay" 
+                    <img
+                      src={generatedImageUrl}
+                      alt="Generated Flatlay"
                       className="w-full h-full object-cover"
                     />
                     
@@ -430,11 +448,8 @@ export function FlatLayPhotos() {
                   </div>
                 </>
               ) : (
-                <div className="text-center space-y-4">
-                  <h2 className="text-3xl font-semibold text-gray-900">Ready to Create</h2>
-                  {/* <p className="text-gray-600 text-lg">
-                    Review your selections on the right and click "Generate Image" to create your flatlay photo.
-                  </p> */}
+                <div className="text-center">
+                  <p className="text-gray-600 mb-4">Review your selections and generate your flatlay photos</p>
                 </div>
               )}
             </div>
