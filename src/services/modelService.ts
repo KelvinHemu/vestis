@@ -61,6 +61,9 @@ class ModelService {
    * @returns The image URL or undefined if not found
    */
   getModelImageByPosition(model: Model, position: number): string | undefined {
+    if (!model.images || !Array.isArray(model.images)) {
+      return undefined;
+    }
     const image = model.images.find(img => img.position === position);
     return image?.url;
   }
@@ -80,6 +83,9 @@ class ModelService {
    * @returns Array of image URLs sorted by position
    */
   getAllImages(model: Model): string[] {
+    if (!model.images || !Array.isArray(model.images)) {
+      return [];
+    }
     return model.images
       .sort((a, b) => a.position - b.position)
       .map(img => img.url);

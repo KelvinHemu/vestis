@@ -7,6 +7,7 @@ export interface User {
   oauth_id: string;
   activated: boolean;
   credits: number;
+  role?: string;
   created_at: string;
 }
 

@@ -37,6 +37,15 @@ export function Signup() {
               Sign up with Google
             </Button>
 
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:8080/api'}/v1/auth/google?role=model`}
+              className="w-full border-gray-200 bg-white text-gray-900 hover:bg-gray-50 h-11 text-base font-medium shadow-sm"
+            >
+              Sign up as a Model
+            </Button>
+
             {/* 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">

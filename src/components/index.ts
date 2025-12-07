@@ -40,3 +40,4 @@ export { PaymentProgress, PaymentSuccess, PaymentFailed } from './PaymentProgres
 export { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';
 export { ModelProfile } from './ModelProfile';
 export { ModelsPage } from './ModelsPage';
+export { RegisterModel } from './RegisterModel';

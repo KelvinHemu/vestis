@@ -23,6 +23,11 @@ export function ModelProfile() {
   // We filter out the main profile image (position 2) to focus on editorial shots,
   // unless it's the only image available.
   const allImages = model ? (() => {
+    // Handle case where model has no images
+    if (!model.images || !Array.isArray(model.images) || model.images.length === 0) {
+      return [];
+    }
+    
     const galleryImages = model.images.filter((img: ModelImage) => img.position !== 2);
     const imagesToShow = galleryImages.length > 0 ? galleryImages : model.images;
     
@@ -96,6 +101,51 @@ export function ModelProfile() {
   const firstImage = allImages[currentImageIndex];
   const secondImageIndex = (currentImageIndex + 1) % allImages.length;
   const secondImage = allImages.length > 1 ? allImages[secondImageIndex] : null;
+
+  // ============================================================================
+  // No Images State
+  // ============================================================================
+  if (allImages.length === 0) {
+    return (
+      <div className="min-h-screen bg-white text-gray-900 font-sans">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 md:py-8">
+          <div className="flex items-center justify-center mb-8 relative">
+            <button
+              onClick={() => navigate('/models')}
+              className="absolute left-0 p-2 hover:bg-gray-100 rounded-full transition-colors"
+              title="Back to models"
+            >
+              <ArrowLeft className="w-6 h-6 text-gray-900" />
+            </button>
+            
+            <div className="text-center">
+              <h1 className="text-2xl md:text-3xl font-bold tracking-widest uppercase mb-3">
+                {model.name}
+              </h1>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center max-w-md px-6">
+              <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 uppercase tracking-widest">No Images Available</h3>
+              <p className="text-gray-500 mb-6">This model's portfolio is currently being updated. Please check back soon.</p>
+              <button
+                onClick={() => navigate('/models')}
+                className="px-6 py-3 bg-black text-white text-sm font-medium tracking-widest uppercase hover:bg-gray-800 transition-colors"
+              >
+                Browse Other Models
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-gray-200">

@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
+import { UserPlus } from 'lucide-react';
 import { ModelCard } from './model';
 import { useModelsByGender } from '@/hooks/useModels';
 import { useModelStore } from '@/contexts/modelStore';
 import modelService from '@/services/modelService';
 import type { Model } from '@/types/model';
+import { Button } from './ui/button';
 
 // ============================================================================
 // ModelsPage - Shows all available models in a grid
@@ -64,9 +66,13 @@ export function ModelsPage() {
             </button>
           </div>
           
-          <div className="text-sm text-gray-500">
-            {currentModels.length} {currentModels.length === 1 ? 'model' : 'models'} available
-          </div>
+          <Button 
+            onClick={() => navigate('/register-model')}
+            className="flex items-center gap-2"
+          >
+            <UserPlus className="w-4 h-4" />
+            Register as Model
+          </Button>
         </div>
 
         {/* Content Section */}

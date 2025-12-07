@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Login, Signup, OAuthCallback, Sidebar, OnModelPhotos, FlatLayPhotos, MannequinPhotos, BackgroundChange, CreatePage, GenerationHistory, Profile, PaymentPage, ModelProfile, ModelsPage } from './components';
+import { Login, Signup, OAuthCallback, Sidebar, OnModelPhotos, FlatLayPhotos, MannequinPhotos, BackgroundChange, CreatePage, GenerationHistory, Profile, PaymentPage, ModelProfile, ModelsPage, RegisterModel } from './components';
 import { AuthProvider } from './providers';
 import { ProtectedRoute } from './routes';
 import { useAuthStore } from './contexts/authStore';
@@ -11,8 +11,8 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-white">
       <Sidebar />
-      <div className="flex-1 ml-16">
-        <main className="min-h-screen bg-gray-100">
+      <div className="flex-1 ml-16 overflow-y-auto">
+        <main className="bg-gray-100">
           {children}
         </main>
       </div>
@@ -186,6 +186,16 @@ function App() {
           <ProtectedRoute>
             <AppLayout>
               <ModelProfile />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/register-model"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <RegisterModel />
             </AppLayout>
           </ProtectedRoute>
         }
