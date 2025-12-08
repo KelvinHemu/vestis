@@ -1,13 +1,15 @@
+"use client";
+
 import { useState, useEffect } from 'react';
-import { MainContent } from './MainContent';
-import { Steps } from './Steps';
-import { ProductSelector } from './ProductSelector';
-import { ModelSelector } from './ModelSelector';
-import { BackgroundSelector } from './BackgroundSelector';
-import { FlatLayPreviewPanel } from './FlatLayPreviewPanel';
-import { FlatLayActionButton } from './FlatLayActionButton';
-import { FloatingPromptInput } from './FloatingPromptInput';
-import { ImageFeedbackActions } from './ImageFeedbackActions';
+import { MainContent } from './layout/MainContent';
+import { Steps } from '../features/generation/components/Steps';
+import { ProductSelector } from '../features/generation/components/ProductSelector';
+import { ModelSelector } from '../features/models/components/ModelSelector';
+import { BackgroundSelector } from '../features/generation/components/BackgroundSelector';
+import { FlatLayPreviewPanel } from '../features/generation/components/FlatLayPreviewPanel';
+import { FlatLayActionButton } from '../features/generation/components/FlatLayActionButton';
+import { FloatingPromptInput } from '../features/generation/components/FloatingPromptInput';
+import { ImageFeedbackActions } from '../features/generation/components/ImageFeedbackActions';
 import { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';
 import { FullscreenImageViewer } from './ui/FullscreenImageViewer';
 import { flatLayService } from '../services/flatLayService';
@@ -20,7 +22,7 @@ import { useFeatureGeneration } from '../contexts/generationStore';
 import type { ProductImage } from '../types/flatlay';
 import { RotateCw } from 'lucide-react';
 import AspectRatio from './aspectRatio';
-import Resolution from './resolution';
+import Resolution from './shared/resolution';
 
 // Helper function to convert aspect ratio string to CSS aspect-ratio value
 const getAspectRatioValue = (ratio: string): string => {

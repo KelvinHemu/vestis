@@ -1,30 +1,13 @@
-# React + TypeScript + Vite
+# Vestis - AI Fashion Photography Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-# Vestis Frontend - React + TypeScript + Vite
-
-A modern frontend application with integrated authentication and protected routes.
+A modern Next.js 15 application for AI-powered fashion photography generation.
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 16+
-- pnpm (or npm/yarn)
-- Backend running at `http://localhost:8080`
+- Node.js 18+
+- pnpm (recommended) or npm/yarn
+- Backend API running at `http://localhost:8080`
 
 ### Setup
 
@@ -35,155 +18,139 @@ A modern frontend application with integrated authentication and protected route
 
 2. **Configure environment**
    ```bash
-   # Copy the example
-   cp .env.example .env
+   # Create .env.local file
+   echo "NEXT_PUBLIC_API_URL=http://localhost:8080/api" > .env.local
    ```
 
 3. **Start development server**
    ```bash
    pnpm dev
    ```
-   Frontend runs at: `http://localhost:5173`
+   
+   Frontend runs at: `http://localhost:3000`
 
 ## 🔐 Authentication
 
-### Quick Login
-
 The system includes a complete authentication flow:
 
-**Test Credentials:**
-- Email: `kelvin@gmail.com`
-- Password: `Lionleon30`
+- ✅ Google OAuth login
+- ✅ Email/password login
+- ✅ JWT token management
+- ✅ Protected routes with middleware
+- ✅ Automatic token refresh
+- ✅ Persistent sessions via Zustand
 
-### Features
+### API Endpoints
 
-- ✅ User registration (sign up)
-- ✅ User login with JWT
-- ✅ Protected routes
-- ✅ Automatic token management
-- ✅ Persistent sessions
-- ✅ Error handling
+Backend must be running at: `http://localhost:8080/api`
 
-### API Integration
-
-Backend must be running at:
-```
-http://localhost:8080/api
-```
-
-**Endpoints:**
-- `POST /api/v1/auth/register` - Sign up
-- `POST /api/v1/auth/login` - Login
-- `GET /api/v1/auth/verify` - Verify token
-- `POST /api/v1/auth/refresh` - Refresh token
-
-For more details, see [API_INTEGRATION.md](./API_INTEGRATION.md)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/v1/auth/login` | POST | Email/password login |
+| `/v1/auth/register` | POST | User registration |
+| `/v1/auth/google` | GET | Google OAuth initiation |
+| `/v1/auth/refresh` | POST | Token refresh |
 
 ## 📁 Project Structure
 
 ```
 src/
-├── components/          # React components
-│   ├── Login.tsx       # Login form
-│   ├── Signup.tsx      # Signup form
-│   └── ui/             # UI components
-├── contexts/           # Zustand stores
-│   └── authStore.ts    # Auth state management
-├── services/           # API services
-│   └── authService.ts  # Authentication API
-├── types/              # TypeScript types
-│   └── auth.ts         # Auth interfaces
-├── routes/             # Routing
-│   └── ProtectedRoute.tsx
-└── App.tsx             # Main app
+├── app/                    # Next.js App Router pages
+│   ├── (auth)/            # Auth pages (login, signup)
+│   ├── (dashboard)/       # Protected dashboard pages
+│   ├── auth/callback/     # OAuth callback handler
+│   ├── globals.css        # Global styles
+│   └── layout.tsx         # Root layout
+├── components/            # React components
+│   ├── ui/               # shadcn/ui components
+│   ├── Login.tsx         # Login form
+│   ├── Signup.tsx        # Signup form
+│   ├── Sidebar.tsx       # Navigation sidebar
+│   └── ...               # Feature components
+├── contexts/             # Zustand stores
+│   ├── authStore.ts      # Auth state management
+│   └── ...               # Feature stores
+├── hooks/                # Custom React hooks
+├── lib/                  # Utilities
+│   ├── queryClient.ts    # React Query config
+│   └── utils.ts          # Helper functions
+├── providers/            # Context providers
+├── services/             # API service classes
+├── types/                # TypeScript types
+└── middleware.ts         # Next.js middleware
 ```
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-**.env (development)**
+Create `.env.local` in the project root:
+
 ```env
-VITE_API_URL=http://localhost:8080/api
-VITE_ENV=development
+# API Configuration
+NEXT_PUBLIC_API_URL=http://localhost:8080/api
 ```
 
-**.env.production**
+For production:
 ```env
-VITE_API_URL=https://api.yourdomain.com/api
-VITE_ENV=production
-```
-
-## 🧪 Testing
-
-### Login via Browser
-1. Go to `http://localhost:5173/login`
-2. Enter credentials
-3. Click "Login"
-
-### Login via cURL
-```bash
-curl -X POST 'http://localhost:8080/api/v1/auth/login' \
-  -H 'Content-Type: application/json' \
-  -d '{"email":"kelvin@gmail.com","password":"Lionleon30"}'
-```
-
-### Check Stored Token
-```javascript
-// In browser console
-localStorage.getItem('auth_token')
-JSON.parse(localStorage.getItem('auth_user'))
+NEXT_PUBLIC_API_URL=https://api.yourdomain.com/api
 ```
 
 ## 📦 Available Scripts
 
-- `pnpm dev` - Start development server
-- `pnpm build` - Build for production
-- `pnpm lint` - Run ESLint
-- `pnpm preview` - Preview production build
-
-## 📚 Documentation
-
-- [API_INTEGRATION.md](./API_INTEGRATION.md) - Full API documentation
-- [LOGIN_API.md](./LOGIN_API.md) - Login endpoint reference
-- [BACKEND_INTEGRATION.md](./BACKEND_INTEGRATION.md) - Backend setup guide
-- [STATUS_REPORT.md](./STATUS_REPORT.md) - Integration status
-- [SETUP_CHECKLIST.md](./SETUP_CHECKLIST.md) - Verification checklist
+| Script | Description |
+|--------|-------------|
+| `pnpm dev` | Start development server with Turbopack |
+| `pnpm build` | Build for production |
+| `pnpm start` | Start production server |
+| `pnpm lint` | Run ESLint |
 
 ## 🛠 Tech Stack
 
-- **React** 19.1.1
-- **TypeScript** 5.9.3
-- **Vite** (Rolldown)
-- **Tailwind CSS** 4.1.16
-- **Zustand** 5.0.8 (State management)
-- **React Hook Form** 7.65.0
-- **Zod** 4.1.12 (Validation)
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Next.js | 15.3.4 | React framework with App Router |
+| React | 19.1.1 | UI library |
+| TypeScript | 5.9.3 | Type safety |
+| Tailwind CSS | 4.1.16 | Styling |
+| Zustand | 5.0.8 | State management |
+| TanStack Query | 5.90.11 | Data fetching & caching |
+| React Hook Form | 7.65.0 | Form handling |
+| Zod | 4.1.12 | Schema validation |
+| Radix UI | Various | Accessible primitives |
 
-## 🔐 Security Features
+## 🔒 Security Features
 
 - JWT token authentication
-- Protected routes with middleware
-- Secure token storage
-- Automatic token refresh
-- CORS handling via Vite proxy
+- Protected routes via middleware + layout guards
+- Secure token storage in localStorage
+- Automatic token refresh on expiry
+- CORS handling via Next.js rewrites
+
+## 🎨 Features
+
+- **On-Model Photos**: Generate photos with AI models
+- **Flat Lay Photos**: Transform flat-lay images to on-model
+- **Mannequin Photos**: Convert mannequin shots to model photos
+- **Background Change**: AI-powered background replacement
+- **Model Management**: Browse and select from AI model library
+- **Payment System**: Credits-based payment system
+- **Generation History**: View and manage past generations
 
 ## 🚨 Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| Backend unreachable | Start backend: `go run ./cmd/server` |
-| Login fails | Check credentials and backend URL |
-| CORS error | Ensure Vite proxy is configured (automatic) |
-| Token not stored | Check browser DevTools → Local Storage |
+| Backend unreachable | Ensure backend is running at configured URL |
+| CORS errors | Check `next.config.ts` rewrites configuration |
+| Auth issues | Clear localStorage and try logging in again |
+| Build errors | Delete `.next` folder and rebuild |
 
-## 📞 Support
+## 📚 Documentation
 
-For issues:
-1. Check [BACKEND_INTEGRATION.md](./BACKEND_INTEGRATION.md)
-2. Review browser console for errors
-3. Check backend logs
-4. Verify API endpoints match specification
+- [API Integration Guide](./documents/API_INTEGRATION.md)
+- [Authentication Guide](./documents/AUTHENTICATION.md)
+- [Backend Integration](./documents/BACKEND_INTEGRATION.md)
 
 ## 📝 License
 
@@ -191,34 +158,5 @@ This project is part of the Vestis application.
 
 ---
 
-**Last Updated**: October 26, 2025  
+**Framework**: Next.js 15 with App Router  
 **Status**: ✅ Production Ready
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```

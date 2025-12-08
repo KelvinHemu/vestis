@@ -1,6 +1,8 @@
+"use client";
+
 import React from 'react';
 import { AlertCircle, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 interface InsufficientCreditsDialogProps {
   isOpen: boolean;
@@ -15,13 +17,13 @@ export const InsufficientCreditsDialog: React.FC<InsufficientCreditsDialogProps>
   creditsAvailable = 0,
   creditsRequired = 1,
 }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   if (!isOpen) return null;
 
   const handleBuyCredits = () => {
     onClose();
-    navigate('/payment');
+    router.push('/payment');
   };
 
   return (

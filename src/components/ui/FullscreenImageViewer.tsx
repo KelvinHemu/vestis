@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect } from 'react';
 import { X, Download, Share2 } from 'lucide-react';
 

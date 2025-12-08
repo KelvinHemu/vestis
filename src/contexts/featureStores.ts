@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { AspectRatioValue } from '../components/aspectRatio';
-import type { ResolutionValue } from '../components/resolution';
+import type { AspectRatioValue } from '@/components/shared/aspectRatio';
+import type { ResolutionValue } from '@/components/shared/resolution';
 
 /**
  * FlatLay Feature State

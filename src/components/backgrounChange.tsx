@@ -1,11 +1,13 @@
+"use client";
+
 import { useState, useEffect } from 'react';
-import { MainContent } from './MainContent';
-import { Steps } from './Steps';
-import { BackgroundChangeUpload } from './BackgroundChangeUpload';
-import { BackgroundSelector } from './BackgroundSelector';
-import { BackgroundChangePreviewPanel } from './BackgroundChangePreviewPanel';
-import { FloatingPromptInput } from './FloatingPromptInput';
-import { BackgroundChangePreview } from './BackgroundChangePreview';
+import { MainContent } from './layout/MainContent';
+import { Steps } from '../features/generation/components/Steps';
+import { BackgroundChangeUpload } from '../features/generation/components/BackgroundChangeUpload';
+import { BackgroundSelector } from '../features/generation/components/BackgroundSelector';
+import { BackgroundChangePreviewPanel } from '../features/generation/components/BackgroundChangePreviewPanel';
+import { FloatingPromptInput } from '../features/generation/components/FloatingPromptInput';
+import { BackgroundChangePreview } from '../features/generation/components/BackgroundChangePreview';
 import { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';
 import { FullscreenImageViewer } from './ui/FullscreenImageViewer';
 import { useBackgroundChange } from '../hooks/useBackgroundChange';
@@ -17,7 +19,7 @@ import type { Background } from '../types/background';
 import { getBackgroundById } from '../services/backgroundService';
 import { RotateCw } from 'lucide-react';
 import AspectRatio from './aspectRatio';
-import Resolution from './resolution';
+import Resolution from './shared/resolution';
 
 export function BackgroundChange() {
   // Get persisted state from store

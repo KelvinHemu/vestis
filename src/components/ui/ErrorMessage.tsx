@@ -1,5 +1,5 @@
 import { AlertCircle, CheckCircle, Info, XCircle } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { cn } from '@/lib/utils';
 
 interface ErrorMessageProps {
   message: string;

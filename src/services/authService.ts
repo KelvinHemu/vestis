@@ -1,7 +1,8 @@
 import type { AuthResponse, LoginCredentials, SignupCredentials, OAuthResponse } from '../types/auth';
 
 // Configure your API endpoint here
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+// Uses Next.js environment variables (NEXT_PUBLIC_ prefix for client-side access)
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 const TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 const USER_KEY = 'auth_user';

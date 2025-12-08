@@ -35,7 +35,7 @@ export async function fetchWithAuth(
           'Authorization': `Bearer ${newToken}`,
         },
       });
-    } catch (refreshError) {
+    } catch {
       // If refresh fails, logout and redirect to login
       authService.logout();
       window.location.href = '/login';

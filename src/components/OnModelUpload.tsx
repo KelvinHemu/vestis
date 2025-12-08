@@ -1,6 +1,8 @@
+"use client";
+
 import { useState } from 'react';
 import { Trash2 } from 'lucide-react';
-import { UploadHeader } from './UploadHeader';
+import { UploadHeader } from '../features/generation/components/UploadHeader';
 
 interface OnModelUploadProps {
   photos: { [key: number]: string };

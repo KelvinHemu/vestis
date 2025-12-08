@@ -1,43 +1,15 @@
-export { Login } from './Login';
-export { Signup } from './Signup';
-export { OAuthCallback } from './OAuthCallback';
-export { Navbar } from './Navbar';
-export { Sidebar } from './Sidebar';
-export { MainContent } from './MainContent';
-export { OnModelPhotos } from './OnModelPhotos';
-export { FlatLayPhotos } from './FlatLayPhotos';
-export { MannequinPhotos } from './MannequinPhotos';
-export { BackgroundChange } from './backgrounChange';
-export { ProductUpload } from './ProductUpload';
-export { ProductSelector } from './ProductSelector';
-export { MannequinSelector } from './MannequinSelector';
-export { ProductPreviewCard } from './ProductPreviewCard';
-export { ModelPreviewCard } from './ModelPreviewCard';
-export { BackgroundPreviewCard } from './BackgroundPreviewCard';
-export { CustomDropdown } from './CustomDropdown';
-export { ModelSelector } from './ModelSelector';
-export { ModelCard } from './ModelCard';
-export { BackgroundSelector } from './BackgroundSelector';
-export { FlatLayPreviewPanel } from './FlatLayPreviewPanel';
-export { FlatLaySelectedItems } from './FlatLaySelectedItems';
-export { FlatLayActionButton } from './FlatLayActionButton';
-export { OnModelUpload } from './OnModelUpload';
-export { OnModelPreviewPanel } from './OnModelPreviewPanel';
-export { BackgroundChangeUpload } from './BackgroundChangeUpload';
-export { BackgroundChangePreviewPanel } from './BackgroundChangePreviewPanel';
-export { UploadHeader } from './UploadHeader';
-export { FeatureCard, features } from './FeatureCard';
-export { FloatingSearchBar } from './FloatingSearchBar';
-export { CreatePage } from './CreatePage';
-export { GenerationHistory } from './GenerationHistory/GenerationHistory';
-export { Profile } from './profile';
-export { PaymentPage } from './PaymentPage';
-export { PricingCard } from './PricingCard';
-export { CheckoutPage } from './CheckoutPage';
-export { FreePlanCard } from './FreePlanCard';
-export { PaymentHistory } from './PaymentHistory';
-export { PaymentProgress, PaymentSuccess, PaymentFailed } from './PaymentProgress';
-export { InsufficientCreditsDialog } from './ui/InsufficientCreditsDialog';
-export { ModelProfile } from './ModelProfile';
-export { ModelsPage } from './ModelsPage';
-export { RegisterModel } from './RegisterModel';
+/* ============================================
+   Components - Main Barrel Export
+   Re-exports all component categories
+   
+   Usage:
+   import { Button, Card, Input } from '@/components/ui';
+   import { Sidebar, MainContent } from '@/components/layout';
+   import { LoadingSpinner, FeatureCard } from '@/components/shared';
+   ============================================ */
+
+// Re-export all component categories
+export * from './ui';
+export * from './layout';
+export * from './shared';
+

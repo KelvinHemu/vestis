@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useCallback } from 'react';
 import { backgroundChangeService } from '../services/backgroundChangeService';
 import { InsufficientCreditsError } from '../types/errors';

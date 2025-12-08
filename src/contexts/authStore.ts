@@ -14,6 +14,8 @@ interface AuthStore extends AuthState {
   clearError: () => void;
   initializeAuth: () => Promise<void>;
   isInitialized: boolean;
+  _hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -25,9 +27,18 @@ export const useAuthStore = create<AuthStore>()(
       error: null,
       isAuthenticated: false,
       isInitialized: false,
+      _hasHydrated: false,
+      
+      /**
+       * Set hydration state - called by persist middleware
+       */
+      setHasHydrated: (state: boolean) => {
+        set({ _hasHydrated: state });
+      },
 
       /**
        * Initialize auth state from storage
+       * Only runs AFTER hydration is complete
        */
       initializeAuth: async () => {
         const state = get();
@@ -61,7 +72,7 @@ export const useAuthStore = create<AuthStore>()(
                   isInitialized: true,
                 });
                 return;
-              } catch (refreshError) {
+              } catch  {
                 // Refresh failed - clear auth
                 authService.logout();
                 set({
@@ -95,7 +106,7 @@ export const useAuthStore = create<AuthStore>()(
               isInitialized: true,
             });
           }
-        } catch (error) {
+        } catch {
           // On error, clear auth
           authService.logout();
           set({
@@ -116,12 +127,14 @@ export const useAuthStore = create<AuthStore>()(
     set({ isLoading: true, error: null });
     try {
       const response = await authService.login(credentials);
+      // Set isInitialized to true since we just authenticated successfully
       set({
         user: response.user,
         token: response.token,
         isAuthenticated: true,
         isLoading: false,
         error: null,
+        isInitialized: true,
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed';
@@ -143,12 +156,14 @@ export const useAuthStore = create<AuthStore>()(
     set({ isLoading: true, error: null });
     try {
       const response = await authService.signup(credentials);
+      // Set isInitialized to true since we just authenticated successfully
       set({
         user: response.user,
         token: response.token,
         isAuthenticated: true,
         isLoading: false,
         error: null,
+        isInitialized: true,
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Signup failed';
@@ -167,12 +182,14 @@ export const useAuthStore = create<AuthStore>()(
    * Login with OAuth (Google)
    */
   loginWithOAuth: (accessToken: string, user: any) => {
+    // Set isInitialized to true since we just authenticated successfully
     set({
       user,
       token: accessToken,
       isAuthenticated: true,
       isLoading: false,
       error: null,
+      isInitialized: true,
     });
   },
 
@@ -230,11 +247,19 @@ export const useAuthStore = create<AuthStore>()(
     }),
     {
       name: 'auth-storage',
+      // Persist auth state to localStorage for session persistence
       partialize: (state) => ({
         user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
+        isInitialized: state.isInitialized,
+        // Note: _hasHydrated is NOT persisted - it's runtime state
       }),
+      // Called when hydration is finished
+      onRehydrateStorage: () => (state) => {
+        // Mark hydration as complete
+        state?.setHasHydrated(true);
+      },
     }
   )
 );

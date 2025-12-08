@@ -1,7 +1,14 @@
+"use client";
+
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../contexts/authStore';
-import type { LoginCredentials, SignupCredentials } from '../types/auth';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/contexts/authStore';
+import type { LoginCredentials, SignupCredentials } from '@/types/auth';
+
+/* ============================================
+   Authentication Hooks
+   Custom hooks for login, signup, and logout
+   ============================================ */
 
 interface UseLoginReturn {
   login: (credentials: LoginCredentials) => Promise<void>;
@@ -10,24 +17,29 @@ interface UseLoginReturn {
   clearError: () => void;
 }
 
-export function useLogin(onSuccess?: () => void): UseLoginReturn {
+/**
+ * Hook for handling user login
+ * Manages login state and navigation after successful auth
+ */
+export function useLogin(): UseLoginReturn {
   const { login: authLogin, isLoading, error, clearError } = useAuthStore();
-  const navigate = useNavigate();
+  const router = useRouter();
 
-  // Track error state changes
+  // Track error state changes for debugging
   useEffect(() => {
-    console.log('useLogin - authStore error state changed to:', error);
+    if (error) {
+      console.log('useLogin - auth error:', error);
+    }
   }, [error]);
 
   const login = async (credentials: LoginCredentials) => {
-    console.log('login() called');
     try {
       await authLogin(credentials);
-      console.log('authLogin succeeded, navigating to dashboard');
-      onSuccess?.();
-      navigate('/dashboard');
-    } catch (err) {
-      console.log('ERROR CAUGHT in useLogin, error should be in store now');
+      console.log('Login succeeded, navigating to dashboard');
+      // Use replace to prevent back button going to login
+      router.replace('/dashboard');
+    } catch {
+      console.log('Login failed, error set in store');
       // Error is already set in the store by authLogin
       // Don't navigate - stay on login page to show error
     }
@@ -43,24 +55,29 @@ interface UseSignupReturn {
   clearError: () => void;
 }
 
-export function useSignup(onSuccess?: () => void): UseSignupReturn {
+/**
+ * Hook for handling user signup
+ * Manages signup state and navigation after successful registration
+ */
+export function useSignup(): UseSignupReturn {
   const { signup: authSignup, isLoading, error, clearError } = useAuthStore();
-  const navigate = useNavigate();
+  const router = useRouter();
 
-  // Track error state changes
+  // Track error state changes for debugging
   useEffect(() => {
-    console.log('useSignup - authStore error state changed to:', error);
+    if (error) {
+      console.log('useSignup - auth error:', error);
+    }
   }, [error]);
 
   const signup = async (credentials: SignupCredentials) => {
-    console.log('signup() called');
     try {
       await authSignup(credentials);
-      console.log('authSignup succeeded, navigating to dashboard');
-      onSuccess?.();
-      navigate('/dashboard');
-    } catch (err) {
-      console.log('ERROR CAUGHT in useSignup, error should be in store now');
+      console.log('Signup succeeded, navigating to dashboard');
+      // Use replace to prevent back button going to signup
+      router.replace('/dashboard');
+    } catch {
+      console.log('Signup failed, error set in store');
       // Error is already set in the store by authSignup
       // Don't navigate - stay on signup page to show error
     }
@@ -74,13 +91,17 @@ interface UseLogoutReturn {
   isLoading: boolean;
 }
 
+/**
+ * Hook for handling user logout
+ * Clears auth state and redirects to login page
+ */
 export function useLogout(): UseLogoutReturn {
   const { logout: authLogout, isLoading } = useAuthStore();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const logout = () => {
     authLogout();
-    navigate('/login');
+    router.push('/login');
   };
 
   return { logout, isLoading };
