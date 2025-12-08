@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 /* ============================================
    CSS Custom Properties (Design Tokens)
    Light and dark theme support
@@ -77,12 +79,13 @@
    Utility Classes
    ============================================ */
 @layer utilities {
+
   /* Hide scrollbar while maintaining scroll functionality */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
@@ -92,9 +95,9 @@
     width: 45px;
     aspect-ratio: 1;
     --c: no-repeat linear-gradient(#000 0 0);
-    background: 
-      var(--c) 0%   50%,
-      var(--c) 50%  50%,
+    background:
+      var(--c) 0% 50%,
+      var(--c) 50% 50%,
       var(--c) 100% 50%;
     background-size: 20% 100%;
     animation: loader-animation 1s infinite linear;
@@ -109,11 +112,193 @@
 
 /* Loader keyframe animation */
 @keyframes loader-animation {
-  0%   { background-size: 20% 100%, 20% 100%, 20% 100%; }
-  33%  { background-size: 20% 10%,  20% 100%, 20% 100%; }
-  50%  { background-size: 20% 100%, 20% 10%,  20% 100%; }
-  66%  { background-size: 20% 100%, 20% 100%, 20% 10%;  }
-  100% { background-size: 20% 100%, 20% 100%, 20% 100%; }
+  0% {
+    background-size: 20% 100%, 20% 100%, 20% 100%;
+  }
+
+  33% {
+    background-size: 20% 10%, 20% 100%, 20% 100%;
+  }
+
+  50% {
+    background-size: 20% 100%, 20% 10%, 20% 100%;
+  }
+
+  66% {
+    background-size: 20% 100%, 20% 100%, 20% 10%;
+  }
+
+  100% {
+    background-size: 20% 100%, 20% 100%, 20% 100%;
+  }
 }
 
+/* ============================================
+   Landing Page Animations
+   Smooth, subtle, professional
+   ============================================ */
 
+/* Fade in up animation */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade in animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Scale in animation */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Float animation for decorative elements */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Glow pulse animation */
+@keyframes glow-pulse {
+
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Gradient shift animation */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Utility classes for animations */
+@layer utilities {
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out forwards;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.5s ease-out forwards;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  .animate-gradient-shift {
+    background-size: 200% 200%;
+    animation: gradient-shift 8s ease infinite;
+  }
+
+  /* Animation delays for staggered effects */
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+
+  .animation-delay-600 {
+    animation-delay: 600ms;
+  }
+
+  .animation-delay-700 {
+    animation-delay: 700ms;
+  }
+
+  .animation-delay-800 {
+    animation-delay: 800ms;
+  }
+
+  /* Text gradient utility */
+  .text-gradient {
+    @apply bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent;
+  }
+
+  /* Glass morphism utilities */
+  .glass {
+    @apply bg-zinc-900/50 backdrop-blur-xl border border-zinc-800;
+  }
+
+  .glass-subtle {
+    @apply bg-zinc-950/80 backdrop-blur-sm border border-zinc-800/50;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+    outline-color: hsl(var(--ring) / 0.5);
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
