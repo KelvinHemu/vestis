@@ -2,6 +2,7 @@
 
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/providers";
+import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import "./globals.css";
 
 /* ============================================
@@ -9,6 +10,7 @@ import "./globals.css";
    Wraps the entire application with:
    - Font configurations (Geist)
    - Global providers (React Query, Auth)
+   - Error Boundary for error handling
    ============================================ */
 
 const geistSans = Geist({
@@ -31,7 +33,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>{children}</Providers>
+        <ErrorBoundary>
+          <Providers>{children}</Providers>
+        </ErrorBoundary>
       </body>
     </html>
   );

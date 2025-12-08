@@ -21,7 +21,7 @@ import { useInvalidateMannequin } from '../hooks/useMannequin';
 import { useMannequinStore } from '../contexts/featureStores';
 import { useFeatureGeneration } from '../contexts/generationStore';
 import type { GenerateFlatLayRequest } from '../types/flatlay';
-import AspectRatio from './aspectRatio';
+import AspectRatio from './shared/aspectRatio';
 import Resolution from './shared/resolution';
 
 // Helper function to convert aspect ratio string to CSS aspect-ratio value

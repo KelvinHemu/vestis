@@ -1,4 +1,5 @@
 import { api } from '../utils/apiClient';
+import { logger } from '@/utils/logger';
 import type { Generation, GenerationListResponse } from '../types/generation';
 
 export const generationService = {

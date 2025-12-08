@@ -1,7 +1,6 @@
 import api from '../utils/apiClient';
-
-// API base URL using Next.js environment variables
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+import { API_BASE_URL, API_ENDPOINTS } from '@/config/api';
+import { logger } from '@/utils/logger';
 
 export interface CreditPackage {
   id: string;
@@ -101,7 +100,7 @@ class PaymentService {
 
       return await response.json();
     } catch (error) {
-      console.error('Failed to fetch pricing:', error);
+      logger.apiError('/v1/credits/pricing', error);
       throw error;
     }
   }
@@ -120,7 +119,7 @@ class PaymentService {
 
       return await response.json();
     } catch (error) {
-      console.error('Failed to create payment:', error);
+      logger.apiError('/v1/payments/zenopay/create', error);
       throw error;
     }
   }
@@ -131,22 +130,21 @@ class PaymentService {
   async getPaymentStatus(orderId: string): Promise<PaymentStatus> {
     try {
       const endpoint = `/v1/payments/zenopay/status?order_id=${orderId}`;
-      console.log('📡 Fetching payment status from:', endpoint);
-      console.log('🌐 Base URL:', API_BASE_URL);
+      logger.apiRequest(endpoint, 'GET');
       
       const response = await api.get(endpoint);
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
-        console.error('❌ Payment status error:', error);
+        logger.apiError(endpoint, error);
         throw new Error(error.error || 'Failed to check payment status');
       }
 
       const data = await response.json();
-      console.log('✅ Payment status response:', data);
+      logger.apiResponse(endpoint, response.status, data);
       return data;
     } catch (error) {
-      console.error('Failed to check payment status:', error);
+      logger.apiError('/v1/payments/zenopay/status', error);
       throw error;
     }
   }
@@ -165,7 +163,7 @@ class PaymentService {
 
       return await response.json();
     } catch (error) {
-      console.error('Failed to fetch payment history:', error);
+      logger.apiError('/v1/payments/history', error);
       throw error;
     }
   }
@@ -213,7 +211,7 @@ class PaymentService {
         // Wait before next check
         await new Promise(resolve => setTimeout(resolve, intervalMs));
       } catch (error) {
-        console.error('Error polling payment status:', error);
+        logger.warn('Error polling payment status', { data: error });
         // Continue polling even on error
         await new Promise(resolve => setTimeout(resolve, intervalMs));
       }

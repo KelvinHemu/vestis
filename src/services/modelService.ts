@@ -1,5 +1,6 @@
 import type { ModelsResponse, Model, AgeRange } from '../types/model';
 import api from '../utils/apiClient';
+import { logger } from '@/utils/logger';
 
 /**
  * ModelService handles all model-related API calls

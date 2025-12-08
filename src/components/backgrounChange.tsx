@@ -18,7 +18,7 @@ import type { BackgroundChangePhoto } from '../types/backgroundChange';
 import type { Background } from '../types/background';
 import { getBackgroundById } from '../services/backgroundService';
 import { RotateCw } from 'lucide-react';
-import AspectRatio from './aspectRatio';
+import AspectRatio from './shared/aspectRatio';
 import Resolution from './shared/resolution';
 
 export function BackgroundChange() {

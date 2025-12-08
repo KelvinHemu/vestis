@@ -5,6 +5,7 @@
 
 import api from '../utils/apiClient';
 import { InsufficientCreditsError } from '../types/errors';
+import { logger } from '@/utils/logger';
 import type {
   GenerateBackgroundChangeRequest,
   GenerateBackgroundChangeResponse,

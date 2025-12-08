@@ -7,6 +7,9 @@ import { GenerationHistory } from "@/features/generation/components/GenerationHi
    View past AI generations
    ============================================ */
 
+// Force dynamic rendering - this page fetches user's generation history
+export const dynamic = "force-dynamic";
+
 export default function HistoryPage() {
   return <GenerationHistory />;
 }

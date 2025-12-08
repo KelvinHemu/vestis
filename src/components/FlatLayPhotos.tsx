@@ -21,7 +21,7 @@ import { useFlatLayStore } from '../contexts/featureStores';
 import { useFeatureGeneration } from '../contexts/generationStore';
 import type { ProductImage } from '../types/flatlay';
 import { RotateCw } from 'lucide-react';
-import AspectRatio from './aspectRatio';
+import AspectRatio from './shared/aspectRatio';
 import Resolution from './shared/resolution';
 
 // Helper function to convert aspect ratio string to CSS aspect-ratio value

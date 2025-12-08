@@ -7,6 +7,9 @@ import { CreatePage } from "@/features/generation/components/CreatePage";
    Shows the main Create interface with feature cards
    ============================================ */
 
+// Force dynamic rendering - this page uses user session data
+export const dynamic = "force-dynamic";
+
 export default function DashboardPage() {
   return <CreatePage />;
 }

@@ -5,6 +5,7 @@
 
 import api from '../utils/apiClient';
 import { InsufficientCreditsError } from '../types/errors';
+import { logger } from '@/utils/logger';
 import type {
   GenerateOnModelRequest,
   GenerateOnModelResponse,
@@ -64,15 +65,18 @@ class OnModelPhotosService {
       }
 
       // Log the request payload for debugging (with truncated images)
-      console.log('🚀 Generating on-model photos with request:', {
-        photosCount: request.photos.length,
-        photos: request.photos.map(p => ({
-          id: p.id,
-          hasImage: !!p.image,
-          imagePreview: p.image?.substring(0, 50),
-        })),
-        modelId: request.modelId,
-        backgroundId: request.backgroundId,
+      logger.debug('Generating on-model photos', {
+        context: 'OnModelService',
+        data: {
+          photosCount: request.photos.length,
+          photos: request.photos.map(p => ({
+            id: p.id,
+            hasImage: !!p.image,
+            imagePreview: p.image?.substring(0, 50),
+          })),
+          modelId: request.modelId,
+          backgroundId: request.backgroundId,
+        },
       });
 
       // Backend expects simple structure: { photos, modelId, backgroundId (optional), aspectRatio, resolution }
@@ -88,16 +92,19 @@ class OnModelPhotosService {
         resolution: request.resolution,
       };
       
-      console.log('✅ Payload structure validated:', {
-        photosCount: payload.photos.length,
-        modelId: payload.modelId,
-        backgroundId: payload.backgroundId,
-        aspectRatio: payload.aspectRatio,
-        resolution: payload.resolution,
-        firstPhoto: {
-          id: payload.photos[0]?.id,
-          hasImage: !!payload.photos[0]?.image,
-          imageLength: payload.photos[0]?.image?.length || 0,
+      logger.debug('Payload structure validated', {
+        context: 'OnModelService',
+        data: {
+          photosCount: payload.photos.length,
+          modelId: payload.modelId,
+          backgroundId: payload.backgroundId,
+          aspectRatio: payload.aspectRatio,
+          resolution: payload.resolution,
+          firstPhoto: {
+            id: payload.photos[0]?.id,
+            hasImage: !!payload.photos[0]?.image,
+            imageLength: payload.photos[0]?.image?.length || 0,
+          },
         },
       });
 
@@ -106,7 +113,7 @@ class OnModelPhotosService {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('❌ API Error Response:', errorData);
+        logger.apiError('/v1/generate?onmodel', errorData);
         
         // Handle 402 Payment Required - Insufficient Credits
         if (response.status === 402) {
@@ -125,7 +132,7 @@ class OnModelPhotosService {
       }
 
       const data = await response.json();
-      console.log('✅ Raw API Response:', data);
+      logger.apiResponse('/v1/generate?onmodel', response.status, data);
       
       // Map snake_case response to camelCase for frontend
       const mappedResponse: GenerateOnModelResponse = {
@@ -141,10 +148,10 @@ class OnModelPhotosService {
         generatedAt: data.generated_at,
       };
       
-      console.log('🔄 Mapped Response:', mappedResponse);
+      logger.debug('Mapped response', { context: 'OnModelService', data: mappedResponse });
       return mappedResponse;
     } catch (error) {
-      console.error('Error generating on-model photos:', error);
+      logger.error('Error generating on-model photos', { context: 'OnModelService', data: error });
       throw error;
     }
   }
@@ -168,7 +175,7 @@ class OnModelPhotosService {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error fetching job status:', error);
+      logger.apiError(`/v1/onmodel/status/${jobId}`, error);
       throw error;
     }
   }
@@ -248,7 +255,7 @@ class OnModelPhotosService {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error fetching on-model history:', error);
+      logger.apiError('/v1/onmodel/history', error);
       throw error;
     }
   }
@@ -272,7 +279,7 @@ class OnModelPhotosService {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error fetching on-model:', error);
+      logger.apiError(`/v1/onmodel/${id}`, error);
       throw error;
     }
   }
@@ -296,7 +303,7 @@ class OnModelPhotosService {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error deleting on-model:', error);
+      logger.apiError(`/v1/onmodel/${id}`, error);
       throw error;
     }
   }

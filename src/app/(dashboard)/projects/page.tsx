@@ -8,6 +8,9 @@ import { GenerationHistory } from "@/features/generation/components/GenerationHi
    Uses GenerationHistory component for now
    ============================================ */
 
+// Force dynamic rendering - this page fetches user's generation history
+export const dynamic = "force-dynamic";
+
 export default function ProjectsPage() {
   return <GenerationHistory />;
 }

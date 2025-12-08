@@ -1,11 +1,10 @@
 import type { AuthResponse, LoginCredentials, SignupCredentials, OAuthResponse } from '../types/auth';
+import { API_BASE_URL, API_ENDPOINTS, STORAGE_KEYS } from '@/config/api';
+import { logger } from '@/utils/logger';
 
-// Configure your API endpoint here
-// Uses Next.js environment variables (NEXT_PUBLIC_ prefix for client-side access)
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
-const TOKEN_KEY = 'auth_token';
-const REFRESH_TOKEN_KEY = 'refresh_token';
-const USER_KEY = 'auth_user';
+const TOKEN_KEY = STORAGE_KEYS.authToken;
+const REFRESH_TOKEN_KEY = STORAGE_KEYS.refreshToken;
+const USER_KEY = STORAGE_KEYS.user;
 
 class AuthService {
   /**

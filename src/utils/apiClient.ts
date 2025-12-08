@@ -1,8 +1,7 @@
 import authService from '../services/authService';
 import { useAuthStore } from '../contexts/authStore';
-
-// API base URL using Next.js environment variables
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+import { API_BASE_URL } from '@/config/api';
+import { logger } from '@/utils/logger';
 
 interface FetchOptions extends RequestInit {
   skipAuth?: boolean;
@@ -45,11 +44,12 @@ export async function apiFetch(
     const response = await fetch(url, {
       ...fetchOptions,
       headers,
+      cache: 'no-store', // Prevent Next.js from caching API responses
     });
 
     // Handle 401 Unauthorized - token expired or invalid
     if (response.status === 401 && !skipAuth) {
-      console.warn('⚠️ Received 401 Unauthorized. Attempting token refresh...');
+      logger.warn('Received 401 Unauthorized. Attempting token refresh...');
       
       // Prevent concurrent token refresh requests
       if (isRefreshing) {
@@ -69,6 +69,7 @@ export async function apiFetch(
           return await fetch(url, {
             ...fetchOptions,
             headers: retryHeaders,
+            cache: 'no-store', // Prevent caching on retry
           });
         }
       }
@@ -93,6 +94,7 @@ export async function apiFetch(
           const retryResponse = await fetch(url, {
             ...fetchOptions,
             headers: retryHeaders,
+            cache: 'no-store', // Prevent caching on retry
           });
           
           // If retry still fails with 401, session is invalid

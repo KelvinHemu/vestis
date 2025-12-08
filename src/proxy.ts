@@ -11,22 +11,21 @@ import type { NextRequest } from "next/server";
    provides basic route protection patterns.
    ============================================ */
 
-// Routes that require authentication
-// const protectedRoutes = [
-//   "/dashboard",
-//   "/create",
-//   "/models",
-//   "/projects",
-//   "/payment",
-//   "/profile",
-//   "/on-model-photos",
-//   "/flat-lay-photos",
-//   "/mannequin-photos",
-//   "/background-change",
-//   "/register-model",
-//   "/history",
-//   "/assets",
-// ];
+// Routes that require authentication (protected routes)
+const protectedRoutes = [
+  "/dashboard",
+  "/create",
+  "/models",
+  "/projects",
+  "/payment",
+  "/profile",
+  "/on-model-photos",
+  "/flat-lay-photos",
+  "/mannequin-photos",
+  "/background-change",
+  "/register-model",
+  "/history",
+];
 
 // Routes that should redirect to dashboard if authenticated
 const authRoutes = ["/login", "/signup"];
