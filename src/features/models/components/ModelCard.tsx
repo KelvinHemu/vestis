@@ -14,22 +14,21 @@ interface ModelCardProps {
   onClick?: () => void;
 }
 
-export function ModelCard({ 
+export function ModelCard({
   name,
   age,
   size,
-  image, 
-  isSelected = false, 
-  onClick 
+  image,
+  isSelected = false,
+  onClick
 }: ModelCardProps) {
   return (
     <Card
       onClick={onClick}
-      className={`relative cursor-pointer overflow-hidden transition-all bg-white ${
-        isSelected
-          ? 'ring-2 ring-black shadow-lg'
-          : 'hover:shadow-md'
-      }`}
+      className={`relative cursor-pointer overflow-hidden transition-all bg-white ${isSelected
+        ? 'ring-2 ring-black shadow-lg'
+        : 'hover:shadow-md'
+        }`}
     >
       {/* Model Image */}
       <div className="aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">

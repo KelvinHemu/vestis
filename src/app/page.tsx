@@ -64,7 +64,7 @@ export default function HomePage() {
       <Testimonials />
 
       {/* Final CTA - Conversion push with pricing */}
-      <CTA />
+      {/* <CTA /> */}
 
       {/* Footer - Links and social */}
       <Footer />

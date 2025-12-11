@@ -20,7 +20,7 @@ export function ModelsPage() {
   // State Management with Zustand & React Query
   // ============================================================================
   const { activeCategory, setActiveCategory, toggleFavorite, isFavorite } = useModelStore();
-  
+
   // Convert 'All' to undefined for the hook, or use lowercase gender
   const genderFilter = activeCategory === 'All' ? undefined : activeCategory;
   const { data: models, isLoading, error } = useModelsByGender(genderFilter);
@@ -42,33 +42,31 @@ export function ModelsPage() {
   // ============================================================================
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">        
+      <div className="max-w-7xl mx-auto">
         {/* Gender Selection */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex gap-2">
             <button
               onClick={() => setActiveCategory('female')}
-              className={`py-2 px-4 rounded-lg text-sm font-medium transition-all ${
-                activeCategory === 'female'
-                  ? 'bg-black text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-              }`}
+              className={`py-2 px-4 rounded-lg text-sm font-medium transition-all ${activeCategory === 'female'
+                ? 'bg-black text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                }`}
             >
               Female Models
             </button>
             <button
               onClick={() => setActiveCategory('male')}
-              className={`py-2 px-4 rounded-lg text-sm font-medium transition-all ${
-                activeCategory === 'male'
-                  ? 'bg-black text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-              }`}
+              className={`py-2 px-4 rounded-lg text-sm font-medium transition-all ${activeCategory === 'male'
+                ? 'bg-black text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                }`}
             >
               Male Models
             </button>
           </div>
-          
-          <Button 
+
+          <Button
             onClick={() => router.push('/register-model')}
             className="flex items-center gap-2"
           >
@@ -106,12 +104,12 @@ export function ModelsPage() {
 
           {/* Model Grid */}
           {!isLoading && !error && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6">
               {currentModels.map((model) => {
                 const mainImage = modelService.getMainImage(model) || '';
                 const ageRange = modelService.formatAgeRange(model.age_range);
                 const modelIdStr = model.id.toString();
-                
+
                 return (
                   <ModelCard
                     key={model.id}

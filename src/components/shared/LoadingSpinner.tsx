@@ -4,7 +4,7 @@ interface LoadingSpinnerProps {
   message?: string;
 }
 
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ message = 'Generating...' }) => {
+export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ }) => {
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <style>{`
@@ -25,9 +25,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ message = 'Gener
         }
       `}</style>
       <div className="custom-loader"></div>
-      {message && (
-        <p className="text-gray-600 text-sm font-medium animate-pulse">{message}</p>
-      )}
+
     </div>
   );
 };

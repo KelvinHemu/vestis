@@ -23,9 +23,9 @@ export function Signup() {
           {/* Hero Image */}
           <div className="p-5 pb-0">
             <div className="w-full h-48 bg-gray-100 relative overflow-hidden rounded-xl">
-              <img 
-                src="https://res.cloudinary.com/ds4lpuk8p/image/upload/v1763907019/signin_x0ajou.jpg" 
-                alt="Create account" 
+              <img
+                src="https://res.cloudinary.com/ds4lpuk8p/image/upload/v1763907019/signin_x0ajou.jpg"
+                alt="Create account"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -49,16 +49,6 @@ export function Signup() {
             >
               <img src="/images/icons/google.png" alt="Google" className="w-5 h-5 mr-2" />
               Sign up with Google
-            </Button>
-
-            {/* Model Sign Up Button */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => window.location.href = googleAuthModelUrl}
-              className="w-full border-gray-200 bg-white text-gray-900 hover:bg-gray-50 h-11 text-base font-medium shadow-sm"
-            >
-              Sign up as a Model
             </Button>
 
             {/* Login Link */}

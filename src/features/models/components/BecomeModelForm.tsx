@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { StepProgressBar } from '@/features/generation/components/StepProgressBar';
 import { modelRegistrationSchema, type ModelRegistrationData } from '@/types/model';
 import modelRegistrationService from '@/services/modelRegistrationService';
+import LocationSelector from '@/components/shared/locationInput';
 
 interface BecomeModelFormProps {
   onSuccess?: () => void;
@@ -22,38 +23,6 @@ const AGE_RANGES = [
   { value: '45+', label: '45+' }
 ];
 
-const COUNTRIES = [
-  'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
-  'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia',
-  'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi',
-  'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia',
-  'Comoros', 'Congo', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic',
-  'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic',
-  'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Ethiopia',
-  'Fiji', 'Finland', 'France',
-  'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana',
-  'Haiti', 'Honduras', 'Hungary',
-  'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy',
-  'Jamaica', 'Japan', 'Jordan',
-  'Kazakhstan', 'Kenya', 'Kiribati', 'Kosovo', 'Kuwait', 'Kyrgyzstan',
-  'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg',
-  'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius',
-  'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar',
-  'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Korea', 'North Macedonia', 'Norway',
-  'Oman',
-  'Pakistan', 'Palau', 'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal',
-  'Qatar',
-  'Romania', 'Russia', 'Rwanda',
-  'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Sao Tome and Principe',
-  'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands',
-  'Somalia', 'South Africa', 'South Korea', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'Sweden', 'Switzerland', 'Syria',
-  'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey',
-  'Turkmenistan', 'Tuvalu',
-  'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan',
-  'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam',
-  'Yemen',
-  'Zambia', 'Zimbabwe'
-];
 
 export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
@@ -211,7 +180,7 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
     }
   };
 
-  const showFemaleFields = formData.gender === 'female' || formData.gender === 'non-binary';
+  const showFemaleFields = formData.gender === 'female';
   const isSubmitting = registerMutation.isPending || uploadImageMutation.isPending;
 
   const steps = [
@@ -261,8 +230,7 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
             >
               <option value="female">Female</option>
               <option value="male">Male</option>
-              <option value="non-binary">Non-Binary</option>
-              <option value="other">Other</option>
+
             </select>
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -300,28 +268,14 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
         </div>
 
         <div>
-          <Label htmlFor="country" className="text-sm font-medium text-gray-700">Country *</Label>
-          <div className="relative mt-1.5">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <lucideReact.Globe className="h-5 w-5 text-gray-400" />
-            </div>
-            <select
-              id="country"
-              value={formData.country || ''}
-              onChange={(e) => handleInputChange('country', e.target.value)}
-              className="w-full pl-10 pr-3 py-2.5 h-12 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-black focus:ring-2 focus:ring-black/10 transition-all appearance-none cursor-pointer"
-              required
-            >
-              <option value="">Select Country</option>
-              {COUNTRIES.map(country => (
-                <option key={country} value={country}>{country}</option>
-              ))}
-            </select>
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
+          <Label className="text-sm font-medium text-gray-700">Location *</Label>
+          <div className="mt-1.5">
+            <LocationSelector
+              showStateSelector={false}
+              onCountryChange={(country) => {
+                handleInputChange('country', country?.name || '')
+              }}
+            />
           </div>
           {errors.country && <p className="text-sm text-red-500 mt-1">{errors.country}</p>}
         </div>

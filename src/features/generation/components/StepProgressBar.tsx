@@ -25,13 +25,12 @@ export function StepProgressBar({ steps, currentStep }: StepProgressBarProps) {
             <div key={step.num} className="flex items-start flex-1">
               <div className="flex flex-col items-center">
                 <div
-                  className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg transition-all duration-300 ${
-                    isActive
+                  className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg transition-all duration-300 ${isActive
                       ? 'bg-black text-white shadow-lg scale-110'
                       : isCompleted
-                      ? 'bg-black text-white'
-                      : 'bg-gray-200 text-gray-400'
-                  }`}
+                        ? 'bg-black text-white'
+                        : 'bg-gray-200 text-gray-400'
+                    }`}
                 >
                   {isCompleted ? (
                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -48,9 +47,8 @@ export function StepProgressBar({ steps, currentStep }: StepProgressBarProps) {
                   )}
                 </div>
                 <span
-                  className={`mt-2 text-xs font-medium transition-colors ${
-                    isUpcoming ? 'text-gray-400' : 'text-gray-900'
-                  }`}
+                  className={`mt-2 text-xs font-medium transition-colors ${isUpcoming ? 'text-gray-400' : 'text-gray-900'
+                    }`}
                 >
                   {step.label}
                 </span>
@@ -58,9 +56,8 @@ export function StepProgressBar({ steps, currentStep }: StepProgressBarProps) {
               {index < steps.length - 1 && (
                 <div className="flex-1 h-12 flex items-center mx-4">
                   <div
-                    className={`w-full h-1 rounded-full transition-colors duration-300 ${
-                      isCompleted ? 'bg-black' : 'bg-gray-200'
-                    }`}
+                    className={`w-full h-1 rounded-full transition-colors duration-300 ${isCompleted ? 'bg-black' : 'bg-gray-200'
+                      }`}
                   />
                 </div>
               )}

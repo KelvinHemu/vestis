@@ -14,13 +14,13 @@ interface ModelCardInfoProps {
 
 function ModelCardInfo({ name, age, size }: ModelCardInfoProps) {
   return (
-    <div className="px-2 sm:px-3 py-1.5 sm:py-2">
+    <div className="px-2 sm:px-3 py-1">
       <div className="flex flex-wrap items-center justify-between gap-1 sm:gap-2">
         {/* Name - Left */}
         <div className="font-medium text-gray-900 text-sm sm:text-base truncate max-w-[45%] sm:max-w-none">
           {name}
         </div>
-        
+
         {/* Age and Size - Right */}
         <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
           <span className="text-xs sm:text-sm text-gray-600 px-1.5 sm:px-2.5 py-0.5 rounded-full border border-gray-300 whitespace-nowrap">
@@ -53,11 +53,11 @@ interface ModelCardProps {
   onPreview?: () => void;
 }
 
-export function ModelCard({ 
-  name, 
-  age, 
-  size, 
-  image, 
+export function ModelCard({
+  name,
+  age,
+  size,
+  image,
   isSelected = false,
   isFavorite = false,
   onClick,
@@ -79,11 +79,10 @@ export function ModelCard({
   return (
     <Card
       onClick={onClick}
-      className={`relative cursor-pointer overflow-hidden transition-all bg-white group ${
-        isSelected
-          ? 'ring-2 ring-black shadow-lg'
-          : 'hover:shadow-md'
-      }`}
+      className={`relative cursor-pointer overflow-hidden transition-all bg-white group ${isSelected
+        ? 'ring-2 ring-black shadow-lg'
+        : 'hover:shadow-md'
+        }`}
     >
       {/* Model Image */}
       <div className="aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
@@ -123,8 +122,8 @@ export function ModelCard({
                   title="Add to favorites"
                 >
                   <span className="text-xs font-medium">Favorite</span>
-                  <Heart 
-                    className={`w-5 h-5 hover:scale-125 transition-transform ${isFavorite ? 'fill-red-500 text-red-500' : 'hover:text-white'}`} 
+                  <Heart
+                    className={`w-5 h-5 hover:scale-125 transition-transform ${isFavorite ? 'fill-red-500 text-red-500' : 'hover:text-white'}`}
                   />
                 </button>
 
