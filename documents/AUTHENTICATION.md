@@ -2,7 +2,7 @@
 
 A complete, production-ready authentication system for your React + TypeScript application using Zustand for state management.
 
-## 📋 What's Included
+## 📋 What's Includedd
 
 ### 1. **Type Definitions** (`src/types/auth.ts`)
 - `User` - User data interface
