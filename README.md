@@ -9,7 +9,7 @@ A modern Next.js 15 application for AI-powered fashion photography generation.
 - pnpm (recommended) or npm/yarn
 - Backend API running at `http://localhost:8080`
 
-### Setup
+### setup
 
 1. **Install dependencies**
    ```bash
