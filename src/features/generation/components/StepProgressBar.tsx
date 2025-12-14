@@ -9,9 +9,12 @@ interface Step {
 interface StepProgressBarProps {
   steps: Step[];
   currentStep: number;
+  theme?: 'light' | 'dark';
 }
 
-export function StepProgressBar({ steps, currentStep }: StepProgressBarProps) {
+export function StepProgressBar({ steps, currentStep, theme = 'light' }: StepProgressBarProps) {
+  const isDark = theme === 'dark';
+
   return (
     <div className="mb-10">
       <div className="flex items-start justify-between max-w-2xl mx-auto">
@@ -26,10 +29,10 @@ export function StepProgressBar({ steps, currentStep }: StepProgressBarProps) {
               <div className="flex flex-col items-center">
                 <div
                   className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg transition-all duration-300 ${isActive
-                      ? 'bg-black text-white shadow-lg scale-110'
-                      : isCompleted
-                        ? 'bg-black text-white'
-                        : 'bg-gray-200 text-gray-400'
+                    ? isDark ? 'bg-white text-black shadow-lg scale-110' : 'bg-black text-white shadow-lg scale-110'
+                    : isCompleted
+                      ? isDark ? 'bg-white text-black' : 'bg-black text-white'
+                      : isDark ? 'bg-white/10 text-white/40' : 'bg-gray-200 text-gray-400'
                     }`}
                 >
                   {isCompleted ? (
@@ -47,7 +50,9 @@ export function StepProgressBar({ steps, currentStep }: StepProgressBarProps) {
                   )}
                 </div>
                 <span
-                  className={`mt-2 text-xs font-medium transition-colors ${isUpcoming ? 'text-gray-400' : 'text-gray-900'
+                  className={`mt-2 text-xs font-medium transition-colors ${isUpcoming
+                    ? isDark ? 'text-white/40' : 'text-gray-400'
+                    : isDark ? 'text-white' : 'text-gray-900'
                     }`}
                 >
                   {step.label}
@@ -56,7 +61,9 @@ export function StepProgressBar({ steps, currentStep }: StepProgressBarProps) {
               {index < steps.length - 1 && (
                 <div className="flex-1 h-12 flex items-center mx-4">
                   <div
-                    className={`w-full h-1 rounded-full transition-colors duration-300 ${isCompleted ? 'bg-black' : 'bg-gray-200'
+                    className={`w-full h-1 rounded-full transition-colors duration-300 ${isCompleted
+                      ? isDark ? 'bg-white' : 'bg-black'
+                      : isDark ? 'bg-white/10' : 'bg-gray-200'
                       }`}
                   />
                 </div>

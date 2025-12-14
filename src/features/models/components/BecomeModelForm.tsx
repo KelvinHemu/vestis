@@ -5,17 +5,19 @@ import { useMutation } from '@tanstack/react-query';
 import * as lucideReact from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Field, FieldLabel, FieldError } from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import { StepProgressBar } from '@/features/generation/components/StepProgressBar';
 import { modelRegistrationSchema, type ModelRegistrationData } from '@/types/model';
 import modelRegistrationService from '@/services/modelRegistrationService';
 import LocationSelector from '@/components/shared/locationInput';
+import { MeasurementsAttributes } from './MeasurementsAttributes';
 
 interface BecomeModelFormProps {
   onSuccess?: () => void;
 }
 
-const CLOTHING_SIZES = ['S', 'S-M', 'S-L', 'M-L', 'L-XL', 'L-XXL', 'XXL'] as const;
+
 const AGE_RANGES = [
   { value: '18-24', label: '18–24' },
   { value: '25-34', label: '25–34' },
@@ -190,16 +192,16 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
   ];
 
   const renderStep1 = () => (
-    <div className="space-y-6">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Basic Information</h2>
-        <p className="text-gray-500">Let's start with the essentials</p>
+    <div className="space-y-2 lg:space-y-3">
+      <div>
+        <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Basic Information</h2>
+        <p className="text-sm lg:text-base text-gray-500">Let's start with the essentials</p>
       </div>
 
-      <div className="space-y-5">
-        <div>
-          <Label htmlFor="name" className="text-sm font-medium text-gray-700">Full Name *</Label>
-          <div className="relative mt-1.5">
+      <div className="space-y-2 lg:space-y-3">
+        <Field>
+          <FieldLabel htmlFor="name" className="text-sm font-medium text-gray-700">Full Name *</FieldLabel>
+          <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <lucideReact.User className="h-5 w-5 text-gray-400" />
             </div>
@@ -208,16 +210,16 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
               value={formData.name || ''}
               onChange={(e) => handleInputChange('name', e.target.value)}
               placeholder="Enter your full name"
-              className="pl-10 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors rounded-lg"
+              className="pl-10 bg-gray-50 border-gray-200 focus:bg-white transition-colors rounded-lg"
               required
             />
           </div>
-          {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
-        </div>
+          {errors.name && <FieldError className="mt-1">{errors.name}</FieldError>}
+        </Field>
 
-        <div>
-          <Label htmlFor="gender" className="text-sm font-medium text-gray-700">Gender *</Label>
-          <div className="relative mt-1.5">
+        <Field>
+          <FieldLabel htmlFor="gender" className="text-sm font-medium text-gray-700">Gender *</FieldLabel>
+          <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <lucideReact.User className="h-5 w-5 text-gray-400" />
             </div>
@@ -225,7 +227,7 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
               id="gender"
               value={formData.gender || 'female'}
               onChange={(e) => handleInputChange('gender', e.target.value)}
-              className="w-full pl-10 pr-3 py-2.5 h-12 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-black focus:ring-2 focus:ring-black/10 transition-all appearance-none cursor-pointer"
+              className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-black focus:ring-2 focus:ring-black/10 transition-all appearance-none cursor-pointer"
               required
             >
               <option value="female">Female</option>
@@ -238,12 +240,12 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
               </svg>
             </div>
           </div>
-          {errors.gender && <p className="text-sm text-red-500 mt-1">{errors.gender}</p>}
-        </div>
+          {errors.gender && <FieldError className="mt-1">{errors.gender}</FieldError>}
+        </Field>
 
-        <div>
-          <Label htmlFor="age_range" className="text-sm font-medium text-gray-700">Age Range *</Label>
-          <div className="relative mt-1.5">
+        <Field>
+          <FieldLabel htmlFor="age_range" className="text-sm font-medium text-gray-700">Age Range *</FieldLabel>
+          <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <lucideReact.Calendar className="h-5 w-5 text-gray-400" />
             </div>
@@ -251,7 +253,7 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
               id="age_range"
               value={selectedAgeRange}
               onChange={(e) => handleAgeRangeChange(e.target.value)}
-              className="w-full pl-10 pr-3 py-2.5 h-12 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-black focus:ring-2 focus:ring-black/10 transition-all appearance-none cursor-pointer"
+              className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-black focus:ring-2 focus:ring-black/10 transition-all appearance-none cursor-pointer"
               required
             >
               {AGE_RANGES.map(range => (
@@ -264,39 +266,12 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
               </svg>
             </div>
           </div>
-          {errors.age_range && <p className="text-sm text-red-500 mt-1">{errors.age_range}</p>}
-        </div>
+          {errors.age_range && <FieldError className="mt-1">{errors.age_range}</FieldError>}
+        </Field>
 
-        <div>
-          <Label className="text-sm font-medium text-gray-700">Location *</Label>
-          <div className="mt-1.5">
-            <LocationSelector
-              showStateSelector={false}
-              onCountryChange={(country) => {
-                handleInputChange('country', country?.name || '')
-              }}
-            />
-          </div>
-          {errors.country && <p className="text-sm text-red-500 mt-1">{errors.country}</p>}
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderStep2 = () => (
-    <div className="space-y-8">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Measurements & Attributes</h2>
-        <p className="text-gray-500">Help us match you with the right opportunities</p>
-      </div>
-
-      {/* Contact Info */}
-      <div className="space-y-5">
-        <h3 className="font-semibold text-sm text-gray-900 uppercase tracking-wider">Contact Information</h3>
-
-        <div>
-          <Label htmlFor="phone_number" className="text-sm font-medium text-gray-700">Phone Number</Label>
-          <div className="relative mt-1.5">
+        <Field>
+          <FieldLabel htmlFor="phone_number" className="text-sm font-medium text-gray-700">Phone Number</FieldLabel>
+          <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <lucideReact.Phone className="h-5 w-5 text-gray-400" />
             </div>
@@ -306,14 +281,14 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
               placeholder="+1234567890"
               value={formData.phone_number || ''}
               onChange={(e) => handleInputChange('phone_number', e.target.value)}
-              className="pl-10 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors rounded-lg"
+              className="pl-10 bg-gray-50 border-gray-200 focus:bg-white transition-colors rounded-lg"
             />
           </div>
-        </div>
+        </Field>
 
-        <div>
-          <Label htmlFor="instagram_handle" className="text-sm font-medium text-gray-700">Instagram Handle</Label>
-          <div className="relative mt-1.5">
+        <Field>
+          <FieldLabel htmlFor="instagram_handle" className="text-sm font-medium text-gray-700">Instagram Handle</FieldLabel>
+          <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <lucideReact.Instagram className="h-5 w-5 text-gray-400" />
             </div>
@@ -322,156 +297,35 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
               placeholder="@username"
               value={formData.instagram_handle || ''}
               onChange={(e) => handleInputChange('instagram_handle', e.target.value)}
-              className="pl-10 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors rounded-lg"
+              className="pl-10 bg-gray-50 border-gray-200 focus:bg-white transition-colors rounded-lg"
             />
           </div>
-        </div>
-      </div>
+        </Field>
 
-      <div className="h-px bg-gray-100" />
-
-      {/* Physical Attributes */}
-      <div className="space-y-5">
-        <h3 className="font-semibold text-sm text-gray-900 uppercase tracking-wider">Physical Attributes</h3>
-
-        <div className="grid grid-cols-2 gap-4">
+        <Field>
+          <FieldLabel className="text-sm font-medium text-gray-700">Location *</FieldLabel>
           <div>
-            <Label htmlFor="eye_color" className="text-sm font-medium text-gray-700">Eye Color</Label>
-            <Input
-              id="eye_color"
-              value={formData.eye_color || ''}
-              onChange={(e) => handleInputChange('eye_color', e.target.value)}
-              className="h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors rounded-lg mt-1.5"
+            <LocationSelector
+              showStateSelector={false}
+              onCountryChange={(country) => {
+                handleInputChange('country', country?.name || '')
+              }}
             />
           </div>
-          <div>
-            <Label htmlFor="hair_color" className="text-sm font-medium text-gray-700">Hair Color</Label>
-            <Input
-              id="hair_color"
-              value={formData.hair_color || ''}
-              onChange={(e) => handleInputChange('hair_color', e.target.value)}
-              className="h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors rounded-lg mt-1.5"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="clothing_size" className="text-sm font-medium text-gray-700">Clothing Size</Label>
-            <select
-              id="clothing_size"
-              value={formData.clothing_size || ''}
-              onChange={(e) => handleInputChange('clothing_size', e.target.value)}
-              className="w-full px-3 py-2.5 h-12 border border-gray-200 rounded-lg bg-gray-50 mt-1.5 focus:bg-white focus:border-black focus:ring-2 focus:ring-black/10 transition-all"
-            >
-              <option value="">Select size</option>
-              {CLOTHING_SIZES.map(size => (
-                <option key={size} value={size}>{size}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <Label htmlFor="shoe_size_eu" className="text-sm font-medium text-gray-700">Shoe Size (EU)</Label>
-            <Input
-              id="shoe_size_eu"
-              type="number"
-              min="20"
-              max="60"
-              value={formData.shoe_size_eu || ''}
-              onChange={(e) => handleInputChange('shoe_size_eu', e.target.value ? Number(e.target.value) : undefined)}
-              className="h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors rounded-lg mt-1.5"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="h-px bg-gray-100" />
-
-      {/* Body Measurements */}
-      <div className="space-y-5">
-        <h3 className="font-semibold text-sm text-gray-900 uppercase tracking-wider">Body Measurements (cm)</h3>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="height_cm" className="text-sm font-medium text-gray-700">Height</Label>
-            <Input
-              id="height_cm"
-              type="number"
-              min="140"
-              max="250"
-              value={formData.height_cm || ''}
-              onChange={(e) => handleInputChange('height_cm', e.target.value ? Number(e.target.value) : undefined)}
-              className="h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors rounded-lg mt-1.5"
-            />
-          </div>
-          {showFemaleFields && (
-            <div>
-              <Label htmlFor="bust_cm" className="text-sm font-medium text-gray-700">Bust</Label>
-              <Input
-                id="bust_cm"
-                type="number"
-                min="50"
-                max="200"
-                value={formData.bust_cm || ''}
-                onChange={(e) => handleInputChange('bust_cm', e.target.value ? Number(e.target.value) : undefined)}
-                className="h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors rounded-lg mt-1.5"
-              />
-            </div>
-          )}
-          <div>
-            <Label htmlFor="waist_cm" className="text-sm font-medium text-gray-700">Waist</Label>
-            <Input
-              id="waist_cm"
-              type="number"
-              min="50"
-              max="200"
-              value={formData.waist_cm || ''}
-              onChange={(e) => handleInputChange('waist_cm', e.target.value ? Number(e.target.value) : undefined)}
-              className="h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors rounded-lg mt-1.5"
-            />
-          </div>
-          <div>
-            <Label htmlFor="hips_cm" className="text-sm font-medium text-gray-700">Hips</Label>
-            <Input
-              id="hips_cm"
-              type="number"
-              min="50"
-              max="200"
-              value={formData.hips_cm || ''}
-              onChange={(e) => handleInputChange('hips_cm', e.target.value ? Number(e.target.value) : undefined)}
-              className="h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors rounded-lg mt-1.5"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="h-px bg-gray-100" />
-
-      {/* Bio */}
-      <div>
-        <Label htmlFor="bio" className="text-sm font-medium text-gray-700">About You</Label>
-        <textarea
-          id="bio"
-          maxLength={1000}
-          rows={4}
-          value={formData.bio || ''}
-          onChange={(e) => handleInputChange('bio', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg mt-1.5 bg-gray-50 focus:bg-white focus:border-black focus:ring-2 focus:ring-black/10 transition-all"
-          placeholder="Tell us about your modeling experience, interests, or style."
-        />
-        <p className="text-sm text-gray-500 mt-1">
-          {(formData.bio?.length || 0)}/1000 characters
-        </p>
+          {errors.country && <FieldError className="mt-1">{errors.country}</FieldError>}
+        </Field>
       </div>
     </div>
   );
 
+
+
   const renderStep3 = () => (
-    <div className="space-y-6">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Your Photos</h2>
-        <p className="text-gray-500 mb-2">Upload clear, well-lit photos. Mix headshots and full-body shots.</p>
-        <p className="text-sm font-medium text-gray-900">Minimum 4 photos required • Maximum 10 photos</p>
+    <div className="space-y-2 lg:space-y-3">
+      <div>
+        <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Upload Your Photos</h2>
+        <p className="text-sm lg:text-base text-gray-500">Upload clear, well-lit photos. Mix headshots and full-body shots.</p>
+        <p className="text-xs lg:text-sm font-medium text-gray-900">Minimum 4 photos required • Maximum 10 photos</p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -526,44 +380,107 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
     <div className="fixed inset-0 z-50 flex overflow-hidden bg-white">
       {/* Left Panel - Pure Black with Info */}
       <div className="hidden md:flex md:w-2/5 lg:w-1/2 bg-black text-white flex-col justify-between p-8 lg:p-12">
-        {/* Logo */}
-        <div>
+        {/* Logo and Back Button */}
+        <div className="flex items-center justify-between w-full">
           <img
             src="/Vestis.svg"
             alt="Vestis"
             className="h-8 w-auto brightness-0 invert"
           />
+          <button
+            onClick={() => window.history.back()}
+            className="text-white/60 hover:text-white transition-colors"
+          >
+            <lucideReact.X className="w-6 h-6" />
+          </button>
         </div>
 
-        {/* Main Content */}
-        <div className="max-w-md">
-          <h1 className="text-4xl lg:text-5xl font-bold tracking-tight mb-6">
-            Become a Model
-          </h1>
-          <p className="text-gray-400 text-lg leading-relaxed mb-8">
-            Join our professional community of models and showcase your talent to top brands and designers worldwide.
-          </p>
 
-          <div className="space-y-4">
-            <div className="flex items-center gap-4 text-gray-300">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                <lucideReact.Globe className="w-5 h-5" />
-              </div>
-              <span>Global Exposure</span>
-            </div>
-            <div className="flex items-center gap-4 text-gray-300">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                <lucideReact.Camera className="w-5 h-5" />
-              </div>
-              <span>Professional Portfolio</span>
-            </div>
-            <div className="flex items-center gap-4 text-gray-300">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                <lucideReact.User className="w-5 h-5" />
-              </div>
-              <span>Direct Connections</span>
-            </div>
+        {/* Main Content */}
+        <div className="max-w-md w-full">
+          <div className="mb-12">
+            <StepProgressBar steps={steps} currentStep={currentStep} theme="dark" />
           </div>
+          {currentStep === 1 && (
+            <>
+              <h1 className="text-4xl lg:text-5xl font-bold tracking-tight mb-6">
+                Become a Model
+              </h1>
+              <p className="text-gray-400 text-lg leading-relaxed mb-8">
+                Join our professional community of models and showcase your talent to top brands and designers worldwide.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4 text-gray-300">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                    <lucideReact.Globe className="w-5 h-5" />
+                  </div>
+                  <span>Global Exposure</span>
+                </div>
+                <div className="flex items-center gap-4 text-gray-300">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                    <lucideReact.Camera className="w-5 h-5" />
+                  </div>
+                  <span>Professional Portfolio</span>
+                </div>
+                <div className="flex items-center gap-4 text-gray-300">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                    <lucideReact.User className="w-5 h-5" />
+                  </div>
+                  <span>Direct Connections</span>
+                </div>
+              </div>
+            </>
+          )}
+
+          {currentStep === 2 && (
+            <>
+              <h1 className="text-4xl lg:text-5xl font-bold tracking-tight mb-6">
+                Precision Matters
+              </h1>
+              <p className="text-gray-400 text-lg leading-relaxed mb-8">
+                Accurate measurements help brands find the perfect fit. Take your time to measure carefully for the best opportunities.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4 text-gray-300">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                    <lucideReact.Ruler className="w-5 h-5" />
+                  </div>
+                  <span>Accurate Matching</span>
+                </div>
+                <div className="flex items-center gap-4 text-gray-300">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                    <lucideReact.Shirt className="w-5 h-5" />
+                  </div>
+                  <span>Better Fit Reduce Returns</span>
+                </div>
+              </div>
+            </>
+          )}
+
+          {currentStep === 3 && (
+            <>
+              <h1 className="text-4xl lg:text-5xl font-bold tracking-tight mb-6">
+                Showcase Your Look
+              </h1>
+              <p className="text-gray-400 text-lg leading-relaxed mb-8">
+                High-quality photos are your first impression. Upload clear, professional shots that highlight your versatility.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4 text-gray-300">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                    <lucideReact.Image className="w-5 h-5" />
+                  </div>
+                  <span>High Resolution</span>
+                </div>
+                <div className="flex items-center gap-4 text-gray-300">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                    <lucideReact.Sun className="w-5 h-5" />
+                  </div>
+                  <span>Natural Lighting</span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Footer */}
@@ -575,7 +492,8 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
       {/* Right Panel - Form */}
       <div className="w-full md:w-3/5 lg:w-1/2 flex flex-col h-full bg-white">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+        {/* Header - Mobile Only */}
+        <div className="md:hidden flex items-center justify-between p-6 border-b border-gray-100">
           <Button
             variant="ghost"
             onClick={() => window.history.back()}
@@ -584,21 +502,23 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
             <lucideReact.ArrowLeft className="w-5 h-5 mr-2" />
             Back
           </Button>
-          <div className="md:hidden">
+          <div>
             <img src="/Vestis.svg" alt="Vestis" className="h-6 w-auto" />
           </div>
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="max-w-xl mx-auto p-6 lg:p-10">
-            <div className="mb-10">
-              <StepProgressBar steps={steps} currentStep={currentStep} />
-            </div>
-
-            <form onSubmit={handleSubmit}>
+        <div className="flex-1 overflow-y-auto flex flex-col">
+          <div className="max-w-xl mx-auto p-3 lg:p-6 w-full flex-1 flex flex-col">
+            <Form onSubmit={handleSubmit} className="flex-1 flex flex-col">
               {currentStep === 1 && renderStep1()}
-              {currentStep === 2 && renderStep2()}
+              {currentStep === 2 && (
+                <MeasurementsAttributes
+                  formData={formData}
+                  handleInputChange={handleInputChange}
+                  showFemaleFields={showFemaleFields}
+                />
+              )}
               {currentStep === 3 && renderStep3()}
 
               {/* Error Message */}
@@ -609,13 +529,13 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
               )}
 
               {/* Navigation Buttons */}
-              <div className="flex gap-4 mt-10 pt-6 border-t border-gray-100">
+              <div className="flex flex-row justify-end items-center gap-4 mt-auto pt-8">
                 {currentStep > 1 && (
                   <Button
                     type="button"
                     onClick={handleBack}
                     variant="outline"
-                    className="px-8 py-6 text-base font-semibold rounded-xl border-2 hover:bg-gray-50 transition-all"
+                    className="px-8 py-4 text-base font-semibold rounded-xl border-2 hover:bg-gray-50 transition-all"
                   >
                     Back
                   </Button>
@@ -625,7 +545,7 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
                   <Button
                     type="button"
                     onClick={handleNext}
-                    className="flex-1 px-8 py-6 text-base font-semibold rounded-xl bg-black text-white hover:bg-gray-900 shadow-lg hover:shadow-xl transition-all"
+                    className="px-8 py-4 text-base font-semibold rounded-xl bg-black text-white hover:bg-gray-900 shadow-lg hover:shadow-xl transition-all"
                   >
                     Continue
                   </Button>
@@ -633,7 +553,7 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 px-8 py-6 text-base font-semibold rounded-xl bg-black text-white hover:bg-gray-900 shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+                    className="px-8 py-4 text-base font-semibold rounded-xl bg-black text-white hover:bg-gray-900 shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
                   >
                     {isSubmitting ? (
                       <>
@@ -646,7 +566,7 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
                   </Button>
                 )}
               </div>
-            </form>
+            </Form>
           </div>
         </div>
       </div>
