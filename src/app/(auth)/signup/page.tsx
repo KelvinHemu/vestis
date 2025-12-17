@@ -1,12 +1,12 @@
 "use client";
 
-import { Signup } from "@/features/auth/components/Signup";
+import SignUpPage from "@/components/sign-up";
 
 /* ============================================
    Signup Page Route
-   Renders the Signup feature component
+   Renders the new Tailark SignUp component
    ============================================ */
 
-export default function SignupPage() {
-  return <Signup />;
+export default function SignupPageRoute() {
+  return <SignUpPage />;
 }
