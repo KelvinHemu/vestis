@@ -45,6 +45,12 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
       onSuccess?.();
     },
     onError: (error: Error) => {
+      const anyError = error as any;
+      const fieldErrors = anyError?.fieldErrors;
+      if (fieldErrors && typeof fieldErrors === 'object') {
+        setErrors({ ...fieldErrors, submit: error.message });
+        return;
+      }
       setErrors({ submit: error.message });
     },
   });
@@ -93,6 +99,7 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
     setErrors(prev => {
       const newErrors = { ...prev };
       delete newErrors.images;
+      delete newErrors.submit; // Clear submit error when adding photos
       return newErrors;
     });
   };
@@ -123,9 +130,10 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
       if (!selectedAgeRange) stepErrors.age_range = 'Age range is required';
     }
 
-    if (step === 3) {
+    if (step === 2) {
       if (images.length < 4) {
         stepErrors.images = 'Please upload at least 4 photos';
+        stepErrors.submit = 'Please upload at least 4 photos to submit your application.';
       }
     }
 
@@ -145,8 +153,14 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🚀 Form submitted');
+    console.log('📸 Images count:', images.length);
+    console.log('📋 Form data:', formData);
 
-    if (!validateStep(3)) return;
+    if (!validateStep(2)) {
+      console.log('❌ Step 2 validation failed');
+      return;
+    }
 
     setErrors({});
 
@@ -154,6 +168,7 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
     const result = modelRegistrationSchema.safeParse(formData);
 
     if (!result.success) {
+      console.log('❌ Zod validation failed:', result.error.issues);
       const fieldErrors: Record<string, string> = {};
       result.error.issues.forEach((err) => {
         const field = err.path[0] as string;
@@ -163,11 +178,22 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
       return;
     }
 
+    console.log('✅ Validation passed, sending to API...');
+
     // Register model
-    const model = await registerMutation.mutateAsync(result.data);
+    let model: any;
+    try {
+      model = await registerMutation.mutateAsync(result.data);
+      console.log('✅ Model registered successfully:', model);
+    } catch (error) {
+      console.error('❌ Registration failed:', error);
+      // Errors are already surfaced via registerMutation.onError.
+      return;
+    }
 
     // Upload images
     if (images.length > 0 && model) {
+      console.log(`📤 Uploading ${images.length} images...`);
       for (let i = 0; i < images.length; i++) {
         try {
           const base64 = await convertToBase64(images[i].file);
@@ -175,11 +201,13 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
             image: base64,
             position: i + 1,
           });
+          console.log(`✅ Image ${i + 1} uploaded`);
         } catch (error) {
-          console.error('Failed to upload image:', error);
+          console.error(`❌ Failed to upload image ${i + 1}:`, error);
         }
       }
     }
+    console.log('🎉 Registration complete!');
   };
 
   const showFemaleFields = formData.gender === 'female';
@@ -187,8 +215,8 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
 
   const steps = [
     { num: 1, label: 'Basic Info', icon: lucideReact.User },
-    { num: 2, label: 'Measurements', icon: lucideReact.Ruler },
-    { num: 3, label: 'Photos', icon: lucideReact.Camera }
+    // { num: 2, label: 'Measurements', icon: lucideReact.Ruler },
+    { num: 2, label: 'Photos', icon: lucideReact.Camera }
   ];
 
   const renderStep1 = () => (
@@ -432,7 +460,7 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
             </>
           )}
 
-          {currentStep === 2 && (
+          {/* {currentStep === 2 && (
             <>
               <h1 className="text-4xl lg:text-5xl font-bold tracking-tight mb-6">
                 Precision Matters
@@ -455,9 +483,9 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
                 </div>
               </div>
             </>
-          )}
+          )} */}
 
-          {currentStep === 3 && (
+          {currentStep === 2 && (
             <>
               <h1 className="text-4xl lg:text-5xl font-bold tracking-tight mb-6">
                 Showcase Your Look
@@ -512,14 +540,15 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
           <div className="max-w-xl mx-auto p-3 lg:p-6 w-full flex-1 flex flex-col">
             <Form onSubmit={handleSubmit} className="flex-1 flex flex-col">
               {currentStep === 1 && renderStep1()}
-              {currentStep === 2 && (
+              {/* {currentStep === 2 && (
                 <MeasurementsAttributes
                   formData={formData}
                   handleInputChange={handleInputChange}
                   showFemaleFields={showFemaleFields}
+                  errors={errors}
                 />
-              )}
-              {currentStep === 3 && renderStep3()}
+              )} */}
+              {currentStep === 2 && renderStep3()}
 
               {/* Error Message */}
               {errors.submit && (
@@ -541,7 +570,7 @@ export function BecomeModelForm({ onSuccess }: BecomeModelFormProps) {
                   </Button>
                 )}
 
-                {currentStep < 3 ? (
+                {currentStep < 2 ? (
                   <Button
                     type="button"
                     onClick={handleNext}

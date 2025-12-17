@@ -42,18 +42,18 @@ export interface SelfRegisteredModel extends Model {
   registration_status: RegistrationStatus;
   is_verified: boolean;
   rejection_reason?: string | null;
-  
+
   // Contact info
   phone_number?: string;
   country_code?: string;
   country?: string;
   instagram_handle?: string;
-  
+
   // Physical attributes
   eye_color?: string;
   hair_color?: string;
   clothing_size?: ClothingSize;
-  
+
   // Measurements (in cm)
   height_cm?: number;
   waist_cm?: number;
@@ -64,7 +64,7 @@ export interface SelfRegisteredModel extends Model {
   inseam_cm?: number;
   neck_cm?: number;
   shoe_size_eu?: number;
-  
+
   // Bio
   bio?: string;
 }
@@ -75,18 +75,18 @@ export const modelRegistrationSchema = z.object({
   gender: z.enum(['male', 'female', 'non-binary', 'other']),
   age_min: z.number().min(18, 'Minimum age is 18').max(120, 'Invalid age'),
   age_max: z.number().min(18, 'Minimum age is 18').max(120, 'Invalid age'),
-  
+
   // Optional contact info
   phone_number: z.string().optional(),
   country_code: z.string().optional(),
   country: z.string().optional(),
   instagram_handle: z.string().optional(),
-  
+
   // Optional physical attributes
   eye_color: z.string().optional(),
   hair_color: z.string().optional(),
   clothing_size: z.enum(['S', 'S-M', 'S-L', 'M-L', 'L-XL', 'L-XXL', 'XXL']).optional(),
-  
+
   // Optional measurements
   height_cm: z.number().min(140).max(250).optional(),
   waist_cm: z.number().min(50).max(200).optional(),
@@ -97,7 +97,7 @@ export const modelRegistrationSchema = z.object({
   inseam_cm: z.number().min(50).max(120).optional(),
   neck_cm: z.number().min(20).max(60).optional(),
   shoe_size_eu: z.number().min(20).max(60).optional(),
-  
+
   // Optional bio
   bio: z.string().max(1000, 'Bio too long').optional(),
 }).refine(data => data.age_max >= data.age_min, {
