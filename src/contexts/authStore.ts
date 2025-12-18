@@ -21,6 +21,14 @@ interface AuthStore extends AuthState {
   setPendingVerificationEmail: (email: string | null) => void;
   needsVerification: boolean;
   setNeedsVerification: (needs: boolean) => void;
+  
+  // Onboarding management
+  // Track user's onboarding progress and intent
+  updateOnboardingStatus: (completed: boolean) => void;
+  setUserIntent: (intent: 'on_model' | 'flat_lay' | 'mannequin' | 'background_change') => void;
+  getOnboardingStatus: () => boolean;
+  onboardingProgress: string | null;
+  setOnboardingProgress: (step: string | null) => void;
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -35,6 +43,7 @@ export const useAuthStore = create<AuthStore>()(
       _hasHydrated: false,
       pendingVerificationEmail: null,
       needsVerification: false,
+      onboardingProgress: null,
 
       /**
        * Set hydration state - called by persist middleware
@@ -267,6 +276,49 @@ export const useAuthStore = create<AuthStore>()(
       clearError: () => {
         set({ error: null });
       },
+
+      /**
+       * Update onboarding completion status
+       * Marks user as having completed the onboarding flow
+       */
+      updateOnboardingStatus: (completed: boolean) => {
+        const { user } = get();
+        if (user) {
+          const updatedUser = { ...user, onboardingCompleted: completed };
+          set({ user: updatedUser });
+          authService.storeUser(updatedUser);
+        }
+      },
+
+      /**
+       * Set user's creation intent during onboarding
+       * Stores which type of generation the user wants to create
+       */
+      setUserIntent: (intent: 'on_model' | 'flat_lay' | 'mannequin' | 'background_change') => {
+        const { user } = get();
+        if (user) {
+          const updatedUser = { ...user, intent };
+          set({ user: updatedUser });
+          authService.storeUser(updatedUser);
+        }
+      },
+
+      /**
+       * Get onboarding status
+       * Returns true if user has completed onboarding, false otherwise
+       */
+      getOnboardingStatus: () => {
+        const { user } = get();
+        return user?.onboardingCompleted ?? false;
+      },
+
+      /**
+       * Set onboarding progress step
+       * Tracks which step of onboarding the user is on for resumption
+       */
+      setOnboardingProgress: (step: string | null) => {
+        set({ onboardingProgress: step });
+      },
     }),
     {
       name: 'auth-storage',
@@ -276,7 +328,9 @@ export const useAuthStore = create<AuthStore>()(
         token: state.token,
         isAuthenticated: state.isAuthenticated,
         isInitialized: state.isInitialized,
+        onboardingProgress: state.onboardingProgress,
         // Note: _hasHydrated is NOT persisted - it's runtime state
+        // Note: onboarding fields are persisted within user object
       }),
       // Called when hydration is finished
       onRehydrateStorage: () => (state) => {

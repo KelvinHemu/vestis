@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { MainContent } from '@/components/layout/MainContent';
 import { Steps } from './Steps';
 import { ProductSelector } from './ProductSelector';
@@ -23,6 +23,7 @@ import type { ProductImage } from '@/types/flatlay';
 import { RotateCw } from 'lucide-react';
 import AspectRatio from '@/components/shared/aspectRatio';
 import Resolution from '@/components/shared/resolution';
+import { useOnboarding } from '@/hooks/useOnboarding';
 
 // Helper function to convert aspect ratio string to CSS aspect-ratio value
 const getAspectRatioValue = (ratio: string): string => {
@@ -31,7 +32,18 @@ const getAspectRatioValue = (ratio: string): string => {
   return ratio.replace(':', '/');
 };
 
-export function FlatLayPhotos() {
+interface FlatLayPhotosProps {
+  // Onboarding mode simplifies the UI and auto-selects defaults
+  isOnboarding?: boolean;
+}
+
+export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {}) {
+  // Onboarding hook for redirecting to result page
+  const { goToResult } = useOnboarding();
+  
+  // Ref to prevent infinite loop when redirecting in onboarding mode
+  const hasRedirectedRef = useRef(false);
+  
   // Get persisted state from store
   const {
     currentStep,
@@ -102,8 +114,15 @@ export function FlatLayPhotos() {
       // Invalidate caches to show new generation in history
       invalidateGenerations();
       invalidateFlatLay();
+      
+      // If in onboarding mode, redirect to result page after successful generation
+      // Use ref to prevent infinite loop
+      if (isOnboarding && !hasRedirectedRef.current) {
+        hasRedirectedRef.current = true;
+        goToResult(newGeneratedImageUrl, aspectRatio);
+      }
     }
-  }, [newGeneratedImageUrl]);
+  }, [newGeneratedImageUrl, generatedImageUrl, isOnboarding, goToResult, aspectRatio]);
 
   // Cache invalidation hooks
   const invalidateGenerations = useInvalidateGenerations();
@@ -345,16 +364,38 @@ export function FlatLayPhotos() {
         
         console.log('Rendering step 0, current images:', currentImages);
         return (
-          <ProductSelector
-            selectionType={selectionType}
-            onSelectionTypeChange={setSelectionType}
-            imageUrls={currentImages}
-            onFileUpload={handleFileUpload}
-            onClear={() => {
-              setTopImages({});
-              setBottomImages({});
-            }}
-          />
+          <>
+            {/* Onboarding guidance banner */}
+            {isOnboarding && (
+              <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gray-700 text-white flex items-center justify-center text-xs font-bold mt-0.5">
+                    i
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                      Get started by uploading your product photo
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Upload a clear, well-lit photo of your clothing item. 
+                      You can upload both front and back views for the best results.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <ProductSelector
+              selectionType={selectionType}
+              onSelectionTypeChange={setSelectionType}
+              imageUrls={currentImages}
+              onFileUpload={handleFileUpload}
+              onClear={() => {
+                setTopImages({});
+                setBottomImages({});
+              }}
+            />
+          </>
         );
       case 1:
         return (
@@ -377,6 +418,25 @@ export function FlatLayPhotos() {
       case 3:
         return (
           <div className="space-y-6">
+            {/* Onboarding guidance banner for final step */}
+            {isOnboarding && !isGenerating && !generatedImageUrl && (
+              <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gray-700 text-white flex items-center justify-center text-xs font-bold mt-0.5">
+                    i
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                      Ready to generate your first image!
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Review your selections and click "Generate Image" to create your professional fashion photo.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             <div className="flex flex-col items-center justify-center min-h-[400px] w-full gap-3 sm:gap-4 md:gap-6">
               {isGenerating ? (
                 <div className="flex items-center justify-center">
@@ -557,21 +617,26 @@ export function FlatLayPhotos() {
         
         {/* Selected Items and Button at the bottom */}
         <div className="space-y-4 md:space-y-6">
-          {/* Aspect Ratio Selector */}
-          <div>
-            <AspectRatio
-              value={aspectRatio}
-              onValueChange={setAspectRatio}
-            />
-          </div>
-          
-          {/* Resolution Selector */}
-          <div>
-            <Resolution
-              value={resolution}
-              onValueChange={setResolution}
-            />
-          </div>
+          {/* Hide advanced options in onboarding mode */}
+          {!isOnboarding && (
+            <>
+              {/* Aspect Ratio Selector */}
+              <div>
+                <AspectRatio
+                  value={aspectRatio}
+                  onValueChange={setAspectRatio}
+                />
+              </div>
+              
+              {/* Resolution Selector */}
+              <div>
+                <Resolution
+                  value={resolution}
+                  onValueChange={setResolution}
+                />
+              </div>
+            </>
+          )}
 
           {/* Show Download and Regenerate buttons after image is generated */}
           {currentStep === 3 && generatedImageUrl && (
@@ -671,14 +736,17 @@ export function FlatLayPhotos() {
       <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 overflow-hidden">
         {/* Left Component - full width on phone, flex-1 on tablet+ */}
         <div className="flex-1 bg-white md:border-r-2 border-gray-300 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
-          <div className="border-b-2 border-gray-300">
-            <Steps 
-              steps={steps} 
-              currentStep={currentStep}
-              maxUnlockedStep={maxUnlockedStep}
-              onStepChange={setCurrentStep}
-            />
-          </div>
+          {/* Hide steps in onboarding mode for simplified UI */}
+          {!isOnboarding && (
+            <div className="border-b-2 border-gray-300">
+              <Steps 
+                steps={steps} 
+                currentStep={currentStep}
+                maxUnlockedStep={maxUnlockedStep}
+                onStepChange={setCurrentStep}
+              />
+            </div>
+          )}
           <div className="p-8">
             {renderStepContent()}
           </div>

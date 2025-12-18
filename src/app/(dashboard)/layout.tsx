@@ -24,7 +24,7 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { isAuthenticated, isInitialized, _hasHydrated, loginWithOAuth } = useAuthStore();
+  const { isAuthenticated, isInitialized, _hasHydrated, loginWithOAuth, user } = useAuthStore();
   const [isProcessingOAuth, setIsProcessingOAuth] = useState(false);
   const hasProcessedOAuth = useRef(false);
 
@@ -85,6 +85,18 @@ export default function DashboardLayout({
       router.replace("/login");
     }
   }, [isAuthenticated, isInitialized, _hasHydrated, isProcessingOAuth, router]);
+
+  // Redirect to onboarding if user hasn't completed it
+  // IMPORTANT: Only redirect AFTER hydration, initialization, and OAuth processing are complete
+  useEffect(() => {
+    // Don't redirect while processing OAuth
+    if (isProcessingOAuth) return;
+    
+    if (_hasHydrated && isInitialized && isAuthenticated && user && !user.onboardingCompleted) {
+      console.log('📋 Onboarding not completed, redirecting to onboarding...');
+      router.replace("/intent");
+    }
+  }, [isAuthenticated, isInitialized, _hasHydrated, isProcessingOAuth, user, router]);
 
   // Show loading state while:
   // 1. Processing OAuth tokens from URL

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { MainContent } from '@/components/layout/MainContent';
 import { Steps } from './Steps';
 import { OnModelUpload } from './OnModelUpload';
@@ -24,8 +24,20 @@ import { getBackgroundById } from '@/services/backgroundService';
 import { RotateCw } from 'lucide-react';
 import AspectRatio from '@/components/shared/aspectRatio';
 import Resolution from '@/components/shared/resolution';
+import { useOnboarding } from '@/hooks/useOnboarding';
 
-export function OnModelPhotos() {
+interface OnModelPhotosProps {
+  // Onboarding mode simplifies the UI and auto-selects defaults
+  isOnboarding?: boolean;
+}
+
+export function OnModelPhotos({ isOnboarding = false }: OnModelPhotosProps = {}) {
+  // Onboarding hook for redirecting to result page
+  const { goToResult } = useOnboarding();
+  
+  // Ref to prevent infinite loop when redirecting in onboarding mode
+  const hasRedirectedRef = useRef(false);
+  
   // Get persisted state from store
   const {
     currentStep,
@@ -80,14 +92,22 @@ export function OnModelPhotos() {
 
   // Sync generated image with store for persistence
   useEffect(() => {
-    if (generatedImageUrl) {
+    // Only sync if the URL is different from stored value to prevent infinite loop
+    if (generatedImageUrl && generatedImageUrl !== storedGeneratedImageUrl) {
       setStoredGeneratedImageUrl(generatedImageUrl);
       setIsEditMode(true);
       // Invalidate caches to show new generation in history
       invalidateGenerations();
       invalidateOnModel();
+      
+      // If in onboarding mode, redirect to result page after successful generation
+      // Use ref to prevent infinite loop
+      if (isOnboarding && !hasRedirectedRef.current) {
+        hasRedirectedRef.current = true;
+        goToResult(generatedImageUrl, aspectRatio);
+      }
     }
-  }, [generatedImageUrl]);
+  }, [generatedImageUrl, storedGeneratedImageUrl, isOnboarding, goToResult, aspectRatio]);
 
   // Restore generated image from store on mount
   useEffect(() => {
@@ -282,11 +302,32 @@ export function OnModelPhotos() {
     switch (currentStep) {
       case 0:
         return (
-          <OnModelUpload
-            photos={photos}
-            onFileUpload={handleFileUpload}
-            onClear={() => setPhotos({})}
-          />
+          <>
+            {/* Onboarding guidance banner */}
+            {isOnboarding && (
+              <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gray-700 text-white flex items-center justify-center text-xs font-bold mt-0.5">
+                    i
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                      Upload your product photos
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Upload clear photos of your clothing on a model. Multiple angles help create better results.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <OnModelUpload
+              photos={photos}
+              onFileUpload={handleFileUpload}
+              onClear={() => setPhotos({})}
+            />
+          </>
         );
       case 1:
         return (
@@ -310,6 +351,25 @@ export function OnModelPhotos() {
         const isLoading = isGenerating;
         return (
           <div className="space-y-6">
+            {/* Onboarding guidance banner for final step */}
+            {isOnboarding && !isLoading && !generatedImageUrl && (
+              <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gray-700 text-white flex items-center justify-center text-xs font-bold mt-0.5">
+                    i
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                      Ready to generate your first image!
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Review your selections and click "Generate Image" to create your professional on-model photo.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             <div className="flex flex-col items-center justify-center min-h-[400px] w-full gap-3 sm:gap-4 md:gap-6">
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -409,21 +469,26 @@ export function OnModelPhotos() {
         
         {/* Selected Items and Button at the bottom */}
         <div className="space-y-4 md:space-y-6">
-          {/* Aspect Ratio Selector */}
-          <div>
-            <AspectRatio
-              value={aspectRatio}
-              onValueChange={setAspectRatio}
-            />
-          </div>
-          
-          {/* Resolution Selector */}
-          <div>
-            <Resolution
-              value={resolution}
-              onValueChange={setResolution}
-            />
-          </div>
+          {/* Hide advanced options in onboarding mode */}
+          {!isOnboarding && (
+            <>
+              {/* Aspect Ratio Selector */}
+              <div>
+                <AspectRatio
+                  value={aspectRatio}
+                  onValueChange={setAspectRatio}
+                />
+              </div>
+              
+              {/* Resolution Selector */}
+              <div>
+                <Resolution
+                  value={resolution}
+                  onValueChange={setResolution}
+                />
+              </div>
+            </>
+          )}
 
           {/* Show Download and Regenerate buttons after image is generated */}
           {currentStep === 3 && generatedImageUrl && (
@@ -534,14 +599,17 @@ export function OnModelPhotos() {
       <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 overflow-hidden">
         {/* Left Component - full width on phone, flex-1 on tablet+ */}
         <div className="flex-1 bg-white md:border-r-2 border-gray-300 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
-          <div className="border-b-2 border-gray-300">
-            <Steps 
-              steps={steps} 
-              currentStep={currentStep}
-              maxUnlockedStep={maxUnlockedStep}
-              onStepChange={setCurrentStep}
-            />
-          </div>
+          {/* Hide steps in onboarding mode for simplified UI */}
+          {!isOnboarding && (
+            <div className="border-b-2 border-gray-300">
+              <Steps 
+                steps={steps} 
+                currentStep={currentStep}
+                maxUnlockedStep={maxUnlockedStep}
+                onStepChange={setCurrentStep}
+              />
+            </div>
+          )}
           <div className="p-8">
             {renderStepContent()}
           </div>

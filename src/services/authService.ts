@@ -314,8 +314,9 @@ class AuthService {
 
   /**
    * Store user in localStorage
+   * Made public to allow authStore to update user object
    */
-  private storeUser(user: any): void {
+  storeUser(user: any): void {
     localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 }

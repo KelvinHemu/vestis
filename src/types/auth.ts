@@ -1,17 +1,6 @@
-export interface User {
-  id: number;
-  email: string;
-  name: string;
-  activated: boolean;
-  created_at: string;
-  updated_at?: string;
-  credits: number;
-  credits_expires_at?: string;
-  role?: string;
-  profile_picture?: string;
-  oauth_provider?: string;
-  oauth_id?: string;
-}
+// Import User type from user.ts to avoid duplication
+// This ensures onboarding fields are available
+import type { User } from './user';
 
 export interface AuthState {
   user: User | null;

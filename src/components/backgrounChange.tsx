@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { MainContent } from './layout/MainContent';
 import { Steps } from '../features/generation/components/Steps';
 import { BackgroundChangeUpload } from '../features/generation/components/BackgroundChangeUpload';
@@ -20,8 +20,20 @@ import { getBackgroundById } from '../services/backgroundService';
 import { RotateCw } from 'lucide-react';
 import AspectRatio from './shared/aspectRatio';
 import Resolution from './shared/resolution';
+import { useOnboarding } from '../hooks/useOnboarding';
 
-export function BackgroundChange() {
+interface BackgroundChangeProps {
+  // Onboarding mode simplifies the UI and auto-selects defaults
+  isOnboarding?: boolean;
+}
+
+export function BackgroundChange({ isOnboarding = false }: BackgroundChangeProps = {}) {
+  // Onboarding hook for redirecting to result page
+  const { goToResult } = useOnboarding();
+  
+  // Ref to prevent infinite loop when redirecting in onboarding mode
+  const hasRedirectedRef = useRef(false);
+  
   // Get persisted state from store
   const {
     currentStep,
@@ -79,15 +91,23 @@ export function BackgroundChange() {
 
   // Sync generated image with store for persistence
   useEffect(() => {
-    if (generatedImageUrl) {
+    // Only sync if the URL is different from stored value to prevent infinite loop
+    if (generatedImageUrl && generatedImageUrl !== storedGeneratedImageUrl) {
       setStoredGeneratedImageUrl(generatedImageUrl);
       setIsEditMode(true);
       setAdditionalInfo('');
       // Invalidate caches to show new generation in history
       invalidateGenerations();
       invalidateBackgroundChangeCache();
+      
+      // If in onboarding mode, redirect to result page after successful generation
+      // Use ref to prevent infinite loop
+      if (isOnboarding && !hasRedirectedRef.current) {
+        hasRedirectedRef.current = true;
+        goToResult(generatedImageUrl, aspectRatio);
+      }
     }
-  }, [generatedImageUrl]);
+  }, [generatedImageUrl, storedGeneratedImageUrl, isOnboarding, goToResult, aspectRatio]);
 
   // Restore generated image from store on mount
   useEffect(() => {
@@ -226,11 +246,32 @@ export function BackgroundChange() {
     switch (currentStep) {
       case 0:
         return (
-          <BackgroundChangeUpload
-            photos={photos}
-            onFileUpload={handleFileUpload}
-            onClear={() => setPhotos({})}
-          />
+          <>
+            {/* Onboarding guidance banner */}
+            {isOnboarding && (
+              <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gray-700 text-white flex items-center justify-center text-xs font-bold mt-0.5">
+                    i
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                      Upload your photo to change the background
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Upload a product or model photo. We'll help you replace the background with a professional setting.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <BackgroundChangeUpload
+              photos={photos}
+              onFileUpload={handleFileUpload}
+              onClear={() => setPhotos({})}
+            />
+          </>
         );
       case 1:
         return (
@@ -243,17 +284,38 @@ export function BackgroundChange() {
         );
       case 2:
         return (
-          <BackgroundChangePreview
-            isGenerating={isGenerating}
-            generationError={generationError}
-            generatedImageUrl={generatedImageUrl}
-            generationHistory={generationHistory}
-            onReset={resetGeneration}
-            onUndo={handleUndoEdit}
-            onStartOver={handleStartOver}
-            aspectRatio={getAspectRatioValue(aspectRatio)}
-            onImageDoubleClick={() => setIsFullscreenOpen(true)}
-          />
+          <>
+            {/* Onboarding guidance banner for final step */}
+            {isOnboarding && !isGenerating && !generatedImageUrl && (
+              <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gray-700 text-white flex items-center justify-center text-xs font-bold mt-0.5">
+                    i
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                      Ready to generate your first image!
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Review your selections and click "Generate Image" to change your background.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <BackgroundChangePreview
+              isGenerating={isGenerating}
+              generationError={generationError}
+              generatedImageUrl={generatedImageUrl}
+              generationHistory={generationHistory}
+              onReset={resetGeneration}
+              onUndo={handleUndoEdit}
+              onStartOver={handleStartOver}
+              aspectRatio={getAspectRatioValue(aspectRatio)}
+              onImageDoubleClick={() => setIsFullscreenOpen(true)}
+            />
+          </>
         );
       default:
         return null;
@@ -276,21 +338,26 @@ export function BackgroundChange() {
         
         {/* Selected Items and Button at the bottom */}
         <div className="space-y-4 md:space-y-6">
-          {/* Aspect Ratio Selector */}
-          <div>
-            <AspectRatio
-              value={aspectRatio}
-              onValueChange={setAspectRatio}
-            />
-          </div>
-          
-          {/* Resolution Selector */}
-          <div>
-            <Resolution
-              value={resolution}
-              onValueChange={setResolution}
-            />
-          </div>
+          {/* Hide advanced options in onboarding mode */}
+          {!isOnboarding && (
+            <>
+              {/* Aspect Ratio Selector */}
+              <div>
+                <AspectRatio
+                  value={aspectRatio}
+                  onValueChange={setAspectRatio}
+                />
+              </div>
+              
+              {/* Resolution Selector */}
+              <div>
+                <Resolution
+                  value={resolution}
+                  onValueChange={setResolution}
+                />
+              </div>
+            </>
+          )}
 
           {/* Show Download and Regenerate buttons after image is generated */}
           {currentStep === 2 && generatedImageUrl && (
@@ -401,14 +468,17 @@ export function BackgroundChange() {
       <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 overflow-hidden">
         {/* Left Component - full width on phone, flex-1 on tablet+ */}
         <div className="flex-1 bg-white md:border-r-2 border-gray-300 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
-          <div className="border-b-2 border-gray-300">
-            <Steps 
-              steps={steps} 
-              currentStep={currentStep}
-              maxUnlockedStep={maxUnlockedStep}
-              onStepChange={setCurrentStep}
-            />
-          </div>
+          {/* Hide steps in onboarding mode for simplified UI */}
+          {!isOnboarding && (
+            <div className="border-b-2 border-gray-300">
+              <Steps 
+                steps={steps} 
+                currentStep={currentStep}
+                maxUnlockedStep={maxUnlockedStep}
+                onStepChange={setCurrentStep}
+              />
+            </div>
+          )}
           <div className="p-8">
             {renderStepContent()}
           </div>

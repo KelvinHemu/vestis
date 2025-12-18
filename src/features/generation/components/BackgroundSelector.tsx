@@ -58,7 +58,7 @@ export function BackgroundSelector({
         {/* Header Section - Will scroll */}
         <div className="space-y-4 pb-4">
           <h2 className="text-2xl font-semibold text-gray-900">Select Background</h2>
-          <p className="text-gray-600">Choose a background style for your on-model photo, or keep the original.</p>
+          <p className="text-gray-600">Choose a background style for your on-model photo</p>
         </div>
 
         {/* Sticky Category Tabs - Sticks to top when scrolling */}
