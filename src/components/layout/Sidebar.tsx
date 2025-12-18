@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import NextImage from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Home, User, Grid, Zap, Plus, CreditCard, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -32,8 +33,15 @@ export function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 h-screen w-20 bg-white flex flex-col items-center py-4 z-40">
       {/* Brand Logo */}
-      <div className="mb-8">
-        <h1 className="text-gray-900 font-bold text-lg">Vestis</h1>
+      <div className="mb-6 flex flex-row items-center justify-center gap-1">
+        <NextImage
+          src="/Vestis.svg"
+          alt="Vestis Logo"
+          width={24}
+          height={24}
+          className="w-6 h-6"
+        />
+        {/* <h1 className="text-gray-900 font-bold text-sm">Vestis</h1> */}
       </div>
 
       {/* Main Navigation Menu */}
