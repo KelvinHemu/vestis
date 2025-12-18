@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { backgroundChangeService } from '../services/backgroundChangeService';
 import { InsufficientCreditsError } from '../types/errors';
 import { useFeatureGeneration } from '../contexts/generationStore';
+import { USER_QUERY_KEY } from './useUser';
 import type { GenerateBackgroundChangeRequest, BackgroundChangeJobStatus } from '../types/backgroundChange';
 
 interface UseBackgroundChangeResult {
@@ -28,7 +30,10 @@ export function useBackgroundChange(): UseBackgroundChangeResult {
     failGeneration,
     resetGeneration: resetStore,
   } = useFeatureGeneration('backgroundchange');
-  
+
+  // Query client for invalidating user credits after generation
+  const queryClient = useQueryClient();
+
   // Local state for transient UI
   const [jobStatus, setJobStatus] = useState<BackgroundChangeJobStatus | null>(null);
   const [insufficientCredits, setInsufficientCredits] = useState<{ available: number; required: number } | null>(null);
@@ -40,22 +45,24 @@ export function useBackgroundChange(): UseBackgroundChangeResult {
       setInsufficientCredits(null);
 
       console.log('🎬 Starting background change generation...');
-      
+
       // Call the API to generate background change
       const response = await backgroundChangeService.generateBackgroundChange(request);
-      
+
       console.log('✅ Generation initiated:', response);
 
       // If we get an immediate image URL, use it
       if (response.imageUrl) {
         completeGeneration(response.imageUrl);
+        // Invalidate user query to refresh credits
+        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
         return;
       }
 
       // If we have a job ID, poll for status
       if (response.jobId) {
         console.log('⏳ Polling job status for:', response.jobId);
-        
+
         const finalStatus = await backgroundChangeService.pollJobStatus(
           response.jobId,
           (status) => {
@@ -65,10 +72,12 @@ export function useBackgroundChange(): UseBackgroundChangeResult {
         );
 
         console.log('🏁 Final job status:', finalStatus);
-        
+
         if (finalStatus.status === 'completed' && finalStatus.imageUrl) {
           completeGeneration(finalStatus.imageUrl);
           setJobStatus(finalStatus);
+          // Invalidate user query to refresh credits
+          queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
         } else if (finalStatus.status === 'failed') {
           failGeneration(finalStatus.error || 'Generation failed');
           setJobStatus(finalStatus);
@@ -79,7 +88,7 @@ export function useBackgroundChange(): UseBackgroundChangeResult {
       }
     } catch (error) {
       console.error('❌ Error generating background change:', error);
-      
+
       // Handle insufficient credits error specifically
       if (error instanceof InsufficientCreditsError) {
         setInsufficientCredits({
@@ -91,7 +100,7 @@ export function useBackgroundChange(): UseBackgroundChangeResult {
         failGeneration(error instanceof Error ? error.message : 'An error occurred');
       }
     }
-  }, [startGeneration, completeGeneration, failGeneration]);
+  }, [startGeneration, completeGeneration, failGeneration, queryClient]);
 
   const resetGeneration = useCallback(() => {
     resetStore();

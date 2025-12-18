@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Download, Share2 } from 'lucide-react';
 import { FeatureCard, features } from '@/components/shared/FeatureCard';
 import { FloatingAskBar } from './FloatingAskBar';
@@ -10,6 +11,7 @@ import { InsufficientCreditsDialog } from '@/components/ui/InsufficientCreditsDi
 import { FullscreenImageViewer } from '@/components/ui/FullscreenImageViewer';
 import { chatService } from '@/services/chatService';
 import { InsufficientCreditsError } from '@/types/errors';
+import { USER_QUERY_KEY } from '@/hooks/useUser';
 
 interface UploadedImage {
   id: string;
@@ -28,6 +30,9 @@ export const CreatePage: React.FC = () => {
   const [creditsInfo, setCreditsInfo] = useState({ available: 0, required: 1 });
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
+  // Query client for invalidating user credits after generation
+  const queryClient = useQueryClient();
+
   // Check for image from history on mount
   React.useEffect(() => {
     const editImage = sessionStorage.getItem('editImage');
@@ -44,7 +49,7 @@ export const CreatePage: React.FC = () => {
       url: URL.createObjectURL(file),
       name: file.name,
     }));
-    
+
     setUploadedImages((prev) => [...prev, ...newImages]);
   };
 
@@ -66,12 +71,12 @@ export const CreatePage: React.FC = () => {
     try {
       console.log('🎨 Starting generation with prompt:', prompt);
       console.log('🔄 Edit mode:', isEditMode);
-      
+
       // If in edit mode, include the current generated image
-      const imagesToSend = isEditMode && generatedImage 
-        ? [generatedImage, ...images] 
+      const imagesToSend = isEditMode && generatedImage
+        ? [generatedImage, ...images]
         : images;
-      
+
       const response = await chatService.generate({
         prompt,
         images: imagesToSend,
@@ -82,16 +87,18 @@ export const CreatePage: React.FC = () => {
         if (generatedImage) {
           setGenerationHistory(prev => [...prev, generatedImage]);
         }
-        
+
         setGeneratedImage(response.imageUrl);
         setIsEditMode(true); // Enable edit mode after first generation
+        // Invalidate user query to refresh credits
+        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
         console.log('✅ Generation completed:', response);
       } else {
         throw new Error(response.message || 'Generation failed - no image URL returned');
       }
     } catch (err) {
       console.error('❌ Generation error:', err);
-      
+
       // Handle insufficient credits error specifically
       if (err instanceof InsufficientCreditsError) {
         setCreditsInfo({
@@ -131,7 +138,7 @@ export const CreatePage: React.FC = () => {
 
   const handleDownload = async () => {
     if (!generatedImage) return;
-    
+
     try {
       const response = await fetch(generatedImage);
       const blob = await response.blob();
@@ -151,7 +158,7 @@ export const CreatePage: React.FC = () => {
 
   const handleShare = async () => {
     if (!generatedImage) return;
-    
+
     if (navigator.share) {
       try {
         await navigator.share({
@@ -196,10 +203,10 @@ export const CreatePage: React.FC = () => {
           onShare={handleShare}
         />
       )}
-      
+
       {isGenerating ? (
         <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-12rem)] p-4 sm:p-8">
-          <LoadingSpinner/>
+          <LoadingSpinner />
         </div>
       ) : generatedImage ? (
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-12rem)] px-4 py-6 sm:p-8 gap-4 sm:gap-6">
@@ -212,7 +219,7 @@ export const CreatePage: React.FC = () => {
             >
               Start Over
             </button>
-            
+
             {/* Download and Share buttons - inline on mobile, fixed on desktop */}
             <div className="flex gap-2 sm:fixed sm:top-8 sm:right-8 sm:z-10">
               <button
@@ -222,7 +229,7 @@ export const CreatePage: React.FC = () => {
               >
                 <Download className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
-              
+
               <button
                 onClick={handleShare}
                 className="p-2 sm:p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-all shadow-sm"
@@ -232,19 +239,19 @@ export const CreatePage: React.FC = () => {
               </button>
             </div>
           </div>
-          
-          <div 
-            className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px]" 
+
+          <div
+            className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px]"
             style={{ aspectRatio: '3/4' }}
             onDoubleClick={handleImageDoubleClick}
           >
-            <img 
-              src={generatedImage} 
-              alt="Generated Image" 
+            <img
+              src={generatedImage}
+              alt="Generated Image"
               className="w-full h-full object-cover"
             />
           </div>
-          
+
           {/* Undo button below image */}
           {generationHistory.length > 0 && (
             <button
@@ -257,7 +264,7 @@ export const CreatePage: React.FC = () => {
               Undo
             </button>
           )}
-          
+
         </div>
       ) : error ? (
         <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-12rem)] p-4 sm:p-8">
@@ -280,12 +287,12 @@ export const CreatePage: React.FC = () => {
           </div>
         </div>
       )}
-      
+
       {/* Fixed FloatingAskBar at bottom - responsive positioning */}
       <div className="fixed bottom-0 left-20 right-0 px-3 py-3 sm:px-6 sm:py-4 bg-gradient-to-t from-gray-100 via-gray-100/95 to-transparent pointer-events-none z-20">
         <div className="w-full max-w-3xl mx-auto pointer-events-auto">
-          <FloatingAskBar 
-            onFilesSelected={handleFilesSelected} 
+          <FloatingAskBar
+            onFilesSelected={handleFilesSelected}
             onSubmit={handleChatSubmit}
             isGenerating={isGenerating}
             editMode={isEditMode}

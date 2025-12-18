@@ -1,12 +1,13 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { mannequinService } from '../services/mannequinService';
-import type { 
-  FlatLayHistory, 
+import type {
+  FlatLayHistory,
   FlatLayHistoryResponse,
   GenerateFlatLayRequest,
   GenerateFlatLayResponse,
 } from '../types/flatlay';
 import { InsufficientCreditsError } from '../types/errors';
+import { USER_QUERY_KEY } from './useUser';
 
 // Query keys
 export const MANNEQUIN_KEYS = {
@@ -61,6 +62,8 @@ export function useMannequinGenerate() {
     onSuccess: () => {
       // Invalidate history cache to include new generation
       queryClient.invalidateQueries({ queryKey: MANNEQUIN_KEYS.history() });
+      // Invalidate user query to refresh credits
+      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
     },
   });
 }
@@ -120,7 +123,7 @@ export function flattenMannequinHistory(
  */
 export function useInvalidateMannequin() {
   const queryClient = useQueryClient();
-  
+
   return () => {
     queryClient.invalidateQueries({ queryKey: MANNEQUIN_KEYS.all });
   };

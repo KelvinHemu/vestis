@@ -1,29 +1,37 @@
 'use client'
 
 import { useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, RefreshCw, CheckCircle2 } from 'lucide-react'
 import { Logo } from '@/components/logo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ErrorMessage } from '@/components/ui/ErrorMessage'
-import { useSignup } from '@/hooks/useAuth'
+import { useLogin } from '@/hooks/useAuth'
 import Link from 'next/link'
 
-export default function SignUpPage() {
-    const [name, setName] = useState('')
+export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
 
-    const { signup, isLoading, error, clearError } = useSignup()
+    const {
+        login,
+        isLoading,
+        error,
+        clearError,
+        needsVerification,
+        resendVerification,
+        resendLoading,
+        resendSuccess,
+    } = useLogin()
 
     // Build Google OAuth URL
     const googleAuthUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/v1/auth/google`
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        await signup({ name, email, password })
+        await login({ email, password })
     }
 
     return (
@@ -38,11 +46,11 @@ export default function SignUpPage() {
                             aria-label="go home">
                             <Logo />
                         </Link>
-                        <h1 className="mb-1 mt-4 text-xl font-semibold">Create a Vestis Account</h1>
-                        <p className="text-sm text-muted-foreground">Welcome! Create an account to get started</p>
+                        <h1 className="mb-1 mt-4 text-xl font-semibold">Sign In to Vestis</h1>
+                        <p className="text-sm text-muted-foreground">Welcome back! Sign in to continue</p>
                     </div>
 
-                    {/* Google Sign Up Button - Full Width */}
+                    {/* Google Sign In Button - Full Width */}
                     <div className="mt-6">
                         <Button
                             type="button"
@@ -67,40 +75,60 @@ export default function SignUpPage() {
                                     fill="#eb4335"
                                     d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0C79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"></path>
                             </svg>
-                            <span>Sign up with Google</span>
+                            <span>Sign in with Google</span>
                         </Button>
                     </div>
 
                     <hr className="my-4 border-dashed" />
 
-                    <div className="space-y-5">
-                        {/* Error Message */}
-                        {error && (
+                    <div className="space-y-6">
+                        {/* Resend Success Message */}
+                        {resendSuccess && (
+                            <div className="flex items-center gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                                <CheckCircle2 className="h-4 w-4" />
+                                Verification email sent! Please check your inbox.
+                            </div>
+                        )}
+
+                        {/* Verification Error with Resend */}
+                        {needsVerification && error && (
+                            <div className="space-y-3">
+                                <div className="rounded-lg bg-yellow-50 p-3 text-sm text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400">
+                                    <p className="font-medium">Email not verified</p>
+                                    <p className="mt-1 text-yellow-600 dark:text-yellow-500">
+                                        Please verify your email before logging in.
+                                    </p>
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="w-full"
+                                    onClick={resendVerification}
+                                    disabled={resendLoading}
+                                >
+                                    {resendLoading ? (
+                                        <>
+                                            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                                            Sending...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <RefreshCw className="mr-2 h-4 w-4" />
+                                            Resend verification email
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
+                        )}
+
+                        {/* Regular Error Message (non-verification) */}
+                        {error && !needsVerification && (
                             <ErrorMessage
                                 message={error}
                                 type="error"
                                 onDismiss={clearError}
                             />
                         )}
-
-                        {/* Name Input */}
-                        <div className="space-y-2">
-                            <Label
-                                htmlFor="name"
-                                className="block text-sm">
-                                Name
-                            </Label>
-                            <Input
-                                type="text"
-                                required
-                                name="name"
-                                id="name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                disabled={isLoading}
-                                placeholder="Enter your name"
-                            />
-                        </div>
 
                         {/* Email Input */}
                         <div className="space-y-2">
@@ -122,12 +150,24 @@ export default function SignUpPage() {
                         </div>
 
                         {/* Password Input with Toggle */}
-                        <div className="space-y-2">
-                            <Label
-                                htmlFor="pwd"
-                                className="text-sm">
-                                Password
-                            </Label>
+                        <div className="space-y-0.5">
+                            <div className="flex items-center justify-between">
+                                <Label
+                                    htmlFor="pwd"
+                                    className="text-sm">
+                                    Password
+                                </Label>
+                                <Button
+                                    asChild
+                                    variant="link"
+                                    size="sm">
+                                    <Link
+                                        href="/forgot-password"
+                                        className="text-sm">
+                                        Forgot your Password?
+                                    </Link>
+                                </Button>
+                            </div>
                             <div className="relative">
                                 <Input
                                     type={showPassword ? 'text' : 'password'}
@@ -137,7 +177,7 @@ export default function SignUpPage() {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     disabled={isLoading}
-                                    placeholder="Create a password"
+                                    placeholder="Enter your password"
                                     className="pr-10"
                                 />
                                 <button
@@ -156,19 +196,19 @@ export default function SignUpPage() {
                             className="w-full"
                             disabled={isLoading}
                         >
-                            {isLoading ? 'Creating account...' : 'Create Account'}
+                            {isLoading ? 'Signing in...' : 'Sign In'}
                         </Button>
                     </div>
                 </div>
 
                 <div className="bg-muted rounded-(--radius) border p-3">
                     <p className="text-accent-foreground text-center text-sm">
-                        Already have an account?
+                        Don't have an account?
                         <Button
                             asChild
                             variant="link"
                             className="px-2">
-                            <Link href="/login">Sign In</Link>
+                            <Link href="/signup">Create account</Link>
                         </Button>
                     </p>
                 </div>

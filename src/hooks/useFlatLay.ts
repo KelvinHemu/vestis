@@ -1,12 +1,13 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { flatLayService } from '../services/flatLayService';
-import type { 
-  FlatLayHistory, 
+import type {
+  FlatLayHistory,
   FlatLayHistoryResponse,
   GenerateFlatLayRequest,
   GenerateFlatLayResponse,
 } from '../types/flatlay';
 import { InsufficientCreditsError } from '../types/errors';
+import { USER_QUERY_KEY } from './useUser';
 
 // Query keys
 export const FLATLAY_KEYS = {
@@ -61,6 +62,8 @@ export function useFlatLayGenerate() {
     onSuccess: () => {
       // Invalidate history cache to include new generation
       queryClient.invalidateQueries({ queryKey: FLATLAY_KEYS.history() });
+      // Invalidate user query to refresh credits
+      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
     },
   });
 }
@@ -120,7 +123,7 @@ export function flattenFlatLayHistory(
  */
 export function useInvalidateFlatLay() {
   const queryClient = useQueryClient();
-  
+
   return () => {
     queryClient.invalidateQueries({ queryKey: FLATLAY_KEYS.all });
   };

@@ -17,3 +17,6 @@ export * from './useBackgroundChangeQuery';
 
 // Models Feature Hooks
 export * from './useModels';
+
+// User/Credits Hooks
+export * from './useUser';

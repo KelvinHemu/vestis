@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/contexts/authStore';
+import authService from '@/services/authService';
 import type { LoginCredentials, SignupCredentials } from '@/types/auth';
+import { USER_QUERY_KEY } from './useUser';
 
 /* ============================================
    Authentication Hooks
-   Custom hooks for login, signup, and logout
+   Custom hooks for login, signup, logout, and email verification
    ============================================ */
 
 interface UseLoginReturn {
@@ -15,15 +18,30 @@ interface UseLoginReturn {
   isLoading: boolean;
   error: string | null;
   clearError: () => void;
+  needsVerification: boolean;
+  pendingVerificationEmail: string | null;
+  resendVerification: () => Promise<void>;
+  resendLoading: boolean;
+  resendSuccess: boolean;
 }
 
 /**
  * Hook for handling user login
- * Manages login state and navigation after successful auth
+ * Manages login state, navigation, and verification errors
  */
 export function useLogin(): UseLoginReturn {
-  const { login: authLogin, isLoading, error, clearError } = useAuthStore();
+  const {
+    login: authLogin,
+    isLoading,
+    error,
+    clearError,
+    needsVerification,
+    pendingVerificationEmail,
+  } = useAuthStore();
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
 
   // Track error state changes for debugging
   useEffect(() => {
@@ -33,19 +51,46 @@ export function useLogin(): UseLoginReturn {
   }, [error]);
 
   const login = async (credentials: LoginCredentials) => {
+    setResendSuccess(false);
     try {
       await authLogin(credentials);
+      console.log('Login succeeded, invalidating user query for fresh credits');
+      // Invalidate user query to fetch fresh user data (including credits) from API
+      await queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
       console.log('Login succeeded, navigating to dashboard');
-      // Use replace to prevent back button going to login
       router.replace('/dashboard');
     } catch {
       console.log('Login failed, error set in store');
       // Error is already set in the store by authLogin
-      // Don't navigate - stay on login page to show error
     }
   };
 
-  return { login, isLoading, error, clearError };
+  const resendVerification = async () => {
+    if (!pendingVerificationEmail) return;
+
+    setResendLoading(true);
+    setResendSuccess(false);
+    try {
+      await authService.resendVerificationEmail(pendingVerificationEmail);
+      setResendSuccess(true);
+    } catch (err) {
+      console.error('Resend verification failed:', err);
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
+  return {
+    login,
+    isLoading,
+    error,
+    clearError,
+    needsVerification,
+    pendingVerificationEmail,
+    resendVerification,
+    resendLoading,
+    resendSuccess,
+  };
 }
 
 interface UseSignupReturn {
@@ -57,7 +102,7 @@ interface UseSignupReturn {
 
 /**
  * Hook for handling user signup
- * Manages signup state and navigation after successful registration
+ * Navigates to check-email page on success (NOT dashboard)
  */
 export function useSignup(): UseSignupReturn {
   const { signup: authSignup, isLoading, error, clearError } = useAuthStore();
@@ -73,17 +118,90 @@ export function useSignup(): UseSignupReturn {
   const signup = async (credentials: SignupCredentials) => {
     try {
       await authSignup(credentials);
-      console.log('Signup succeeded, navigating to dashboard');
-      // Use replace to prevent back button going to signup
-      router.replace('/dashboard');
+      console.log('Signup succeeded, navigating to check-email');
+      // Navigate to check-email page instead of dashboard
+      router.replace('/check-email');
     } catch {
       console.log('Signup failed, error set in store');
       // Error is already set in the store by authSignup
-      // Don't navigate - stay on signup page to show error
     }
   };
 
   return { signup, isLoading, error, clearError };
+}
+
+interface UseVerifyEmailReturn {
+  verifyEmail: (token: string) => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
+  success: boolean;
+  message: string | null;
+}
+
+/**
+ * Hook for handling email verification
+ */
+export function useVerifyEmail(): UseVerifyEmailReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const verifyEmail = async (token: string) => {
+    setIsLoading(true);
+    setError(null);
+    setSuccess(false);
+    setMessage(null);
+
+    try {
+      const response = await authService.verifyEmail(token);
+      setSuccess(true);
+      setMessage(response.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Verification failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { verifyEmail, isLoading, error, success, message };
+}
+
+interface UseResendVerificationReturn {
+  resendVerification: (email: string) => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
+  success: boolean;
+  message: string | null;
+}
+
+/**
+ * Hook for resending verification email
+ */
+export function useResendVerification(): UseResendVerificationReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const resendVerification = async (email: string) => {
+    setIsLoading(true);
+    setError(null);
+    setSuccess(false);
+    setMessage(null);
+
+    try {
+      const response = await authService.resendVerificationEmail(email);
+      setSuccess(true);
+      setMessage(response.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to resend verification email');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { resendVerification, isLoading, error, success, message };
 }
 
 interface UseLogoutReturn {
@@ -106,3 +224,4 @@ export function useLogout(): UseLogoutReturn {
 
   return { logout, isLoading };
 }
+

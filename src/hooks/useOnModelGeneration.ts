@@ -1,7 +1,9 @@
 import { useState, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { onModelPhotosService } from '../services/onModelPhotosService';
 import { InsufficientCreditsError } from '../types/errors';
 import { useFeatureGeneration } from '../contexts/generationStore';
+import { USER_QUERY_KEY } from './useUser';
 import type { GenerateOnModelRequest, OnModelJobStatus } from '../types/onModel';
 
 interface UseOnModelGenerationResult {
@@ -26,7 +28,10 @@ export function useOnModelGeneration(): UseOnModelGenerationResult {
     failGeneration,
     resetGeneration: resetStore,
   } = useFeatureGeneration('onmodel');
-  
+
+  // Query client for invalidating user credits after generation
+  const queryClient = useQueryClient();
+
   // Local state for transient UI
   const [jobStatus, setJobStatus] = useState<OnModelJobStatus | null>(null);
   const [insufficientCredits, setInsufficientCredits] = useState<{ available: number; required: number } | null>(null);
@@ -38,22 +43,24 @@ export function useOnModelGeneration(): UseOnModelGenerationResult {
       setInsufficientCredits(null);
 
       console.log('🎬 Starting on-model generation...');
-      
+
       // Call the API to generate on-model photos
       const response = await onModelPhotosService.generateOnModel(request);
-      
+
       console.log('✅ Generation initiated:', response);
 
       // If we get an immediate image URL, use it
       if (response.imageUrl) {
         completeGeneration(response.imageUrl);
+        // Invalidate user query to refresh credits
+        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
         return;
       }
 
       // If we have a job ID, poll for status
       if (response.jobId) {
         console.log('⏳ Polling job status for:', response.jobId);
-        
+
         const finalStatus = await onModelPhotosService.pollJobStatus(
           response.jobId,
           (status) => {
@@ -63,10 +70,12 @@ export function useOnModelGeneration(): UseOnModelGenerationResult {
         );
 
         console.log('🏁 Final job status:', finalStatus);
-        
+
         if (finalStatus.status === 'completed' && finalStatus.imageUrl) {
           completeGeneration(finalStatus.imageUrl);
           setJobStatus(finalStatus);
+          // Invalidate user query to refresh credits
+          queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
         } else if (finalStatus.status === 'failed') {
           failGeneration(finalStatus.error || 'Generation failed');
           setJobStatus(finalStatus);
@@ -77,7 +86,7 @@ export function useOnModelGeneration(): UseOnModelGenerationResult {
       }
     } catch (error) {
       console.error('❌ Error generating on-model photos:', error);
-      
+
       // Handle insufficient credits error specifically
       if (error instanceof InsufficientCreditsError) {
         setInsufficientCredits({
@@ -89,7 +98,7 @@ export function useOnModelGeneration(): UseOnModelGenerationResult {
         failGeneration(error instanceof Error ? error.message : 'An error occurred');
       }
     }
-  }, [startGeneration, completeGeneration, failGeneration]);
+  }, [startGeneration, completeGeneration, failGeneration, queryClient]);
 
   const resetGeneration = useCallback(() => {
     resetStore();

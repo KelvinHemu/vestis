@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { AuthState, LoginCredentials, SignupCredentials } from '../types/auth';
+import type { AuthState, LoginCredentials, SignupCredentials, SignupResponse } from '../types/auth';
 import authService from '../services/authService';
 import { isTokenExpired } from '../utils/tokenHelper';
 
 interface AuthStore extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
-  signup: (credentials: SignupCredentials) => Promise<void>;
+  signup: (credentials: SignupCredentials) => Promise<SignupResponse>;
   loginWithOAuth: (accessToken: string, user: any) => void;
   logout: () => void;
   refreshToken: () => Promise<void>;
@@ -16,6 +16,11 @@ interface AuthStore extends AuthState {
   isInitialized: boolean;
   _hasHydrated: boolean;
   setHasHydrated: (state: boolean) => void;
+  // Email verification
+  pendingVerificationEmail: string | null;
+  setPendingVerificationEmail: (email: string | null) => void;
+  needsVerification: boolean;
+  setNeedsVerification: (needs: boolean) => void;
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -28,7 +33,9 @@ export const useAuthStore = create<AuthStore>()(
       isAuthenticated: false,
       isInitialized: false,
       _hasHydrated: false,
-      
+      pendingVerificationEmail: null,
+      needsVerification: false,
+
       /**
        * Set hydration state - called by persist middleware
        */
@@ -37,12 +44,26 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       /**
+       * Set pending verification email
+       */
+      setPendingVerificationEmail: (email: string | null) => {
+        set({ pendingVerificationEmail: email });
+      },
+
+      /**
+       * Set needs verification flag
+       */
+      setNeedsVerification: (needs: boolean) => {
+        set({ needsVerification: needs });
+      },
+
+      /**
        * Initialize auth state from storage
        * Only runs AFTER hydration is complete
        */
       initializeAuth: async () => {
         const state = get();
-        
+
         // If already initialized, skip
         if (state.isInitialized) {
           return;
@@ -57,12 +78,12 @@ export const useAuthStore = create<AuthStore>()(
           if (token && user) {
             // Check if token is expired
             const expired = isTokenExpired(token);
-            
+
             if (expired && refreshToken) {
               // Token expired, try to refresh
               try {
                 const newToken = await authService.refreshToken();
-                
+
                 set({
                   user,
                   token: newToken,
@@ -72,7 +93,7 @@ export const useAuthStore = create<AuthStore>()(
                   isInitialized: true,
                 });
                 return;
-              } catch  {
+              } catch {
                 // Refresh failed - clear auth
                 authService.logout();
                 set({
@@ -86,7 +107,7 @@ export const useAuthStore = create<AuthStore>()(
                 return;
               }
             }
-            
+
             // Token is valid
             set({
               user,
@@ -120,123 +141,124 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-  /**
-   * Login user
-   */
-  login: async (credentials: LoginCredentials) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await authService.login(credentials);
-      // Set isInitialized to true since we just authenticated successfully
-      set({
-        user: response.user,
-        token: response.token,
-        isAuthenticated: true,
-        isLoading: false,
-        error: null,
-        isInitialized: true,
-      });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Login failed';
-      set({
-        user: null,
-        token: null,
-        isAuthenticated: false,
-        isLoading: false,
-        error: errorMessage,
-      });
-      throw error;
-    }
-  },
+      /**
+       * Login user
+       */
+      login: async (credentials: LoginCredentials) => {
+        set({ isLoading: true, error: null, needsVerification: false });
+        try {
+          const response = await authService.login(credentials);
+          // Set isInitialized to true since we just authenticated successfully
+          set({
+            user: response.user,
+            token: response.token,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+            isInitialized: true,
+            needsVerification: false,
+          });
+        } catch (error: any) {
+          const errorMessage = error instanceof Error ? error.message : 'Login failed';
+          const needsVerification = error?.needs_verification === true;
+          const email = error?.email || credentials.email;
 
-  /**
-   * Sign up user
-   */
-  signup: async (credentials: SignupCredentials) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await authService.signup(credentials);
-      // Set isInitialized to true since we just authenticated successfully
-      set({
-        user: response.user,
-        token: response.token,
-        isAuthenticated: true,
-        isLoading: false,
-        error: null,
-        isInitialized: true,
-      });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Signup failed';
-      set({
-        user: null,
-        token: null,
-        isAuthenticated: false,
-        isLoading: false,
-        error: errorMessage,
-      });
-      throw error;
-    }
-  },
+          set({
+            user: null,
+            token: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: errorMessage,
+            needsVerification,
+            pendingVerificationEmail: needsVerification ? email : null,
+          });
+          throw error;
+        }
+      },
 
-  /**
-   * Login with OAuth (Google)
-   */
-  loginWithOAuth: (accessToken: string, user: any) => {
-    // Set isInitialized to true since we just authenticated successfully
-    set({
-      user,
-      token: accessToken,
-      isAuthenticated: true,
-      isLoading: false,
-      error: null,
-      isInitialized: true,
-    });
-  },
+      /**
+       * Sign up user - returns message, does NOT log in
+       */
+      signup: async (credentials: SignupCredentials) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await authService.signup(credentials);
+          // Do NOT set isAuthenticated - user must verify email first
+          set({
+            isLoading: false,
+            error: null,
+            pendingVerificationEmail: response.email,
+          });
+          return response;
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Signup failed';
+          set({
+            isLoading: false,
+            error: errorMessage,
+          });
+          throw error;
+        }
+      },
 
-  /**
-   * Logout user
-   */
-  logout: () => {
-    authService.logout();
-    set({
-      user: null,
-      token: null,
-      isAuthenticated: false,
-      isLoading: false,
-      error: null,
-    });
-  },
+      /**
+       * Login with OAuth (Google)
+       */
+      loginWithOAuth: (accessToken: string, user: any) => {
+        // Set isInitialized to true since we just authenticated successfully
+        set({
+          user,
+          token: accessToken,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+          isInitialized: true,
+        });
+      },
 
-  /**
-   * Refresh authentication token
-   */
-  refreshToken: async () => {
-    set({ isLoading: true, error: null });
-    try {
-      const newToken = await authService.refreshToken();
-      set({
-        token: newToken,
-        isLoading: false,
-        error: null,
-      });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Token refresh failed';
-      set({
-        token: null,
-        isAuthenticated: false,
-        isLoading: false,
-        error: errorMessage,
-      });
-      throw error;
-    }
-  },
+      /**
+       * Logout user
+       */
+      logout: () => {
+        authService.logout();
+        set({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          isLoading: false,
+          error: null,
+        });
+      },
 
-  /**
-   * Update token in store (used by apiClient after successful refresh)
-   */
-  updateToken: (token: string) => {
-    set({ token, error: null });
-  },
+      /**
+       * Refresh authentication token
+       */
+      refreshToken: async () => {
+        set({ isLoading: true, error: null });
+        try {
+          const newToken = await authService.refreshToken();
+          set({
+            token: newToken,
+            isLoading: false,
+            error: null,
+          });
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Token refresh failed';
+          set({
+            token: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: errorMessage,
+          });
+          throw error;
+        }
+      },
+
+      /**
+       * Update token in store (used by apiClient after successful refresh)
+       */
+      updateToken: (token: string) => {
+        set({ token, error: null });
+      },
 
       /**
        * Clear error message

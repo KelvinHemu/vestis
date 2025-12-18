@@ -51,3 +51,25 @@ export interface RefreshTokenResponse {
   token: string;
   message?: string;
 }
+
+// Email verification flow types
+export interface SignupResponse {
+  message: string;
+  email: string;
+}
+
+export interface VerifyEmailResponse {
+  message: string;
+  success: boolean;
+}
+
+export interface ResendVerificationResponse {
+  message: string;
+  success: boolean;
+}
+
+export interface LoginErrorResponse {
+  error: string;
+  needs_verification?: boolean;
+  email?: string;
+}

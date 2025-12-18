@@ -3,11 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, User, Grid, Zap, Plus, CreditCard, Users } from 'lucide-react';
-import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { useAuthStore } from '@/contexts/authStore';
-import userService from '@/services/userService';
-import type { User as UserType } from '@/types/user';
+import { useUser } from '@/hooks/useUser';
 
 /* ============================================
    Menu Configuration
@@ -28,24 +25,9 @@ const menuItems = [
    ============================================ */
 export function Sidebar() {
   const pathname = usePathname();
-  const { token } = useAuthStore();
-  const [user, setUser] = useState<UserType | null>(null);
+  // Use TanStack Query for reactive user data with automatic caching
+  const { data: user } = useUser();
 
-  // Fetch user data on mount and when token changes
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (!token) return;
-
-      try {
-        const response = await userService.getCurrentUser(token);
-        setUser(response.user);
-      } catch (err) {
-        console.error('Failed to fetch user data:', err);
-      }
-    };
-
-    fetchUserData();
-  }, [token]);
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-20 bg-white flex flex-col items-center py-4 z-40">
@@ -59,15 +41,15 @@ export function Sidebar() {
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.path;
-          
+
           return (
             <Link
               key={item.path}
               href={item.path}
               className={cn(
                 "relative group flex flex-col items-center justify-center w-16 py-2 rounded-lg transition-all duration-200",
-                isActive 
-                  ? "bg-gray-100 text-gray-900" 
+                isActive
+                  ? "bg-gray-100 text-gray-900"
                   : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
               )}
             >

@@ -1,4 +1,4 @@
-import type { AuthResponse, LoginCredentials, SignupCredentials, OAuthResponse } from '../types/auth';
+import type { AuthResponse, LoginCredentials, SignupCredentials, OAuthResponse, SignupResponse, VerifyEmailResponse, ResendVerificationResponse } from '../types/auth';
 import { API_BASE_URL, API_ENDPOINTS, STORAGE_KEYS } from '@/config/api';
 import { logger } from '@/utils/logger';
 
@@ -24,6 +24,13 @@ class AuthService {
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
+        // Check if email needs verification
+        if (error.needs_verification) {
+          const verificationError = new Error(error.error || 'Please verify your email before logging in');
+          (verificationError as any).needs_verification = true;
+          (verificationError as any).email = credentials.email;
+          throw verificationError;
+        }
         // Throw error with message from API or default
         throw new Error(error.error || error.message || 'Login failed');
       }
@@ -31,12 +38,12 @@ class AuthService {
       const data: AuthResponse = await response.json();
       this.storeToken(data.token);
       this.storeUser(data.user);
-      
+
       // Store refresh token if provided
       if (data.refresh_token) {
         this.storeRefreshToken(data.refresh_token);
       }
-      
+
       return data;
     } catch (error) {
       // Re-throw to be handled by error handler
@@ -45,9 +52,10 @@ class AuthService {
   }
 
   /**
-   * Sign up with email, password, and name
+   * Sign up with email and password
+   * Returns a message to check email - does NOT log in the user
    */
-  async signup(credentials: SignupCredentials): Promise<AuthResponse> {
+  async signup(credentials: SignupCredentials): Promise<SignupResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/auth/register`, {
         method: 'POST',
@@ -61,22 +69,74 @@ class AuthService {
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
-        // Throw error with message from API or default
         throw new Error(error.error || error.message || 'Signup failed');
       }
 
-      const data: AuthResponse = await response.json();
-      this.storeToken(data.token);
-      this.storeUser(data.user);
-      
-      // Store refresh token if provided
-      if (data.refresh_token) {
-        this.storeRefreshToken(data.refresh_token);
-      }
-      
-      return data;
+      const data = await response.json();
+
+      // Return message-based response - do NOT store tokens
+      // User must verify email before they can log in
+      return {
+        message: data.message || 'Please check your email to verify your account',
+        email: credentials.email,
+      };
     } catch (error) {
-      // Re-throw to be handled by error handler
+      throw error;
+    }
+  }
+
+  /**
+   * Verify email with token from verification link
+   */
+  async verifyEmail(token: string): Promise<VerifyEmailResponse> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/auth/verify?token=${encodeURIComponent(token)}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || error.message || 'Email verification failed');
+      }
+
+      const data = await response.json();
+      return {
+        message: data.message || 'Email verified successfully',
+        success: true,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Resend verification email
+   */
+  async resendVerificationEmail(email: string): Promise<ResendVerificationResponse> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/auth/resend-verification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || error.message || 'Failed to resend verification email');
+      }
+
+      const data = await response.json();
+      return {
+        message: data.message || 'Verification email sent',
+        success: true,
+      };
+    } catch (error) {
       throw error;
     }
   }
@@ -111,12 +171,12 @@ class AuthService {
       }
 
       const data: OAuthResponse = await response.json();
-      
+
       // Store tokens and user
       this.storeToken(data.access_token);
       this.storeRefreshToken(data.refresh_token);
       this.storeUser(data.user);
-      
+
       return data;
     } catch (error) {
       throw error;
@@ -161,12 +221,12 @@ class AuthService {
   async refreshToken(): Promise<string> {
     try {
       const refreshToken = this.getRefreshToken();
-      
+
       if (!refreshToken) {
         this.logout();
         throw new Error('Session expired');
       }
-      
+
       const response = await fetch(`${API_BASE_URL}/v1/auth/refresh`, {
         method: 'POST',
         headers: {
@@ -184,23 +244,23 @@ class AuthService {
       }
 
       const data = await response.json();
-      
+
       // Handle both 'token' and 'access_token' response formats
       const newAccessToken = data.access_token || data.token;
-      
+
       if (!newAccessToken) {
         this.logout();
         throw new Error('Invalid refresh response');
       }
-      
+
       // Store the new access token
       this.storeToken(newAccessToken);
-      
+
       // Store new refresh token if provided
       if (data.refresh_token) {
         this.storeRefreshToken(data.refresh_token);
       }
-      
+
       console.log('✅ Token refreshed successfully');
       return newAccessToken;
     } catch (error) {

@@ -2,8 +2,10 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/contexts/authStore';
 import { processOAuthCallback } from '@/utils/oauthHelper';
+import { USER_QUERY_KEY } from '@/hooks/useUser';
 
 /* ============================================
    OAuth Callback Component
@@ -17,22 +19,23 @@ import { processOAuthCallback } from '@/utils/oauthHelper';
 export function OAuthCallback() {
   const router = useRouter();
   const { loginWithOAuth, isAuthenticated } = useAuthStore();
+  const queryClient = useQueryClient();
   const [error, setError] = useState<string>('');
   const hasProcessed = useRef(false);
 
   useEffect(() => {
     // Prevent double-processing in React Strict Mode
     if (hasProcessed.current) return;
-    
+
     const handleCallback = async () => {
       try {
         console.log('🔐 Processing OAuth callback...');
         console.log('📍 Current URL:', window.location.href);
         console.log('🔗 URL Hash:', window.location.hash);
-        
+
         // Use the OAuth helper to process tokens from URL hash
         const result = processOAuthCallback();
-        
+
         // Validate we received the tokens and user info
         if (!result) {
           console.error('❌ No tokens found in URL hash');
@@ -41,9 +44,9 @@ export function OAuthCallback() {
           return;
         }
 
-        console.log('📦 OAuth result:', { 
-          hasToken: !!result.accessToken, 
-          user: result.user 
+        console.log('📦 OAuth result:', {
+          hasToken: !!result.accessToken,
+          user: result.user
         });
 
         // Mark as processed to prevent re-runs
@@ -51,15 +54,18 @@ export function OAuthCallback() {
 
         // Update auth store with user data and token
         loginWithOAuth(result.accessToken, result.user);
-        
-        console.log('✅ Auth store updated');
-        
+
+        console.log('✅ Auth store updated, invalidating user query for fresh credits');
+
+        // Invalidate user query to fetch fresh user data (including credits) from API
+        await queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
+
         // Small delay to ensure Zustand persist saves to localStorage
         // This prevents race conditions where redirect happens before persist
         await new Promise(resolve => setTimeout(resolve, 100));
-        
+
         console.log('🚀 Redirecting to dashboard...');
-        
+
         // Redirect to dashboard
         router.replace('/dashboard');
       } catch (err: unknown) {
@@ -85,11 +91,11 @@ export function OAuthCallback() {
         <div className="text-center">
           <div className="mb-4 text-red-600">
             <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
               />
             </svg>
           </div>
@@ -107,17 +113,17 @@ export function OAuthCallback() {
       <div className="text-center">
         <div className="mb-4">
           <svg className="animate-spin mx-auto h-12 w-12 text-gray-900" fill="none" viewBox="0 0 24 24">
-            <circle 
-              className="opacity-25" 
-              cx="12" 
-              cy="12" 
-              r="10" 
-              stroke="currentColor" 
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
               strokeWidth="4"
             />
-            <path 
-              className="opacity-75" 
-              fill="currentColor" 
+            <path
+              className="opacity-75"
+              fill="currentColor"
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             />
           </svg>
