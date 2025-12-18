@@ -149,9 +149,10 @@ export const useAuthStore = create<AuthStore>()(
         try {
           const response = await authService.login(credentials);
           // Set isInitialized to true since we just authenticated successfully
+          // User object now includes credits from the backend
           set({
             user: response.user,
-            token: response.token,
+            token: response.access_token,
             isAuthenticated: true,
             isLoading: false,
             error: null,

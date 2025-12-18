@@ -13,10 +13,13 @@ export const USER_QUERY_KEY = ['user'] as const;
  * Hook for fetching current user data with TanStack Query
  * Provides caching, automatic refetching, and reactive updates
  * 
+ * Uses the user from auth store as initial data so credits are
+ * available immediately after login without waiting for a fetch.
+ * 
  * Use this instead of manual useEffect + useState patterns
  */
 export function useUser() {
-    const { token, isAuthenticated } = useAuthStore();
+    const { token, isAuthenticated, user: authUser } = useAuthStore();
 
     return useQuery<User | null, Error>({
         queryKey: USER_QUERY_KEY,
@@ -35,8 +38,9 @@ export function useUser() {
         refetchOnMount: true,
         // Refetch when window regains focus
         refetchOnWindowFocus: true,
-        // Return null instead of undefined when no data
-        placeholderData: null,
+        // Use auth store user as initial data so credits are immediately available
+        // This is especially important after login when credits come from the login response
+        initialData: authUser as User | null,
     });
 }
 

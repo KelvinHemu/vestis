@@ -36,13 +36,9 @@ class AuthService {
       }
 
       const data: AuthResponse = await response.json();
-      this.storeToken(data.token);
+      this.storeToken(data.access_token);
       this.storeUser(data.user);
-
-      // Store refresh token if provided
-      if (data.refresh_token) {
-        this.storeRefreshToken(data.refresh_token);
-      }
+      this.storeRefreshToken(data.refresh_token);
 
       return data;
     } catch (error) {
