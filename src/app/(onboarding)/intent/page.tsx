@@ -138,7 +138,7 @@ export default function IntentPage() {
           size="lg"
           onClick={handleContinue}
           disabled={!selectedIntent}
-          className="px-8 py-3 text-base font-semibold"
+          className="px-8 py-3 text-base font-semibold bg-gray-900 text-white hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 transition-all duration-200 shadow-md hover:shadow-lg"
         >
           Continue
         </Button>
