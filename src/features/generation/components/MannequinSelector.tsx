@@ -1,6 +1,7 @@
 import { ProductUpload } from './ProductUpload';
 import { CustomDropdown } from '@/components/shared/CustomDropdown';
 import { UploadHeader } from './UploadHeader';
+import { MannequinSampleGallery } from './MannequinSampleGallery';
 
 interface MannequinSelectorProps {
   selectionType: ('top' | 'bottom')[];
@@ -8,6 +9,8 @@ interface MannequinSelectorProps {
   imageUrls: { [key: number]: string };
   onFileUpload: (index: number, file: File | null) => void;
   onClear: () => void;
+  onSelectSample?: (imageUrl: string) => void;
+  selectedSample?: string;
 }
 
 export function MannequinSelector({
@@ -15,7 +18,9 @@ export function MannequinSelector({
   onSelectionTypeChange,
   imageUrls,
   onFileUpload,
-  onClear
+  onClear,
+  onSelectSample,
+  selectedSample
 }: MannequinSelectorProps) {
   const handleSelectChange = (value: string) => {
     if (value === 'fullbody' || value === 'top-bottom') {
@@ -27,9 +32,9 @@ export function MannequinSelector({
     }
   };
 
-  const isFullBody = selectionType.length === 2 && 
-                     selectionType.includes('top') && 
-                     selectionType.includes('bottom');
+  const isFullBody = selectionType.length === 2 &&
+    selectionType.includes('top') &&
+    selectionType.includes('bottom');
 
   // Get current value for select
   const getCurrentValue = () => {
@@ -58,7 +63,7 @@ export function MannequinSelector({
         onClearAll={onClear}
         showClearButton={Object.keys(imageUrls).length > 0}
       />
-      
+
       {/* Selection Type Options - custom dropdown */}
       <div className="flex justify-between items-center gap-3">
         <CustomDropdown
@@ -76,17 +81,17 @@ export function MannequinSelector({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 w-full">
         {/* Mannequin photo cards */}
         {[
-          { 
-            id: 1, 
-            label: 'Front', 
+          {
+            id: 1,
+            label: 'Front',
             bgImages: {
               fullbody: '/images/mannequin/front-full.png',
               top: '/images/mannequin/front-top.png',
               bottom: '/images/mannequin/front-bottom.png'
             }
           },
-          { 
-            id: 2, 
+          {
+            id: 2,
             label: 'Back',
             bgImages: {
               fullbody: '/images/mannequin/full-back.png',
@@ -95,16 +100,16 @@ export function MannequinSelector({
             }
           }
         ].map((item) => (
-          <div 
-            key={item.id} 
-            className="rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm relative flex items-center justify-center w-full max-w-[550px] mx-auto md:mx-0" 
-            style={{ 
+          <div
+            key={item.id}
+            className="rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm relative flex items-center justify-center w-full max-w-[550px] mx-auto md:mx-0"
+            style={{
               aspectRatio: '16/9',
               backgroundColor: '#e5e7eb'
             }}
           >
             {/* Background Image Layer */}
-            <div 
+            <div
               className="absolute inset-0 rounded-2xl"
               style={{
                 backgroundImage: `url(${getBackgroundImage(item.bgImages)})`,
@@ -114,7 +119,7 @@ export function MannequinSelector({
                 opacity: 1
               }}
             />
-            
+
             <h3 className="absolute top-4 left-6 text-lg font-semibold text-gray-700 z-10">{item.label}</h3>
             <div className="relative z-10">
               <ProductUpload
@@ -127,6 +132,14 @@ export function MannequinSelector({
           </div>
         ))}
       </div>
+
+      {/* Sample Images Gallery */}
+      {onSelectSample && (
+        <MannequinSampleGallery
+          onSelectSample={onSelectSample}
+          selectedImage={selectedSample}
+        />
+      )}
     </div>
   );
 }

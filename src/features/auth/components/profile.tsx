@@ -155,10 +155,10 @@ export function Profile() {
               {/* Plan Info */}
               <div className="flex-1 min-w-0">
                 <h3 className="text-gray-900 font-semibold text-sm sm:text-base mb-0.5 sm:mb-1">
-                  Free Plan
+                  Credits
                 </h3>
                 <p className="text-gray-500 text-xs sm:text-sm">
-                  You have no active subscription
+                  You can increase more credits
                 </p>
               </div>
 

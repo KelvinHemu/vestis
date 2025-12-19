@@ -26,7 +26,7 @@ import AspectRatio from '@/components/shared/aspectRatio';
 import Resolution from '@/components/shared/resolution';
 
 export function OnModelPhotos() {
-  
+
   // Get persisted state from store
   const {
     currentStep,
@@ -53,7 +53,7 @@ export function OnModelPhotos() {
     setGeneratedImageUrl: setStoredGeneratedImageUrl,
     resetOnModel,
   } = useOnModelStore();
-  
+
   // Local (non-persisted) state
   const [selectedModel, setSelectedModel] = useState<Model | null>(null);
   const [selectedBackground, setSelectedBackground] = useState<Background | null>(null);
@@ -185,7 +185,7 @@ export function OnModelPhotos() {
 
     // Capture prompt value before clearing
     const currentPrompt = prompt.trim();
-    
+
     // Clear prompt immediately for instant UI feedback
     setPrompt('');
 
@@ -238,7 +238,7 @@ export function OnModelPhotos() {
         aspectRatio,
         resolution,
       });
-      
+
       await generateOnModel(request);
     } catch (error) {
       console.error('Error in handleGenerateImage:', error);
@@ -281,15 +281,37 @@ export function OnModelPhotos() {
   };
 
   const renderStepContent = () => {
+    // Helper function to handle sample image selection
+    const handleSelectSample = async (imageUrl: string) => {
+      try {
+        // Fetch the image and convert to base64
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          setPhotos(prev => ({
+            ...prev,
+            [0]: base64
+          }));
+        };
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.error('Error loading sample image:', error);
+      }
+    };
+
     switch (currentStep) {
       case 0:
         return (
           <>
-            
+
             <OnModelUpload
               photos={photos}
               onFileUpload={handleFileUpload}
               onClear={() => setPhotos({})}
+              onSelectSample={handleSelectSample}
+              selectedSample={Object.keys(photos).length > 0 ? undefined : undefined}
             />
           </>
         );
@@ -315,7 +337,7 @@ export function OnModelPhotos() {
         const isLoading = isGenerating;
         return (
           <div className="space-y-6">
-            
+
             <div className="flex flex-col items-center justify-center min-h-[400px] w-full gap-3 sm:gap-4 md:gap-6">
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -364,9 +386,9 @@ export function OnModelPhotos() {
                   >
                     Start Over
                   </button>
-                  
-                  <div 
-                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[140px] xs:max-w-[160px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[300px] xl:max-w-[340px] mb-20" 
+
+                  <div
+                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[140px] xs:max-w-[160px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[300px] xl:max-w-[340px] mb-20"
                     style={{ aspectRatio: getAspectRatioValue(aspectRatio) }}
                     onDoubleClick={() => setIsFullscreenOpen(true)}
                   >
@@ -375,7 +397,7 @@ export function OnModelPhotos() {
                       alt="Generated on-model"
                       className="w-full h-full object-cover"
                     />
-                    
+
                     {/* Image Feedback Actions */}
                     <ImageFeedbackActions
                       onUndo={handleUndoEdit}
@@ -412,7 +434,7 @@ export function OnModelPhotos() {
 
         {/* Spacer to push content to bottom */}
         <div className="flex-1"></div>
-        
+
         {/* Selected Items and Button at the bottom */}
         <div className="space-y-4 md:space-y-6">
           {/* Aspect Ratio Selector */}
@@ -422,7 +444,7 @@ export function OnModelPhotos() {
               onValueChange={setAspectRatio}
             />
           </div>
-          
+
           {/* Resolution Selector */}
           <div>
             <Resolution
@@ -479,17 +501,17 @@ export function OnModelPhotos() {
                   {generationError}
                 </div>
               )}
-              
-              <button 
+
+              <button
                 disabled={!canProceedToNextStep() || isGenerating}
                 onClick={handleNextStep}
                 className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
-                {isGenerating 
-                  ? 'Generating...' 
-                  : currentStep === 3 
-                  ? 'Generate Image' 
-                  : 'Next Step'}
+                {isGenerating
+                  ? 'Generating...'
+                  : currentStep === 3
+                    ? 'Generate Image'
+                    : 'Next Step'}
               </button>
             </div>
           )}
@@ -535,14 +557,14 @@ export function OnModelPhotos() {
           }}
         />
       )}
-      
+
       {/* Content Area with Left and Right Sections */}
       <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 overflow-hidden">
         {/* Left Component - full width on phone, flex-1 on tablet+ */}
         <div className="flex-1 bg-white md:border-r-2 border-gray-300 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
           <div className="border-b-2 border-gray-300">
-            <Steps 
-              steps={steps} 
+            <Steps
+              steps={steps}
               currentStep={currentStep}
               maxUnlockedStep={maxUnlockedStep}
               onStepChange={setCurrentStep}
@@ -551,7 +573,7 @@ export function OnModelPhotos() {
           <div className="p-8">
             {renderStepContent()}
           </div>
-          
+
           {/* Floating Input Bar - Only visible on step 3 (Preview & Generate) */}
           {currentStep === 3 && (
             <FloatingPromptInput
@@ -563,7 +585,7 @@ export function OnModelPhotos() {
             />
           )}
         </div>
-        
+
         {/* Right Component - fixed bottom bar on phone, sidebar on tablet+ */}
         <div className="fixed bottom-0 left-0 right-0 md:static md:w-80 lg:w-96 bg-white p-4 sm:p-6 m-0 md:overflow-y-auto flex flex-col border-t-2 md:border-t-0 border-gray-300 shrink-0 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none">
           {renderRightPanel()}

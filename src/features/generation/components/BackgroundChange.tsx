@@ -46,7 +46,7 @@ export function BackgroundChange() {
     setGeneratedImageUrl: setStoredGeneratedImageUrl,
     resetBackgroundChange,
   } = useBackgroundChangeStore();
-  
+
   // Local (non-persisted) state
   const [selectedBackground, setSelectedBackground] = useState<Background | null>(null);
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
@@ -173,18 +173,18 @@ export function BackgroundChange() {
       aspectRatio,
       resolution,
     });
-    
+
     // Add current image to history before generating new one
     if (generatedImageUrl) {
       setGenerationHistory(prev => [...prev, generatedImageUrl]);
     }
-    
+
     await generateBackgroundChange(request);
-    
+
     // Enable edit mode and clear prompt after generation
     setIsEditMode(true);
     setAdditionalInfo('');
-    
+
     // Invalidate caches to show new generation in history
     invalidateGenerations();
     invalidateBackgroundChangeCache();
@@ -223,6 +223,26 @@ export function BackgroundChange() {
   };
 
   const renderStepContent = () => {
+    // Helper function to handle sample image selection
+    const handleSelectSample = async (imageUrl: string) => {
+      try {
+        // Fetch the image and convert to base64
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          setPhotos(prev => ({
+            ...prev,
+            [0]: base64
+          }));
+        };
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.error('Error loading sample image:', error);
+      }
+    };
+
     switch (currentStep) {
       case 0:
         return (
@@ -230,6 +250,7 @@ export function BackgroundChange() {
             photos={photos}
             onFileUpload={handleFileUpload}
             onClear={() => setPhotos({})}
+            onSelectSample={handleSelectSample}
           />
         );
       case 1:
@@ -273,7 +294,7 @@ export function BackgroundChange() {
 
         {/* Spacer to push content to bottom */}
         <div className="flex-1"></div>
-        
+
         {/* Selected Items and Button at the bottom */}
         <div className="space-y-4 md:space-y-6">
           {/* Aspect Ratio Selector */}
@@ -283,7 +304,7 @@ export function BackgroundChange() {
               onValueChange={setAspectRatio}
             />
           </div>
-          
+
           {/* Resolution Selector */}
           <div>
             <Resolution
@@ -331,29 +352,29 @@ export function BackgroundChange() {
             </div>
           )}
 
-        {/* Show action button - hide only after image is generated */}
-        {!(currentStep === 2 && generatedImageUrl) && (
-          <div className="mt-auto pt-4 pb-4">
-            {/* Show error if any */}
-            {generationError && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                {generationError}
-              </div>
-            )}
-            
-            <button 
-              disabled={!canProceedToNextStep() || isGenerating}
-              onClick={handleNextStep}
-              className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-            >
-              {isGenerating 
-                ? 'Generating...' 
-                : currentStep === 2 
-                ? 'Generate Image' 
-                : 'Next Step'}
-            </button>
-          </div>
-        )}
+          {/* Show action button - hide only after image is generated */}
+          {!(currentStep === 2 && generatedImageUrl) && (
+            <div className="mt-auto pt-4 pb-4">
+              {/* Show error if any */}
+              {generationError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  {generationError}
+                </div>
+              )}
+
+              <button
+                disabled={!canProceedToNextStep() || isGenerating}
+                onClick={handleNextStep}
+                className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                {isGenerating
+                  ? 'Generating...'
+                  : currentStep === 2
+                    ? 'Generate Image'
+                    : 'Next Step'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -396,14 +417,14 @@ export function BackgroundChange() {
           }}
         />
       )}
-      
+
       {/* Content Area with Left and Right Sections */}
       <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 overflow-hidden">
         {/* Left Component - full width on phone, flex-1 on tablet+ */}
         <div className="flex-1 bg-white md:border-r-2 border-gray-300 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
           <div className="border-b-2 border-gray-300">
-            <Steps 
-              steps={steps} 
+            <Steps
+              steps={steps}
               currentStep={currentStep}
               maxUnlockedStep={maxUnlockedStep}
               onStepChange={setCurrentStep}
@@ -412,7 +433,7 @@ export function BackgroundChange() {
           <div className="p-8">
             {renderStepContent()}
           </div>
-          
+
           {/* Floating Input Bar - Only visible on step 3 */}
           {currentStep === 2 && (
             <FloatingPromptInput
@@ -423,7 +444,7 @@ export function BackgroundChange() {
             />
           )}
         </div>
-        
+
         {/* Right Component - fixed bottom bar on phone, sidebar on tablet+ */}
         <div className="fixed bottom-0 left-0 right-0 md:static md:w-80 lg:w-96 bg-white p-4 sm:p-6 m-0 md:overflow-y-auto flex flex-col border-t-2 md:border-t-0 border-gray-300 shrink-0 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none">
           {renderRightPanel()}

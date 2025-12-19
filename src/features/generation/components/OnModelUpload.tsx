@@ -3,14 +3,17 @@
 import { useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { UploadHeader } from './UploadHeader';
+import { OnModelSampleGallery } from './OnModelSampleGallery';
 
 interface OnModelUploadProps {
   photos: { [key: number]: string };
   onFileUpload: (index: number, file: File | null) => void;
   onClear: () => void;
+  onSelectSample?: (imageUrl: string) => void;
+  selectedSample?: string;
 }
 
-export function OnModelUpload({ photos, onFileUpload, onClear }: OnModelUploadProps) {
+export function OnModelUpload({ photos, onFileUpload, onClear, onSelectSample, selectedSample }: OnModelUploadProps) {
   const [photoCount, setPhotoCount] = useState(1);
 
   const handleAddPhoto = () => {
@@ -32,7 +35,7 @@ export function OnModelUpload({ photos, onFileUpload, onClear }: OnModelUploadPr
       <div className="flex flex-wrap gap-4">
         {Array.from({ length: photoCount }).map((_, index) => {
           const hasImage = !!photos[index];
-          
+
           return (
             <div key={index} className="relative w-60 pb-4">
               <input
@@ -46,9 +49,8 @@ export function OnModelUpload({ photos, onFileUpload, onClear }: OnModelUploadPr
                 className="hidden"
               />
               <div
-                className={`block border-2 rounded-lg transition-colors relative overflow-hidden ${
-                  hasImage ? 'border-white hover:border-gray-200' : 'border-dashed border-gray-300 bg-gray-50'
-                }`}
+                className={`block border-2 rounded-lg transition-colors relative overflow-hidden ${hasImage ? 'border-white hover:border-gray-200' : 'border-dashed border-gray-300 bg-gray-50'
+                  }`}
                 style={{ aspectRatio: '3/4', width: '100%' }}
               >
                 {hasImage ? (
@@ -121,6 +123,14 @@ export function OnModelUpload({ photos, onFileUpload, onClear }: OnModelUploadPr
           </div>
         )}
       </div>
+
+      {/* Sample Images Gallery */}
+      {onSelectSample && (
+        <OnModelSampleGallery
+          onSelectSample={onSelectSample}
+          selectedImage={selectedSample}
+        />
+      )}
     </div>
   );
 }

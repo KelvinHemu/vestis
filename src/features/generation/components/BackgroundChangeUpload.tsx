@@ -3,14 +3,17 @@
 import { useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { UploadHeader } from './UploadHeader';
+import { BackgroundChangeSampleGallery } from './BackgroundChangeSampleGallery';
 
 interface BackgroundChangeUploadProps {
   photos: { [key: number]: string };
   onFileUpload: (index: number, file: File | null) => void;
   onClear: () => void;
+  onSelectSample?: (imageUrl: string) => void;
+  selectedSample?: string;
 }
 
-export function BackgroundChangeUpload({ photos, onFileUpload, onClear }: BackgroundChangeUploadProps) {
+export function BackgroundChangeUpload({ photos, onFileUpload, onClear, onSelectSample, selectedSample }: BackgroundChangeUploadProps) {
   const [photoCount, setPhotoCount] = useState(1);
 
   const handleAddPhoto = () => {
@@ -120,6 +123,14 @@ export function BackgroundChangeUpload({ photos, onFileUpload, onClear }: Backgr
           </div>
         )}
       </div>
+
+      {/* Sample Images Gallery */}
+      {onSelectSample && (
+        <BackgroundChangeSampleGallery
+          onSelectSample={onSelectSample}
+          selectedImage={selectedSample}
+        />
+      )}
     </div>
   );
 }

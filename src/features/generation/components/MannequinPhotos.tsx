@@ -62,7 +62,7 @@ export function MannequinPhotos() {
     setResolution,
     resetMannequin,
   } = useMannequinStore();
-  
+
   // Generation state from global store (persists across navigation)
   const {
     isGenerating,
@@ -80,7 +80,7 @@ export function MannequinPhotos() {
     resetGeneration();
     setGenerationError(null);
   };
-  
+
   // Local (non-persisted) state for transient UI states
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [insufficientCredits, setInsufficientCredits] = useState<{ available: number; required: number } | null>(null);
@@ -116,7 +116,7 @@ export function MannequinPhotos() {
       reader.onloadend = () => {
         const result = reader.result as string;
         console.log('FileReader result:', result.substring(0, 50) + '...');
-        
+
         // Store in the appropriate state based on current selection
         if (selectionType.includes('top') && !selectionType.includes('bottom')) {
           setTopImages(prev => ({
@@ -225,16 +225,16 @@ export function MannequinPhotos() {
 
       // Prepare products array from uploaded images
       const products: GenerateFlatLayRequest['products'] = [];
-      
+
       // Check if we have top images
       const topImageEntries = Object.entries(topImages);
       const bottomImageEntries = Object.entries(bottomImages);
-      
+
       // If full body (both top and bottom selected), create one product per pair
       if (selectionType.includes('top') && selectionType.includes('bottom')) {
         // For full body, we expect the same keys in both top and bottom
         const allKeys = new Set([...Object.keys(topImages), ...Object.keys(bottomImages)]);
-        
+
         allKeys.forEach(key => {
           const numKey = Number(key);
           if (topImages[numKey] || bottomImages[numKey]) {
@@ -286,7 +286,7 @@ export function MannequinPhotos() {
 
       // Call the mannequin service
       const response = await mannequinService.generateMannequin(request);
-      
+
       console.log('✅ Mannequin generation response:', response);
 
       // Use the returned image URL directly
@@ -297,7 +297,7 @@ export function MannequinPhotos() {
       }
     } catch (error) {
       console.error('❌ Error generating mannequin:', error);
-      
+
       // Handle insufficient credits error specifically
       if (error instanceof InsufficientCreditsError) {
         setInsufficientCredits({
@@ -313,15 +313,53 @@ export function MannequinPhotos() {
   };
 
   const renderStepContent = () => {
+    // Helper function to handle sample image selection
+    const handleSelectSample = async (imageUrl: string) => {
+      try {
+        // Fetch the image and convert to base64
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          // Set as front image (index 1)
+          if (selectionType.includes('top') && !selectionType.includes('bottom')) {
+            setTopImages(prev => ({
+              ...prev,
+              [1]: base64
+            }));
+          } else if (selectionType.includes('bottom') && !selectionType.includes('top')) {
+            setBottomImages(prev => ({
+              ...prev,
+              [1]: base64
+            }));
+          } else {
+            // Full body - set in both
+            setTopImages(prev => ({
+              ...prev,
+              [1]: base64
+            }));
+            setBottomImages(prev => ({
+              ...prev,
+              [1]: base64
+            }));
+          }
+        };
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.error('Error loading sample image:', error);
+      }
+    };
+
     switch (currentStep) {
       case 0:
         // Get current images based on selection
-        const currentImages = selectionType.includes('top') && !selectionType.includes('bottom') 
-          ? topImages 
+        const currentImages = selectionType.includes('top') && !selectionType.includes('bottom')
+          ? topImages
           : selectionType.includes('bottom') && !selectionType.includes('top')
-          ? bottomImages
-          : { ...topImages, ...bottomImages };
-        
+            ? bottomImages
+            : { ...topImages, ...bottomImages };
+
         console.log('Rendering step 0, current images:', currentImages);
         return (
           <MannequinSelector
@@ -333,6 +371,7 @@ export function MannequinPhotos() {
               setTopImages({});
               setBottomImages({});
             }}
+            onSelectSample={handleSelectSample}
           />
         );
       case 1:
@@ -407,9 +446,9 @@ export function MannequinPhotos() {
                   >
                     Start Over
                   </button>
-                  
-                  <div 
-                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[140px] xs:max-w-[160px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[300px] xl:max-w-[340px] mb-20" 
+
+                  <div
+                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[140px] xs:max-w-[160px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[300px] xl:max-w-[340px] mb-20"
                     style={{ aspectRatio: getAspectRatioValue(aspectRatio) }}
                     onDoubleClick={() => setIsFullscreenOpen(true)}
                   >
@@ -418,7 +457,7 @@ export function MannequinPhotos() {
                       alt="Generated Mannequin"
                       className="w-full h-full object-cover"
                     />
-                    
+
                     {/* Image Feedback Actions */}
                     <ImageFeedbackActions
                       onUndo={handleUndoEdit}
@@ -445,15 +484,15 @@ export function MannequinPhotos() {
     const topImagesCount = Object.keys(topImages).length;
     const bottomImagesCount = Object.keys(bottomImages).length;
     const uploadedImagesCount = topImagesCount + bottomImagesCount;
-    const isFullBody = selectionType.length === 2 && 
-                       selectionType.includes('top') && 
-                       selectionType.includes('bottom');
-    
+    const isFullBody = selectionType.length === 2 &&
+      selectionType.includes('top') &&
+      selectionType.includes('bottom');
+
     // Validation logic
     const hasUploadedAnyProduct = uploadedImagesCount >= 1;
     const hasSelectedModel = selectedModel !== null;
     const hasSelectedBackground = selectedBackground !== null;
-    
+
     // Determine if user can proceed to next step
     const canProceedToNextStep = () => {
       switch (currentStep) {
@@ -475,7 +514,7 @@ export function MannequinPhotos() {
       if (currentStep === 0) {
         const hasTopImages = Object.keys(topImages).length > 0;
         const hasBottomImages = Object.keys(bottomImages).length > 0;
-        
+
         // If both top and bottom images exist, proceed to next step
         if (hasTopImages && hasBottomImages) {
           const nextStep = currentStep + 1;
@@ -485,7 +524,7 @@ export function MannequinPhotos() {
           }
           return;
         }
-        
+
         // If user selected only Top and hasn't uploaded bottom yet, switch to Bottom
         if (selectionType.length === 1 && selectionType.includes('top') && !hasBottomImages) {
           setSelectionType(['bottom']);
@@ -527,10 +566,10 @@ export function MannequinPhotos() {
             bottomImages={bottomImages}
           />
         </div>
-        
+
         {/* Spacer to push content to bottom */}
         <div className="flex-1"></div>
-        
+
         {/* Selected Items and Button at the bottom */}
         <div className="space-y-4 md:space-y-6">
           {/* Aspect Ratio Selector */}
@@ -540,7 +579,7 @@ export function MannequinPhotos() {
               onValueChange={setAspectRatio}
             />
           </div>
-          
+
           {/* Resolution Selector */}
           <div>
             <Resolution
@@ -642,14 +681,14 @@ export function MannequinPhotos() {
           }}
         />
       )}
-      
+
       {/* Content Area with Left and Right Sections */}
       <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 overflow-hidden">
         {/* Left Component - full width on phone, flex-1 on tablet+ */}
         <div className="flex-1 bg-white md:border-r-2 border-gray-300 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
           <div className="border-b-2 border-gray-300">
-            <Steps 
-              steps={steps} 
+            <Steps
+              steps={steps}
               currentStep={currentStep}
               maxUnlockedStep={maxUnlockedStep}
               onStepChange={setCurrentStep}
@@ -658,7 +697,7 @@ export function MannequinPhotos() {
           <div className="p-8">
             {renderStepContent()}
           </div>
-          
+
           {/* Floating Input Bar - Only visible on step 4 (Preview & Generate) */}
           {currentStep === 3 && (
             <FloatingPromptInput
@@ -669,7 +708,7 @@ export function MannequinPhotos() {
             />
           )}
         </div>
-        
+
         {/* Right Component - fixed bottom bar on phone, sidebar on tablet+ */}
         <div className="fixed bottom-0 left-0 right-0 md:static md:w-80 lg:w-96 bg-white p-4 sm:p-6 m-0 md:overflow-y-auto flex flex-col border-t-2 md:border-t-0 border-gray-300 shrink-0 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none">
           {renderRightPanel()}
