@@ -32,8 +32,8 @@ export function Sidebar() {
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-20 bg-white flex flex-col items-center py-4 z-40">
-      {/* Brand Logo */}
-      <div className="mb-6 flex flex-row items-center justify-center gap-1">
+      {/* Brand Logo with Beta Badge - Links to Dashboard */}
+      <Link href="/dashboard" className="mb-6 relative block">
         <NextImage
           src="/Vestis.svg"
           alt="Vestis Logo"
@@ -41,8 +41,8 @@ export function Sidebar() {
           height={24}
           className="w-6 h-6"
         />
-        {/* <h1 className="text-gray-900 font-bold text-sm">Vestis</h1> */}
-      </div>
+        <span className="absolute -top-1 -right-4 text-[7px] font-bold text-amber-500 ">Beta</span>
+      </Link>
 
       {/* Main Navigation Menu */}
       <nav className="flex-1 flex flex-col items-center space-y-4">
