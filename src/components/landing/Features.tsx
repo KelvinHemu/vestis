@@ -7,8 +7,8 @@ export function Features() {
     <section className="bg-zinc-50 py-16 md:py-32 dark:bg-transparent">
       <div className="@container mx-auto max-w-5xl px-6">
         <div className="text-center">
-          <h2 className="text-balance text-4xl font-semibold lg:text-5xl">Built to support Your Growth</h2>
-          <p className="mt-4">Flexible tools designed to help you present your products beautifully and create better customer experiences.</p>
+          <h2 className="text-balance text-4xl font-semibold lg:text-5xl">Professional Fashion Photography, Reimagined</h2>
+          <p className="mt-4">Create stunning on-model editorials from your existing assets. No models, photographers, or studios needed.</p>
         </div>
         <div className="@min-4xl:max-w-full @min-4xl:grid-cols-3 mx-auto mt-8 grid max-w-sm gap-6 *:text-center md:mt-16">
           <Card className="group shadow-zinc-950/5">
@@ -20,11 +20,11 @@ export function Features() {
                 />
               </CardDecorator>
 
-              <h3 className="mt-6 font-medium">Flexible & Easy to Use</h3>
+              <h3 className="mt-6 font-medium">Flat Lay to Model</h3>
             </CardHeader>
 
             <CardContent>
-              <p className="text-sm">Create the visuals you need quickly. Adjust styles, formats, and layouts to match your brand effortlessly.</p>
+              <p className="text-sm">Turn clarity into reality. Instantly transform basic flat lay photos into high-fashion lifestyle shots on real human models.</p>
             </CardContent>
           </Card>
 
@@ -37,11 +37,11 @@ export function Features() {
                 />
               </CardDecorator>
 
-              <h3 className="mt-6 font-medium">Consistent Across Your Entire Store</h3>
+              <h3 className="mt-6 font-medium">Mannequin Transformation</h3>
             </CardHeader>
 
             <CardContent>
-              <p className="mt-3 text-sm">Keep your catalog looking clean, cohesive, and professional  no matter how many products you manage.</p>
+              <p className="mt-3 text-sm">Ghost Mannequin? No Problem. Generate realistic human models wearing your clothes with perfect fit and lighting.</p>
             </CardContent>
           </Card>
 
@@ -54,11 +54,11 @@ export function Features() {
                 />
               </CardDecorator>
 
-              <h3 className="mt-6 font-medium">Powered By AI</h3>
+              <h3 className="mt-6 font-medium">Creative Backgrounds</h3>
             </CardHeader>
 
             <CardContent>
-              <p className="mt-3 text-sm">Automatically improve clarity, backgrounds, and presentation for a polished customer experience.</p>
+              <p className="mt-3 text-sm">Infinite Scenes. Place your models in any environment, from studio cycs to Parisian streets, in seconds.</p>
             </CardContent>
           </Card>
         </div>

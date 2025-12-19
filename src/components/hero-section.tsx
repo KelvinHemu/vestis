@@ -109,7 +109,7 @@ export default function HeroSection() {
                                     speedSegment={0.3}
                                     as="h1"
                                     className="mx-auto mt-8 max-w-4xl text-balance text-5xl max-md:font-semibold md:text-7xl lg:mt-16 xl:text-[5.25rem]">
-                                    Modern Solutions for Customer Engagement
+                                    The All-In-One AI Fashion Studio for Brands
                                 </TextEffect>
                                 <TextEffect
                                     per="line"
@@ -118,7 +118,7 @@ export default function HeroSection() {
                                     delay={0.5}
                                     as="p"
                                     className="mx-auto mt-8 max-w-2xl text-balance text-lg">
-                                    Highly customizable tools for creating modern customer experiences that look and feel exactly the way your brand intends.
+                                    Instantly transform Flat Lays, Ghost Mannequins, and On-Model photos into professional editorials. No photoshoot required.
                                 </TextEffect>
 
                                 <AnimatedGroup
@@ -176,8 +176,8 @@ export default function HeroSection() {
                                 <div className="inset-shadow-2xs ring-white dark:inset-shadow-white/20 bg-white relative mx-auto max-w-6xl overflow-hidden rounded-2xl border-white p-2 shadow-lg shadow-zinc-950/15 ring-1">
                                     <Image
                                         className="bg-white aspect-video w-full relative rounded-xl object-cover object-center"
-                                        src="https://res.cloudinary.com/ds4lpuk8p/image/upload/v1765220777/stage-1765220732638_ttpalh.png"
-                                        alt="Vestis Dashboard"
+                                        src="/hero-split.png"
+                                        alt="Vestis AI Studio - Flat Lay to Model"
                                         width="1920"
                                         height="1080"
                                     />
