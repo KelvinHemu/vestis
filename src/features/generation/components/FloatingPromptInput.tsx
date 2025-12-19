@@ -23,7 +23,7 @@ export function FloatingPromptInput({
     }
   };
   return (
-    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white to-transparent pointer-events-none">
+    <div className="sticky bottom-[140px] md:bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-white via-white to-transparent pointer-events-none z-40">
       <div className="max-w-3xl mx-auto pointer-events-auto">
         <div className="bg-white rounded-full shadow-lg border border-gray-300 flex items-center gap-3 px-4 py-2.5">
           <input
