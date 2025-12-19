@@ -36,8 +36,12 @@ export const PaymentPage: React.FC = () => {
     try {
       const response = await userService.getCurrentUser(token);
       setUser(response.user);
-    } catch (error) {
-      console.error('Failed to load user data:', error);
+    } catch (error: any) {
+      // If authentication fails, the error handler in apiClient will redirect
+      // Only log non-auth errors
+      if (error?.status !== 401) {
+        console.error('Failed to load user data:', error);
+      }
     }
   };
 

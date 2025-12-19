@@ -23,7 +23,6 @@ import type { ProductImage } from '@/types/flatlay';
 import { RotateCw } from 'lucide-react';
 import AspectRatio from '@/components/shared/aspectRatio';
 import Resolution from '@/components/shared/resolution';
-import { useOnboarding } from '@/hooks/useOnboarding';
 
 // Helper function to convert aspect ratio string to CSS aspect-ratio value
 const getAspectRatioValue = (ratio: string): string => {
@@ -32,18 +31,8 @@ const getAspectRatioValue = (ratio: string): string => {
   return ratio.replace(':', '/');
 };
 
-interface FlatLayPhotosProps {
-  // Onboarding mode simplifies the UI and auto-selects defaults
-  isOnboarding?: boolean;
-}
+export function FlatLayPhotos() {
 
-export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {}) {
-  // Onboarding hook for redirecting to result page
-  const { goToResult } = useOnboarding();
-  
-  // Ref to prevent infinite loop when redirecting in onboarding mode
-  const hasRedirectedRef = useRef(false);
-  
   // Get persisted state from store
   const {
     currentStep,
@@ -74,7 +63,7 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
     setResolution,
     resetFlatLay,
   } = useFlatLayStore();
-  
+
   // Generation state from global store (persists across navigation)
   const {
     isGenerating,
@@ -92,11 +81,13 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
     resetGeneration();
     setGenerationError(null);
   };
-  
+
   // Local (non-persisted) state for transient UI states
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [insufficientCredits, setInsufficientCredits] = useState<{ available: number; required: number } | null>(null);
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+  const [selectedGalleryTop, setSelectedGalleryTop] = useState<string | undefined>();
+  const [selectedGalleryBottom, setSelectedGalleryBottom] = useState<string | undefined>();
 
   // Sync generation store error with local error state
   useEffect(() => {
@@ -104,6 +95,10 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
       setGenerationError(generationStoreError);
     }
   }, [generationStoreError]);
+
+  // Cache invalidation hooks
+  const invalidateGenerations = useInvalidateGenerations();
+  const invalidateFlatLay = useInvalidateFlatLay();
 
   // When generation completes in background, update the persisted state
   useEffect(() => {
@@ -114,19 +109,8 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
       // Invalidate caches to show new generation in history
       invalidateGenerations();
       invalidateFlatLay();
-      
-      // If in onboarding mode, redirect to result page after successful generation
-      // Use ref to prevent infinite loop
-      if (isOnboarding && !hasRedirectedRef.current) {
-        hasRedirectedRef.current = true;
-        goToResult(newGeneratedImageUrl, aspectRatio);
-      }
     }
-  }, [newGeneratedImageUrl, generatedImageUrl, isOnboarding, goToResult, aspectRatio]);
-
-  // Cache invalidation hooks
-  const invalidateGenerations = useInvalidateGenerations();
-  const invalidateFlatLay = useInvalidateFlatLay();
+  }, [newGeneratedImageUrl, generatedImageUrl, aspectRatio, invalidateGenerations, invalidateFlatLay, setGeneratedImageUrl, setIsEditMode, setAdditionalInfo]);
 
   const handleFileUpload = (index: number, file: File | null) => {
     console.log('handleFileUpload called with index:', index, 'file:', file);
@@ -135,7 +119,7 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
       reader.onloadend = () => {
         const result = reader.result as string;
         console.log('FileReader result:', result.substring(0, 50) + '...');
-        
+
         // Store in the appropriate state based on current selection
         if (selectionType.includes('top') && !selectionType.includes('bottom')) {
           setTopImages(prev => ({
@@ -189,6 +173,48 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
           return newState;
         });
       }
+    }
+  };
+
+  // Handle gallery clothing selection
+  const handleGallerySelect = async (type: 'top' | 'bottom', frontImage: string, backImage: string) => {
+    // Update selected state for visual feedback
+    if (type === 'top') {
+      setSelectedGalleryTop(frontImage);
+    } else {
+      setSelectedGalleryBottom(frontImage);
+    }
+
+    // Fetch the images and convert to data URLs for the upload areas
+    const fetchImageAsDataUrl = async (url: string): Promise<string> => {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } catch (error) {
+        console.error('Failed to fetch image:', error);
+        return url; // Fallback to URL if fetch fails
+      }
+    };
+
+    try {
+      const [frontDataUrl, backDataUrl] = await Promise.all([
+        fetchImageAsDataUrl(frontImage),
+        fetchImageAsDataUrl(backImage)
+      ]);
+
+      if (type === 'top') {
+        setTopImages({ 1: frontDataUrl, 2: backDataUrl });
+      } else {
+        setBottomImages({ 1: frontDataUrl, 2: backDataUrl });
+      }
+    } catch (error) {
+      console.error('Failed to load gallery images:', error);
     }
   };
 
@@ -252,7 +278,7 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
         const topProduct: ProductImage = {
           type: 'top',
         };
-        
+
         // Only add images if they actually exist
         if (topImages[1]) {
           topProduct.frontImage = topImages[1];
@@ -260,7 +286,7 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
         if (topImages[2]) {
           topProduct.backImage = topImages[2];
         }
-        
+
         // Only add product if at least one image exists
         if (topProduct.frontImage || topProduct.backImage) {
           products.push(topProduct);
@@ -272,7 +298,7 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
         const bottomProduct: ProductImage = {
           type: 'bottom',
         };
-        
+
         // Only add images if they actually exist
         if (bottomImages[1]) {
           bottomProduct.frontImage = bottomImages[1];
@@ -280,7 +306,7 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
         if (bottomImages[2]) {
           bottomProduct.backImage = bottomImages[2];
         }
-        
+
         // Only add product if at least one image exists
         if (bottomProduct.frontImage || bottomProduct.backImage) {
           products.push(bottomProduct);
@@ -315,7 +341,7 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
       if (response.success) {
         // If we have a job ID, poll for status
         if (response.jobId) {
-          
+
           const finalStatus = await flatLayService.pollJobStatus(
             response.jobId,
             () => {
@@ -337,7 +363,7 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
       }
     } catch (error) {
       console.error('Error generating flatlay:', error);
-      
+
       // Handle insufficient credits error specifically
       if (error instanceof InsufficientCreditsError) {
         setInsufficientCredits({
@@ -356,35 +382,16 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
     switch (currentStep) {
       case 0:
         // Get current images based on selection
-        const currentImages = selectionType.includes('top') && !selectionType.includes('bottom') 
-          ? topImages 
+        const currentImages = selectionType.includes('top') && !selectionType.includes('bottom')
+          ? topImages
           : selectionType.includes('bottom') && !selectionType.includes('top')
-          ? bottomImages
-          : { ...topImages, ...bottomImages };
-        
+            ? bottomImages
+            : { ...topImages, ...bottomImages };
+
         console.log('Rendering step 0, current images:', currentImages);
         return (
           <>
-            {/* Onboarding guidance banner */}
-            {isOnboarding && (
-              <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gray-700 text-white flex items-center justify-center text-xs font-bold mt-0.5">
-                    i
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-1">
-                      Get started by uploading your product photo
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Upload a clear, well-lit photo of your clothing item. 
-                      You can upload both front and back views for the best results.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-            
+
             <ProductSelector
               selectionType={selectionType}
               onSelectionTypeChange={setSelectionType}
@@ -393,7 +400,12 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
               onClear={() => {
                 setTopImages({});
                 setBottomImages({});
+                setSelectedGalleryTop(undefined);
+                setSelectedGalleryBottom(undefined);
               }}
+              onSelectGalleryClothing={handleGallerySelect}
+              selectedGalleryTop={selectedGalleryTop}
+              selectedGalleryBottom={selectedGalleryBottom}
             />
           </>
         );
@@ -418,25 +430,7 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
       case 3:
         return (
           <div className="space-y-6">
-            {/* Onboarding guidance banner for final step */}
-            {isOnboarding && !isGenerating && !generatedImageUrl && (
-              <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gray-700 text-white flex items-center justify-center text-xs font-bold mt-0.5">
-                    i
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-1">
-                      Ready to generate your first image!
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Review your selections and click "Generate Image" to create your professional fashion photo.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-            
+
             <div className="flex flex-col items-center justify-center min-h-[400px] w-full gap-3 sm:gap-4 md:gap-6">
               {isGenerating ? (
                 <div className="flex items-center justify-center">
@@ -488,9 +482,9 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
                   >
                     Start Over
                   </button>
-                  
-                  <div 
-                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[140px] xs:max-w-[160px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[300px] xl:max-w-[340px] mb-20" 
+
+                  <div
+                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[140px] xs:max-w-[160px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[300px] xl:max-w-[340px] mb-20"
                     style={{ aspectRatio: getAspectRatioValue(aspectRatio) }}
                     onDoubleClick={() => setIsFullscreenOpen(true)}
                   >
@@ -499,7 +493,7 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
                       alt="Generated Flatlay"
                       className="w-full h-full object-cover"
                     />
-                    
+
                     {/* Image Feedback Actions */}
                     <ImageFeedbackActions
                       onUndo={handleUndoEdit}
@@ -526,15 +520,15 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
     const topImagesCount = Object.keys(topImages).length;
     const bottomImagesCount = Object.keys(bottomImages).length;
     const uploadedImagesCount = topImagesCount + bottomImagesCount;
-    const isFullBody = selectionType.length === 2 && 
-                       selectionType.includes('top') && 
-                       selectionType.includes('bottom');
-    
+    const isFullBody = selectionType.length === 2 &&
+      selectionType.includes('top') &&
+      selectionType.includes('bottom');
+
     // Validation logic
     const hasUploadedAnyProduct = uploadedImagesCount >= 1; // At least one image (front OR back)
     const hasSelectedModel = selectedModel !== null;
     const hasSelectedBackground = selectedBackground !== null;
-    
+
     // Determine if user can proceed to next step
     const canProceedToNextStep = () => {
       switch (currentStep) {
@@ -559,7 +553,7 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
       if (currentStep === 0) {
         const hasTopImages = Object.keys(topImages).length > 0;
         const hasBottomImages = Object.keys(bottomImages).length > 0;
-        
+
         // If both top and bottom images exist, proceed to next step
         if (hasTopImages && hasBottomImages) {
           const nextStep = currentStep + 1;
@@ -569,7 +563,7 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
           }
           return;
         }
-        
+
         // If user selected only Top and hasn't uploaded bottom yet, switch to Bottom
         if (selectionType.length === 1 && selectionType.includes('top') && !hasBottomImages) {
           setSelectionType(['bottom']);
@@ -611,32 +605,27 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
             bottomImages={bottomImages}
           />
         </div>
-        
+
         {/* Spacer to push content to bottom */}
         <div className="flex-1"></div>
-        
+
         {/* Selected Items and Button at the bottom */}
         <div className="space-y-4 md:space-y-6">
-          {/* Hide advanced options in onboarding mode */}
-          {!isOnboarding && (
-            <>
-              {/* Aspect Ratio Selector */}
-              <div>
-                <AspectRatio
-                  value={aspectRatio}
-                  onValueChange={setAspectRatio}
-                />
-              </div>
-              
-              {/* Resolution Selector */}
-              <div>
-                <Resolution
-                  value={resolution}
-                  onValueChange={setResolution}
-                />
-              </div>
-            </>
-          )}
+          {/* Aspect Ratio Selector */}
+          <div>
+            <AspectRatio
+              value={aspectRatio}
+              onValueChange={setAspectRatio}
+            />
+          </div>
+
+          {/* Resolution Selector */}
+          <div>
+            <Resolution
+              value={resolution}
+              onValueChange={setResolution}
+            />
+          </div>
 
           {/* Show Download and Regenerate buttons after image is generated */}
           {currentStep === 3 && generatedImageUrl && (
@@ -731,26 +720,23 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
           }}
         />
       )}
-      
+
       {/* Content Area with Left and Right Sections */}
       <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 overflow-hidden">
         {/* Left Component - full width on phone, flex-1 on tablet+ */}
         <div className="flex-1 bg-white md:border-r-2 border-gray-300 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
-          {/* Hide steps in onboarding mode for simplified UI */}
-          {!isOnboarding && (
-            <div className="border-b-2 border-gray-300">
-              <Steps 
-                steps={steps} 
-                currentStep={currentStep}
-                maxUnlockedStep={maxUnlockedStep}
-                onStepChange={setCurrentStep}
-              />
-            </div>
-          )}
+          <div className="border-b-2 border-gray-300">
+            <Steps
+              steps={steps}
+              currentStep={currentStep}
+              maxUnlockedStep={maxUnlockedStep}
+              onStepChange={setCurrentStep}
+            />
+          </div>
           <div className="p-8">
             {renderStepContent()}
           </div>
-          
+
           {/* Floating Input Bar - Only visible on step 3 (Preview & Generate) */}
           {currentStep === 3 && (
             <FloatingPromptInput
@@ -761,7 +747,7 @@ export function FlatLayPhotos({ isOnboarding = false }: FlatLayPhotosProps = {})
             />
           )}
         </div>
-        
+
         {/* Right Component - fixed bottom bar on phone, sidebar on tablet+ */}
         <div className="fixed bottom-0 left-0 right-0 md:static md:w-80 lg:w-96 bg-white p-4 sm:p-6 m-0 md:overflow-y-auto flex flex-col border-t-2 md:border-t-0 border-gray-300 shrink-0 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none">
           {renderRightPanel()}

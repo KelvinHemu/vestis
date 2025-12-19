@@ -110,11 +110,20 @@ export async function apiFetch(
         }
       } catch (refreshError) {
         // Token refresh failed - logout and redirect
+        logger.warn('🔒 Token refresh failed, logging out...');
         authService.logout();
         const logout = useAuthStore.getState().logout;
         logout();
-        window.location.href = '/login';
-        throw refreshError;
+        
+        // Only redirect if we're in a browser context
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+        
+        // Throw a specific error for authentication failure
+        const authError = new Error('Session expired. Please login again.');
+        (authError as any).status = 401;
+        throw authError;
       } finally {
         isRefreshing = false;
         tokenRefreshPromise = null;
@@ -123,6 +132,13 @@ export async function apiFetch(
 
     return response;
   } catch (error) {
+    // Suppress error logging for authentication failures (user will be redirected)
+    if (error instanceof Error && (error as any).status === 401) {
+      // Silent fail - redirect will happen
+      throw error;
+    }
+    
+    // Log other network errors
     if (!skipAuth && error instanceof Error && error.message.includes('fetch')) {
       console.error('🔴 Network error:', error);
     }

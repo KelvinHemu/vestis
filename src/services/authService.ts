@@ -260,7 +260,7 @@ class AuthService {
       console.log('✅ Token refreshed successfully');
       return newAccessToken;
     } catch (error) {
-      console.error('🔴 Token refresh error:', error);
+      // Don't log here - will be handled by apiClient with proper redirect
       throw error;
     }
   }

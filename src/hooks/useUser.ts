@@ -1,7 +1,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 import { useAuthStore } from '@/contexts/authStore';
 import userService from '@/services/userService';
+import authService from '@/services/authService';
 import type { User } from '@/types/user';
+import { logger } from '@/utils/logger';
 
 /**
  * Query key for user data
@@ -16,12 +20,33 @@ export const USER_QUERY_KEY = ['user'] as const;
  * Uses the user from auth store as initial data so credits are
  * available immediately after login without waiting for a fetch.
  * 
+ * Automatically redirects to login if authentication fails completely.
+ * 
  * Use this instead of manual useEffect + useState patterns
  */
 export function useUser() {
-    const { token, isAuthenticated, user: authUser } = useAuthStore();
+    const router = useRouter();
+    const { token, isAuthenticated, user: authUser, logout } = useAuthStore();
+    const hasRedirected = useRef(false);
 
-    return useQuery<User | null, Error>({
+    // Redirect immediately if not authenticated
+    useEffect(() => {
+        if (!isAuthenticated && !token && !hasRedirected.current && typeof window !== 'undefined') {
+            // Check if we're on a protected route
+            const isProtectedRoute = window.location.pathname.startsWith('/dashboard') || 
+                                   window.location.pathname.startsWith('/create') ||
+                                   window.location.pathname.startsWith('/history') ||
+                                   window.location.pathname.startsWith('/pricing');
+            
+            if (isProtectedRoute && !hasRedirected.current) {
+                hasRedirected.current = true;
+                logger.warn('🔒 No authentication detected, redirecting to login...');
+                router.replace('/login');
+            }
+        }
+    }, [isAuthenticated, token, router]);
+
+    const query = useQuery<User | null, Error>({
         queryKey: USER_QUERY_KEY,
         queryFn: async () => {
             if (!token) return null;
@@ -29,7 +54,7 @@ export function useUser() {
             return response.user;
         },
         // Only fetch when authenticated with a token
-        enabled: isAuthenticated && !!token,
+        enabled: isAuthenticated && !!token && !hasRedirected.current,
         // Keep data fresh - shorter stale time for credits accuracy
         staleTime: 30 * 1000, // 30 seconds
         // Cache for 5 minutes
@@ -41,7 +66,39 @@ export function useUser() {
         // Use auth store user as initial data so credits are immediately available
         // This is especially important after login when credits come from the login response
         initialData: authUser as User | null,
+        // Disable automatic retries for auth errors to prevent multiple failed requests
+        retry: (failureCount, error: any) => {
+            // Don't retry on authentication errors
+            if (error?.status === 401 || error?.message?.includes('Authentication failed')) {
+                return false;
+            }
+            // Retry other errors up to 2 times
+            return failureCount < 2;
+        },
     });
+
+    // Handle authentication errors with useEffect for reliable redirect
+    useEffect(() => {
+        if (query.error && !hasRedirected.current) {
+            const error = query.error as any;
+            // Check if this is an authentication error (401)
+            if (error?.status === 401 || error?.message?.includes('Authentication failed') || error?.message?.includes('Session expired')) {
+                hasRedirected.current = true;
+                logger.warn('🔒 Authentication failed completely, redirecting to login...');
+                
+                // Clear auth state immediately
+                authService.logout();
+                logout();
+                
+                // Use window.location for hard redirect to ensure clean state
+                if (typeof window !== 'undefined') {
+                    window.location.href = '/login';
+                }
+            }
+        }
+    }, [query.error, logout, router]);
+
+    return query;
 }
 
 /**

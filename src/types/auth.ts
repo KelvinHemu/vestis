@@ -1,5 +1,4 @@
 // Import User type from user.ts to avoid duplication
-// This ensures onboarding fields are available
 import type { User } from './user';
 
 export interface AuthState {

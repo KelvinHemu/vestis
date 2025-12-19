@@ -1,6 +1,7 @@
 import { ProductUpload } from './ProductUpload';
 import { CustomDropdown } from '@/components/shared/CustomDropdown';
 import { UploadHeader } from './UploadHeader';
+import { ClothingGallery } from './ClothingGallery';
 
 interface ProductSelectorProps {
   selectionType: ('top' | 'bottom')[];
@@ -8,6 +9,9 @@ interface ProductSelectorProps {
   imageUrls: { [key: number]: string };
   onFileUpload: (index: number, file: File | null) => void;
   onClear: () => void;
+  onSelectGalleryClothing?: (type: 'top' | 'bottom', frontImage: string, backImage: string) => void;
+  selectedGalleryTop?: string;
+  selectedGalleryBottom?: string;
 }
 
 export function ProductSelector({
@@ -15,7 +19,10 @@ export function ProductSelector({
   onSelectionTypeChange,
   imageUrls,
   onFileUpload,
-  onClear
+  onClear,
+  onSelectGalleryClothing,
+  selectedGalleryTop,
+  selectedGalleryBottom
 }: ProductSelectorProps) {
   const handleSelectChange = (value: string) => {
     if (value === 'fullbody' || value === 'top-bottom') {
@@ -27,9 +34,9 @@ export function ProductSelector({
     }
   };
 
-  const isFullBody = selectionType.length === 2 && 
-                     selectionType.includes('top') && 
-                     selectionType.includes('bottom');
+  const isFullBody = selectionType.length === 2 &&
+    selectionType.includes('top') &&
+    selectionType.includes('bottom');
 
   // Get current value for select
   const getCurrentValue = () => {
@@ -58,7 +65,7 @@ export function ProductSelector({
         onClearAll={onClear}
         showClearButton={Object.keys(imageUrls).length > 0}
       />
-      
+
       {/* Selection Type Options - custom dropdown */}
       <div className="flex justify-between items-center gap-3">
         <CustomDropdown
@@ -76,17 +83,17 @@ export function ProductSelector({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 w-full">
         {/* Product cards */}
         {[
-          { 
-            id: 1, 
-            label: 'Front', 
+          {
+            id: 1,
+            label: 'Front',
             bgImages: {
               fullbody: '/images/flatlay/front-full.png',
               top: '/images/flatlay/front-top.png',
               bottom: '/images/flatlay/front-bottom.png'
             }
           },
-          { 
-            id: 2, 
+          {
+            id: 2,
             label: 'Back',
             bgImages: {
               fullbody: '/images/flatlay/full-back.png',
@@ -95,16 +102,16 @@ export function ProductSelector({
             }
           }
         ].map((item) => (
-          <div 
-            key={item.id} 
-            className="rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm relative flex items-center justify-center w-full max-w-[550px] mx-auto md:mx-0" 
-            style={{ 
+          <div
+            key={item.id}
+            className="rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm relative flex items-center justify-center w-full max-w-[550px] mx-auto md:mx-0"
+            style={{
               aspectRatio: '16/9',
               backgroundColor: '#e5e7eb'
             }}
           >
             {/* Background Image Layer */}
-            <div 
+            <div
               className="absolute inset-0 rounded-2xl"
               style={{
                 backgroundImage: `url(${getBackgroundImage(item.bgImages)})`,
@@ -114,7 +121,7 @@ export function ProductSelector({
                 opacity: 1
               }}
             />
-            
+
             <h3 className="absolute top-4 left-6 text-lg font-semibold text-gray-700 z-10">{item.label}</h3>
             <div className="relative z-10">
               <ProductUpload
@@ -127,6 +134,16 @@ export function ProductSelector({
           </div>
         ))}
       </div>
+
+      {/* Sample Clothing Gallery */}
+      {onSelectGalleryClothing && (
+        <ClothingGallery
+          selectionType={selectionType}
+          onSelectClothing={onSelectGalleryClothing}
+          selectedTop={selectedGalleryTop}
+          selectedBottom={selectedGalleryBottom}
+        />
+      )}
     </div>
   );
 }

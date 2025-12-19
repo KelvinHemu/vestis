@@ -86,18 +86,6 @@ export default function DashboardLayout({
     }
   }, [isAuthenticated, isInitialized, _hasHydrated, isProcessingOAuth, router]);
 
-  // Redirect to onboarding if user hasn't completed it
-  // IMPORTANT: Only redirect AFTER hydration, initialization, and OAuth processing are complete
-  useEffect(() => {
-    // Don't redirect while processing OAuth
-    if (isProcessingOAuth) return;
-    
-    if (_hasHydrated && isInitialized && isAuthenticated && user && !user.onboardingCompleted) {
-      console.log('📋 Onboarding not completed, redirecting to onboarding...');
-      router.replace("/intent");
-    }
-  }, [isAuthenticated, isInitialized, _hasHydrated, isProcessingOAuth, user, router]);
-
   // Show loading state while:
   // 1. Processing OAuth tokens from URL
   // 2. Zustand persist is hydrating from localStorage

@@ -32,10 +32,15 @@ export function Profile() {
         setError(null);
         const response = await userService.getCurrentUser(token);
         setUser(response.user);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load profile';
-        setError(errorMessage);
-        console.error('Failed to fetch user data:', err);
+      } catch (err: any) {
+        // If authentication fails (401), the error handler will redirect to login
+        // Only set error for non-auth issues
+        if (err?.status !== 401) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to load profile';
+          setError(errorMessage);
+          console.error('Failed to fetch user data:', err);
+        }
+        // For 401 errors, redirect will happen automatically
       } finally {
         setIsLoading(false);
       }
