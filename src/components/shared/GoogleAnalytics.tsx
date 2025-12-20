@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { GoogleAnalytics as NextGoogleAnalytics } from '@next/third-parties/google';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { trackPageView, setUserProperties } from '@/utils/analytics';
@@ -16,7 +16,8 @@ interface GoogleAnalyticsProps {
     measurementId: string;
 }
 
-export function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
+// Inner component that uses useSearchParams (requires Suspense boundary)
+function GoogleAnalyticsInner({ measurementId }: GoogleAnalyticsProps) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const user = useAuthStore((state) => state.user);
@@ -45,4 +46,13 @@ export function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
     }, [isAuthenticated, user]);
 
     return <NextGoogleAnalytics gaId={measurementId} />;
+}
+
+// Wrapper component with Suspense boundary for Next.js static generation
+export function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
+    return (
+        <Suspense fallback={null}>
+            <GoogleAnalyticsInner measurementId={measurementId} />
+        </Suspense>
+    );
 }
