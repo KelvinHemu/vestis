@@ -23,7 +23,7 @@ Then restart your dev server:
 pnpm dev
 ```
 
-## ✨ That's It!
+## ✨ That's It!!!
 
 Clarity will now track:
 - 📊 Page views and user behavior
