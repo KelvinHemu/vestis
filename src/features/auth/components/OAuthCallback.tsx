@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/contexts/authStore';
 import { processOAuthCallback } from '@/utils/oauthHelper';
 import { USER_QUERY_KEY } from '@/hooks/useUser';
+import { AuthEvents } from '@/utils/analytics';
 
 /* ============================================
    OAuth Callback Component
@@ -59,6 +60,9 @@ export function OAuthCallback() {
 
         // Invalidate user query to fetch fresh user data (including credits) from API
         await queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
+
+        // Track successful Google OAuth login
+        AuthEvents.login('google');
 
         // Small delay to ensure Zustand persist saves to localStorage
         // This prevents race conditions where redirect happens before persist

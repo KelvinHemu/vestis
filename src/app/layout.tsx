@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/providers";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
+import { GoogleAnalytics } from "@/components/shared/GoogleAnalytics";
 import "./globals.css";
 
 /* ============================================
@@ -41,11 +42,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {gaId && <GoogleAnalytics measurementId={gaId} />}
         <ErrorBoundary>
           <Providers>{children}</Providers>
         </ErrorBoundary>

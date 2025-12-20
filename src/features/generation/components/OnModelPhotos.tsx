@@ -24,6 +24,7 @@ import { getBackgroundById } from '@/services/backgroundService';
 import { RotateCw } from 'lucide-react';
 import AspectRatio from '@/components/shared/aspectRatio';
 import Resolution from '@/components/shared/resolution';
+import { FeatureEvents } from '@/utils/analytics';
 
 export function OnModelPhotos() {
 
@@ -469,6 +470,9 @@ export function OnModelPhotos() {
                     link.click();
                     document.body.removeChild(link);
                     window.URL.revokeObjectURL(url);
+
+                    // Track download event
+                    FeatureEvents.downloadImage('on-model');
                   } catch (err) {
                     console.error('Failed to download image:', err);
                     alert('Failed to download image');
@@ -542,14 +546,16 @@ export function OnModelPhotos() {
             try {
               const response = await fetch(generatedImageUrl);
               const blob = await response.blob();
-              const url = window.URL.createObjectURL(blob);
-              const link = document.createElement('a');
+              const url = window.URL.createObjectURL(blob); const link = document.createElement('a');
               link.href = url;
               link.download = 'on-model-image.png';
               document.body.appendChild(link);
               link.click();
               document.body.removeChild(link);
               window.URL.revokeObjectURL(url);
+
+              // Track download event
+              FeatureEvents.downloadImage('on-model');
             } catch (err) {
               console.error('Failed to download image:', err);
               alert('Failed to download image');

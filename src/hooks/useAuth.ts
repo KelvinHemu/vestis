@@ -7,6 +7,7 @@ import { useAuthStore } from '@/contexts/authStore';
 import authService from '@/services/authService';
 import type { LoginCredentials, SignupCredentials } from '@/types/auth';
 import { USER_QUERY_KEY } from './useUser';
+import { AuthEvents } from '@/utils/analytics';
 
 /* ============================================
    Authentication Hooks
@@ -57,6 +58,10 @@ export function useLogin(): UseLoginReturn {
       console.log('Login succeeded, invalidating user query for fresh credits');
       // Invalidate user query to fetch fresh user data (including credits) from API
       await queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
+
+      // Track successful login
+      AuthEvents.login('email');
+
       console.log('Login succeeded, navigating to dashboard');
       router.replace('/dashboard');
     } catch {
@@ -119,6 +124,10 @@ export function useSignup(): UseSignupReturn {
     try {
       await authSignup(credentials);
       console.log('Signup succeeded, navigating to check-email');
+
+      // Track successful signup
+      AuthEvents.signUp('email');
+
       // Navigate to check-email page instead of dashboard
       router.replace('/check-email');
     } catch {
@@ -219,6 +228,10 @@ export function useLogout(): UseLogoutReturn {
 
   const logout = () => {
     authLogout();
+
+    // Track logout event
+    AuthEvents.logout();
+
     router.push('/login');
   };
 

@@ -5,6 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { queryClient } from "@/lib/queryClient";
 import { useAuthStore } from "@/contexts/authStore";
+import { ClarityProvider } from "@/components/shared/ClarityProvider";
 
 /* ============================================
    Auth Provider - Initializes auth state
@@ -40,11 +41,23 @@ function AuthProvider({ children }: { children: ReactNode }) {
    Root Providers - Wraps app with all providers
    - QueryClientProvider for React Query
    - AuthProvider for authentication state
+   - ClarityProvider for Microsoft Clarity analytics
    ============================================ */
 export function Providers({ children }: { children: ReactNode }) {
+  // Get Clarity Project ID from environment variable
+  // You can find this in your Microsoft Clarity dashboard
+  const clarityProjectId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || '';
+
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider>
+        {clarityProjectId && (
+          <ClarityProvider projectId={clarityProjectId}>
+            {children}
+          </ClarityProvider>
+        )}
+        {!clarityProjectId && children}
+      </AuthProvider>
       {/* DevTools only visible in development */}
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

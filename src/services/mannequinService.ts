@@ -5,6 +5,7 @@
 
 import api from '../utils/apiClient';
 import { InsufficientCreditsError } from '../types/errors';
+import { FeatureEvents } from '@/utils/analytics';
 import type {
   GenerateFlatLayRequest,
   GenerateFlatLayResponse,
@@ -19,7 +20,7 @@ import type {
 class MannequinService {
   private static instance: MannequinService;
 
-  private constructor() {}
+  private constructor() { }
 
   /**
    * Get singleton instance
@@ -70,7 +71,7 @@ class MannequinService {
         resolution: request.resolution,
         options: request.options,
       };
-      
+
       console.log('✅ Formatted request (backend expects strings):', {
         modelId: formattedRequest.modelId,
         backgroundId: formattedRequest.backgroundId,
@@ -85,7 +86,7 @@ class MannequinService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error('❌ API Error Response:', errorData);
-        
+
         // Handle 402 Payment Required - Insufficient Credits
         if (response.status === 402) {
           const creditsAvailable = errorData.credits_available || 0;
@@ -96,7 +97,7 @@ class MannequinService {
             errorData.error || errorData.message
           );
         }
-        
+
         throw new Error(
           errorData.message || `Failed to generate mannequin: ${response.statusText}`
         );
@@ -104,7 +105,7 @@ class MannequinService {
 
       const data = await response.json();
       console.log('✅ Raw API Response:', data);
-      
+
       // Map snake_case response to camelCase for frontend
       const mappedResponse: GenerateFlatLayResponse = {
         success: data.success,
@@ -118,7 +119,10 @@ class MannequinService {
         productCount: data.product_count,
         generatedAt: data.generated_at,
       };
-      
+
+      // Track mannequin generation event
+      FeatureEvents.generateImage('mannequin', 10);
+
       console.log('🔄 Mapped Response:', mappedResponse);
       return mappedResponse;
     } catch (error) {

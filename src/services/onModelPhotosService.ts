@@ -6,6 +6,7 @@
 import api from '../utils/apiClient';
 import { InsufficientCreditsError } from '../types/errors';
 import { logger } from '@/utils/logger';
+import { FeatureEvents } from '@/utils/analytics';
 import type {
   GenerateOnModelRequest,
   GenerateOnModelResponse,
@@ -20,7 +21,7 @@ import type {
 class OnModelPhotosService {
   private static instance: OnModelPhotosService;
 
-  private constructor() {}
+  private constructor() { }
 
   /**
    * Get singleton instance
@@ -91,7 +92,7 @@ class OnModelPhotosService {
         aspectRatio: request.aspectRatio,
         resolution: request.resolution,
       };
-      
+
       logger.debug('Payload structure validated', {
         context: 'OnModelService',
         data: {
@@ -114,7 +115,7 @@ class OnModelPhotosService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         logger.apiError('/v1/generate?onmodel', errorData);
-        
+
         // Handle 402 Payment Required - Insufficient Credits
         if (response.status === 402) {
           const creditsAvailable = errorData.credits_available || 0;
@@ -125,7 +126,7 @@ class OnModelPhotosService {
             errorData.error || errorData.message
           );
         }
-        
+
         throw new Error(
           errorData.message || `Failed to generate on-model photos: ${response.statusText}`
         );
@@ -133,7 +134,7 @@ class OnModelPhotosService {
 
       const data = await response.json();
       logger.apiResponse('/v1/generate?onmodel', response.status, data);
-      
+
       // Map snake_case response to camelCase for frontend
       const mappedResponse: GenerateOnModelResponse = {
         success: data.success,
@@ -147,7 +148,10 @@ class OnModelPhotosService {
         photoCount: data.photo_count,
         generatedAt: data.generated_at,
       };
-      
+
+      // Track on-model generation event
+      FeatureEvents.generateImage('on-model', 10);
+
       logger.debug('Mapped response', { context: 'OnModelService', data: mappedResponse });
       return mappedResponse;
     } catch (error) {

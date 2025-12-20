@@ -6,6 +6,7 @@
 import api from '../utils/apiClient';
 import { InsufficientCreditsError } from '../types/errors';
 import { logger } from '@/utils/logger';
+import { FeatureEvents } from '@/utils/analytics';
 import type {
   GenerateFlatLayRequest,
   GenerateFlatLayResponse,
@@ -20,7 +21,7 @@ import type {
 class FlatLayService {
   private static instance: FlatLayService;
 
-  private constructor() {}
+  private constructor() { }
 
   /**
    * Get singleton instance
@@ -71,7 +72,7 @@ class FlatLayService {
         resolution: request.resolution,
         options: request.options,
       };
-      
+
       console.log('✅ Formatted request (backend expects strings):', {
         modelId: formattedRequest.modelId,
         backgroundId: formattedRequest.backgroundId,
@@ -86,7 +87,7 @@ class FlatLayService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error('❌ API Error Response:', errorData);
-        
+
         // Handle 402 Payment Required - Insufficient Credits
         if (response.status === 402) {
           const creditsAvailable = errorData.credits_available || 0;
@@ -97,7 +98,7 @@ class FlatLayService {
             errorData.error || errorData.message
           );
         }
-        
+
         throw new Error(
           errorData.message || `Failed to generate flatlay: ${response.statusText}`
         );
@@ -105,7 +106,7 @@ class FlatLayService {
 
       const data = await response.json();
       console.log('✅ Raw API Response:', data);
-      
+
       // Map snake_case response to camelCase for frontend
       const mappedResponse: GenerateFlatLayResponse = {
         success: data.success,
@@ -119,7 +120,11 @@ class FlatLayService {
         productCount: data.product_count,
         generatedAt: data.generated_at,
       };
-      
+
+      // Track flatlay generation event
+      // Assuming 10 credits per generation (adjust based on your pricing)
+      FeatureEvents.generateImage('flatlay', 10);
+
       console.log('🔄 Mapped Response:', mappedResponse);
       return mappedResponse;
     } catch (error) {

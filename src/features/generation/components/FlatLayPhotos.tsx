@@ -23,6 +23,7 @@ import type { ProductImage } from '@/types/flatlay';
 import { RotateCw } from 'lucide-react';
 import AspectRatio from '@/components/shared/aspectRatio';
 import Resolution from '@/components/shared/resolution';
+import { FeatureEvents } from '@/utils/analytics';
 
 // Helper function to convert aspect ratio string to CSS aspect-ratio value
 const getAspectRatioValue = (ratio: string): string => {
@@ -643,6 +644,9 @@ export function FlatLayPhotos() {
                     link.click();
                     document.body.removeChild(link);
                     window.URL.revokeObjectURL(url);
+
+                    // Track download event
+                    FeatureEvents.downloadImage('flatlay');
                   } catch (err) {
                     console.error('Failed to download image:', err);
                     alert('Failed to download image');
@@ -713,6 +717,9 @@ export function FlatLayPhotos() {
               link.click();
               document.body.removeChild(link);
               window.URL.revokeObjectURL(url);
+
+              // Track download event
+              FeatureEvents.downloadImage('flatlay');
             } catch (err) {
               console.error('Failed to download image:', err);
               alert('Failed to download image');
