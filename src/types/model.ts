@@ -5,7 +5,7 @@
 
 import { z } from 'zod';
 
-export type RegistrationStatus = 'pending' | 'approved' | 'rejected';
+export type RegistrationStatus = 'draft' | 'pending_review' | 'approved' | 'rejected';
 export type ClothingSize = 'S' | 'S-M' | 'S-L' | 'M-L' | 'L-XL' | 'L-XXL' | 'XXL';
 
 export interface ModelImage {
@@ -43,6 +43,16 @@ export interface SelfRegisteredModel extends Model {
   is_verified: boolean;
   rejection_reason?: string | null;
 
+  // Date of birth (required for legal compliance)
+  date_of_birth?: string;
+
+  // Consent fields
+  consent_age_confirmation?: boolean;
+  consent_ai_usage?: boolean;
+  consent_brand_usage?: boolean;
+  consent_version?: string;
+  consent_timestamp?: string;
+
   // Contact info
   phone_number?: string;
   country_code?: string;
@@ -69,17 +79,48 @@ export interface SelfRegisteredModel extends Model {
   bio?: string;
 }
 
+/**
+ * Calculate age from date of birth
+ */
+export function calculateAge(dob: string): number {
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+}
+
 // Zod validation schemas
 export const modelRegistrationSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200, 'Name too long'),
   gender: z.enum(['male', 'female', 'non-binary', 'other']),
-  age_min: z.number().min(18, 'Minimum age is 18').max(120, 'Invalid age'),
-  age_max: z.number().min(18, 'Minimum age is 18').max(120, 'Invalid age'),
+
+  // Date of birth (required, must be 18+)
+  date_of_birth: z.string().min(1, 'Date of birth is required').refine(dob => {
+    const age = calculateAge(dob);
+    return age >= 18;
+  }, 'Must be 18 years or older'),
+
+  // Mandatory consent fields
+  consent_age_confirmation: z.literal(true, {
+    message: 'You must confirm you are 18 or older'
+  }),
+  consent_ai_usage: z.literal(true, {
+    message: 'AI usage consent is required'
+  }),
+  consent_brand_usage: z.literal(true, {
+    message: 'Brand usage consent is required'
+  }),
+
+  // Required country
+  country: z.string().min(1, 'Country is required'),
 
   // Optional contact info
   phone_number: z.string().optional(),
   country_code: z.string().optional(),
-  country: z.string().optional(),
   instagram_handle: z.string().optional(),
 
   // Optional physical attributes
@@ -100,12 +141,19 @@ export const modelRegistrationSchema = z.object({
 
   // Optional bio
   bio: z.string().max(1000, 'Bio too long').optional(),
-}).refine(data => data.age_max >= data.age_min, {
-  message: 'Maximum age must be greater than or equal to minimum age',
-  path: ['age_max'],
 });
 
 export type ModelRegistrationData = z.infer<typeof modelRegistrationSchema>;
+
+/**
+ * Form data type that allows boolean consent fields for form state
+ * (before validation, consent fields can be false)
+ */
+export type ModelFormData = Omit<ModelRegistrationData, 'consent_age_confirmation' | 'consent_ai_usage' | 'consent_brand_usage'> & {
+  consent_age_confirmation?: boolean;
+  consent_ai_usage?: boolean;
+  consent_brand_usage?: boolean;
+};
 
 export const imageUploadSchema = z.object({
   image: z.string().startsWith('data:image/', 'Invalid image format'),

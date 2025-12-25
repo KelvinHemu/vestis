@@ -1,11 +1,14 @@
-import { CheckCircle, Clock, XCircle } from 'lucide-react';
+import { CheckCircle, Clock, XCircle, FileEdit, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { SelfRegisteredModel, RegistrationStatus } from '@/types/model';
+import { calculateAge } from '@/types/model';
 
 interface ModelProfileStatusProps {
   model: SelfRegisteredModel;
   onEdit?: () => void;
   onRegisterAgain?: () => void;
+  onSubmitForReview?: () => void;
+  isSubmitting?: boolean;
 }
 
 const statusConfig: Record<RegistrationStatus, {
@@ -15,12 +18,19 @@ const statusConfig: Record<RegistrationStatus, {
   title: string;
   description: string;
 }> = {
-  pending: {
+  draft: {
+    icon: FileEdit,
+    color: 'text-blue-600',
+    bg: 'bg-blue-50 border-blue-200',
+    title: 'Draft Profile',
+    description: 'Your profile is saved as a draft. Upload at least 2 photos and submit for review.',
+  },
+  pending_review: {
     icon: Clock,
     color: 'text-yellow-600',
     bg: 'bg-yellow-50 border-yellow-200',
-    title: 'Registration Under Review',
-    description: 'Your model profile is being reviewed by our team. We\'ll notify you once it\'s approved.',
+    title: 'Under Review',
+    description: 'Your profile has been submitted and is being reviewed by our team. We\'ll notify you once it\'s approved.',
   },
   approved: {
     icon: CheckCircle,
@@ -38,15 +48,28 @@ const statusConfig: Record<RegistrationStatus, {
   },
 };
 
-export function ModelProfileStatus({ model, onEdit, onRegisterAgain }: ModelProfileStatusProps) {
+export function ModelProfileStatus({
+  model,
+  onEdit,
+  onRegisterAgain,
+  onSubmitForReview,
+  isSubmitting = false
+}: ModelProfileStatusProps) {
   const config = statusConfig[model.registration_status];
   const Icon = config.icon;
+  const imageCount = model.images?.length || 0;
+  const canSubmitForReview = imageCount >= 2;
+
+  // Calculate age from date of birth if available
+  const displayAge = model.date_of_birth
+    ? `${calculateAge(model.date_of_birth)} years old`
+    : `${model.age_range.min}-${model.age_range.max}`;
 
   return (
     <div className={`rounded-lg border p-6 ${config.bg}`}>
       <div className="flex items-start gap-4">
         <Icon className={`w-8 h-8 ${config.color} flex-shrink-0 mt-1`} />
-        
+
         <div className="flex-1 space-y-3">
           <div>
             <h3 className="text-lg font-semibold mb-1">{config.title}</h3>
@@ -66,14 +89,38 @@ export function ModelProfileStatus({ model, onEdit, onRegisterAgain }: ModelProf
               <div className="flex-1">
                 <p className="font-medium">{model.name}</p>
                 <p className="text-sm text-gray-600 capitalize">{model.gender}</p>
-                <p className="text-sm text-gray-600">
-                  Age: {model.age_range.min}-{model.age_range.max}
-                </p>
+                <p className="text-sm text-gray-600">Age: {displayAge}</p>
+                {model.country && (
+                  <p className="text-sm text-gray-600">{model.country}</p>
+                )}
                 {model.height_cm && (
                   <p className="text-sm text-gray-600">Height: {model.height_cm} cm</p>
                 )}
               </div>
             </div>
+
+            {/* Photo count for draft status */}
+            {model.registration_status === 'draft' && (
+              <div className="mt-2 pt-2 border-t border-gray-100">
+                <p className="text-sm text-gray-600">
+                  Photos uploaded: <span className={imageCount >= 2 ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}>
+                    {imageCount}/2 minimum
+                  </span>
+                </p>
+              </div>
+            )}
+
+            {/* Consent status */}
+            {(model.consent_age_confirmation || model.consent_ai_usage || model.consent_brand_usage) && (
+              <div className="mt-2 pt-2 border-t border-gray-100">
+                <p className="text-xs text-gray-500">
+                  Consents:
+                  {model.consent_age_confirmation && ' ✓ Age'}
+                  {model.consent_ai_usage && ' ✓ AI Usage'}
+                  {model.consent_brand_usage && ' ✓ Brand Usage'}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Rejection Reason */}
@@ -85,7 +132,31 @@ export function ModelProfileStatus({ model, onEdit, onRegisterAgain }: ModelProf
           )}
 
           {/* Actions */}
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
+            {model.registration_status === 'draft' && (
+              <>
+                {canSubmitForReview ? (
+                  <Button
+                    onClick={onSubmitForReview}
+                    size="sm"
+                    disabled={isSubmitting}
+                    className="bg-black hover:bg-gray-800"
+                  >
+                    <Send className="w-4 h-4 mr-2" />
+                    {isSubmitting ? 'Submitting...' : 'Submit for Review'}
+                  </Button>
+                ) : (
+                  <p className="text-sm text-amber-600">
+                    Upload {2 - imageCount} more photo{2 - imageCount > 1 ? 's' : ''} to submit for review
+                  </p>
+                )}
+                {onEdit && (
+                  <Button onClick={onEdit} variant="outline" size="sm">
+                    Edit Profile
+                  </Button>
+                )}
+              </>
+            )}
             {model.registration_status === 'approved' && onEdit && (
               <Button onClick={onEdit} variant="outline" size="sm">
                 Edit Profile

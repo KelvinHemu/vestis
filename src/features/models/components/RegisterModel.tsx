@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,17 @@ export function RegisterModel() {
     queryFn: () => modelRegistrationService.getMyProfile(),
   });
 
+  // Submit for review mutation
+  const submitForReviewMutation = useMutation({
+    mutationFn: () => modelRegistrationService.submitForReview(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['modelProfile'] });
+    },
+    onError: (error: Error) => {
+      alert(`Failed to submit: ${error.message}`);
+    },
+  });
+
   const handleRegistrationSuccess = () => {
     setShowForm(false);
     queryClient.invalidateQueries({ queryKey: ['modelProfile'] });
@@ -28,6 +39,10 @@ export function RegisterModel() {
 
   const handleRegisterAgain = () => {
     setShowForm(true);
+  };
+
+  const handleSubmitForReview = () => {
+    submitForReviewMutation.mutate();
   };
 
   return (
@@ -63,17 +78,19 @@ export function RegisterModel() {
             <div className="flex justify-center py-20">
               <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-900 border-t-transparent"></div>
             </div>
-          ) : modelProfile ? (
+          ) : modelProfile && !showForm ? (
             <Card className="shadow-xl border-gray-200">
               <CardContent className="p-8">
                 <ModelProfileStatus
                   model={modelProfile}
                   onEdit={() => setShowForm(true)}
                   onRegisterAgain={handleRegisterAgain}
+                  onSubmitForReview={handleSubmitForReview}
+                  isSubmitting={submitForReviewMutation.isPending}
                 />
               </CardContent>
             </Card>
-          ) : showForm || !modelProfile ? (
+          ) : (
             <div>
               {showForm && modelProfile && (
                 <Button
@@ -87,7 +104,7 @@ export function RegisterModel() {
               )}
               <BecomeModelForm onSuccess={handleRegistrationSuccess} />
             </div>
-          ) : null}
+          )}
         </div>
       </div>
     </div>

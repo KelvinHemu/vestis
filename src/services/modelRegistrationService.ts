@@ -1,8 +1,8 @@
-import type { 
-  SelfRegisteredModel, 
+import type {
+  SelfRegisteredModel,
   ModelRegistrationData,
   ImageUploadData,
-  ModelImage 
+  ModelImage
 } from '../types/model';
 import api from '../utils/apiClient';
 
@@ -35,7 +35,7 @@ function sanitizeRegistrationPayload(data: ModelRegistrationData): ModelRegistra
   for (const [key, value] of Object.entries(data)) {
     // Skip measurement fields entirely
     if (measurementFields.includes(key)) continue;
-    
+
     if (value === undefined || value === null) continue;
 
     if (typeof value === 'string') {
@@ -197,10 +197,25 @@ class ModelRegistrationService {
   }
 
   /**
+   * Submit profile for review (changes status from draft → pending_review)
+   * Requires minimum 2 photos to be uploaded
+   */
+  async submitForReview(): Promise<SelfRegisteredModel> {
+    const response = await api.post('/v1/models/my-profile/submit', {});
+
+    if (!response.ok) {
+      await throwApiError(response);
+    }
+
+    const result: ModelResponse = await response.json();
+    return result.model;
+  }
+
+  /**
    * Admin: Get all pending model registrations
    */
   async getPendingModels(): Promise<SelfRegisteredModel[]> {
-    const response = await api.get('/v1/admin/models/pending');
+    const response = await api.get('/v1/admin/models?status=pending_review');
 
     if (!response.ok) {
       await throwApiError(response);
@@ -214,7 +229,7 @@ class ModelRegistrationService {
    * Admin: Approve a model registration
    */
   async approveModel(modelId: number): Promise<void> {
-    const response = await api.put(`/v1/admin/models/${modelId}/approve`, {});
+    const response = await api.post(`/v1/admin/models/${modelId}/approve`, {});
 
     if (!response.ok) {
       await throwApiError(response);
@@ -225,7 +240,7 @@ class ModelRegistrationService {
    * Admin: Reject a model registration
    */
   async rejectModel(modelId: number, reason: string): Promise<void> {
-    const response = await api.put(`/v1/admin/models/${modelId}/reject`, { reason });
+    const response = await api.post(`/v1/admin/models/${modelId}/reject`, { reason });
 
     if (!response.ok) {
       await throwApiError(response);
