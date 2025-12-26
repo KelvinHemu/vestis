@@ -63,7 +63,9 @@ export function ModelProfileStatus({
   // Calculate age from date of birth if available
   const displayAge = model.date_of_birth
     ? `${calculateAge(model.date_of_birth)} years old`
-    : `${model.age_range.min}-${model.age_range.max}`;
+    : model.age_range
+      ? `${model.age_range.min}-${model.age_range.max}`
+      : 'Age not specified';
 
   return (
     <div className={`rounded-lg border p-6 ${config.bg}`}>

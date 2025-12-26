@@ -34,15 +34,15 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
     if (!model.images || !Array.isArray(model.images) || model.images.length === 0) {
       return [];
     }
-    
+
     const galleryImages = model.images.filter((img: ModelImage) => img.position !== 2);
     const imagesToShow = galleryImages.length > 0 ? galleryImages : model.images;
-    
+
     return imagesToShow
       .sort((a: ModelImage, b: ModelImage) => a.position - b.position)
       .map((img: ModelImage) => img.url);
   })() : [];
-  
+
   // Navigation handlers
   const nextImage = () => {
     if (allImages.length <= 2) return;
@@ -56,7 +56,7 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
       return newIndex < 0 ? allImages.length + newIndex : newIndex;
     });
   };
-  
+
   // Reset image index when model changes
   useEffect(() => {
     setCurrentImageIndex(0);
@@ -117,14 +117,14 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
             >
               <ArrowLeft className="w-6 h-6 text-gray-900" />
             </button>
-            
+
             <div className="text-center">
               <h1 className="text-2xl md:text-3xl font-bold tracking-widest uppercase mb-3">
                 {model.name}
               </h1>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-center py-20">
             <div className="text-center max-w-md px-6">
               <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
@@ -159,12 +159,12 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
           >
             <ArrowLeft className="w-6 h-6 text-gray-900" />
           </button>
-          
+
           <div className="text-center">
             <h1 className="text-2xl md:text-3xl font-bold tracking-widest uppercase mb-3">
               {model.name}
             </h1>
-            
+
             <div className="flex flex-wrap justify-center items-center gap-x-2 text-xs font-medium tracking-widest uppercase">
               <span className="text-black font-bold">Portfolio</span>
               <span className="text-gray-400">|</span>
@@ -175,7 +175,7 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
 
         {/* Main Content Grid */}
         <div className="flex flex-col lg:flex-row gap-12 items-start relative justify-center">
-          
+
           {/* Left Sidebar - Stats */}
           <div className="lg:w-48 flex-shrink-0 lg:sticky lg:top-32">
             <div className="grid grid-cols-2 gap-x-8 gap-y-4 lg:block lg:space-y-4 text-xs tracking-widest uppercase">
@@ -208,13 +208,13 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
             {/* Navigation Arrows */}
             {allImages.length > 2 && (
               <>
-                <button 
+                <button
                   onClick={prevImage}
                   className="absolute -left-12 md:-left-16 top-1/2 -translate-y-1/2 z-10 p-2 hover:bg-gray-100 rounded-full transition-colors opacity-100"
                 >
                   <ChevronLeft className="w-8 h-8 text-gray-900" />
                 </button>
-                <button 
+                <button
                   onClick={nextImage}
                   className="absolute -right-12 md:-right-16 top-1/2 -translate-y-1/2 z-10 p-2 hover:bg-gray-100 rounded-full transition-colors opacity-100"
                 >
@@ -232,7 +232,7 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
                   className="w-full h-full object-cover"
                 />
               </div>
-              
+
               {/* Image 2 */}
               {secondImage && (
                 <div className="bg-gray-100 relative overflow-hidden h-full">
@@ -244,7 +244,7 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
                 </div>
               )}
             </div>
-            
+
             {/* Pagination Dots */}
             {allImages.length > 2 && (
               <div className="flex justify-center gap-2 mt-8">
@@ -252,15 +252,14 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
                   <button
                     key={idx}
                     onClick={() => setCurrentImageIndex(idx * 2)}
-                    className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                      Math.floor(currentImageIndex / 2) === idx ? 'bg-black' : 'bg-gray-300 hover:bg-gray-400'
-                    }`}
+                    className={`w-1.5 h-1.5 rounded-full transition-colors ${Math.floor(currentImageIndex / 2) === idx ? 'bg-black' : 'bg-gray-300 hover:bg-gray-400'
+                      }`}
                   />
                 ))}
               </div>
             )}
           </div>
-          
+
           {/* Right Spacer to balance layout */}
           <div className="hidden lg:block lg:w-12 flex-shrink-0"></div>
         </div>

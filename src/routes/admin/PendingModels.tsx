@@ -92,7 +92,9 @@ export function PendingModels() {
             // Calculate display age
             const displayAge = model.date_of_birth
               ? `${calculateAge(model.date_of_birth)} years old (DOB: ${new Date(model.date_of_birth).toLocaleDateString()})`
-              : `Age ${model.age_range.min}-${model.age_range.max}`;
+              : model.age_range
+                ? `Age ${model.age_range.min}-${model.age_range.max}`
+                : 'Age not specified';
 
             return (
               <Card key={model.id}>
