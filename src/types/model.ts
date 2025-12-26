@@ -26,7 +26,8 @@ export interface Model {
   id: number;
   name: string;
   gender: 'male' | 'female';
-  age_range: AgeRange;
+  age_range?: AgeRange;
+  date_of_birth?: string;
   status: 'active' | 'inactive';
   version: number;
   created_at: string;

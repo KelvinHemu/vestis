@@ -1,4 +1,5 @@
 import type { ModelsResponse, Model, AgeRange } from '../types/model';
+import { calculateAge } from '../types/model';
 import api from '../utils/apiClient';
 import { logger } from '@/utils/logger';
 
@@ -93,11 +94,38 @@ class ModelService {
   }
 
   /**
-   * Format age range for display
-   * @param ageRange - The age range object
-   * @returns Formatted age range string (e.g., "18-25")
+   * Get model age for display
+   * Calculates from date_of_birth (new models) or falls back to age_range (legacy models)
+   * @param model - The model object (can have date_of_birth or age_range)
+   * @returns Age string (e.g., "22" or "18-25" for legacy) or "N/A" if unavailable
    */
-  formatAgeRange(ageRange: AgeRange): string {
+  getModelAge(model: Model & { date_of_birth?: string }): string {
+    // New models: calculate age from date_of_birth
+    if (model.date_of_birth) {
+      try {
+        const age = calculateAge(model.date_of_birth);
+        return age.toString();
+      } catch {
+        // Fall through to age_range if DOB parsing fails
+      }
+    }
+
+    // Legacy models: use age_range
+    if (model.age_range && typeof model.age_range.min === 'number' && typeof model.age_range.max === 'number') {
+      return `${model.age_range.min}-${model.age_range.max}`;
+    }
+
+    return 'N/A';
+  }
+
+  /**
+   * @deprecated Use getModelAge instead
+   * Format age range for display (legacy support)
+   */
+  formatAgeRange(ageRange: AgeRange | undefined | null): string {
+    if (!ageRange || typeof ageRange.min !== 'number' || typeof ageRange.max !== 'number') {
+      return 'N/A';
+    }
     return `${ageRange.min}-${ageRange.max}`;
   }
 }

@@ -91,19 +91,10 @@ export function RegisterModel() {
               </CardContent>
             </Card>
           ) : (
-            <div>
-              {showForm && modelProfile && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowForm(false)}
-                  className="mb-4"
-                >
-                  Cancel
-                </Button>
-              )}
-              <BecomeModelForm onSuccess={handleRegistrationSuccess} />
-            </div>
+            <BecomeModelForm
+              onSuccess={handleRegistrationSuccess}
+              onCancel={modelProfile ? () => setShowForm(false) : undefined}
+            />
           )}
         </div>
       </div>

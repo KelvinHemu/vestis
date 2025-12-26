@@ -107,7 +107,7 @@ export function ModelsPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6">
               {currentModels.map((model) => {
                 const mainImage = modelService.getMainImage(model) || '';
-                const ageRange = modelService.formatAgeRange(model.age_range);
+                const ageRange = modelService.getModelAge(model);
                 const modelIdStr = model.id.toString();
 
                 return (
