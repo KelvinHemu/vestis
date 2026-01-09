@@ -1,3 +1,5 @@
+import { useRef, useCallback, useState } from 'react';
+
 interface ProductUploadProps {
   id: number;
   label: string;
@@ -6,10 +8,36 @@ interface ProductUploadProps {
 }
 
 export function ProductUpload({ id, label, imageUrl, onFileUpload }: ProductUploadProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const hasImage = !!imageUrl;
+  const [isFocused, setIsFocused] = useState(false);
+
+  // Handle paste event
+  const handlePaste = useCallback((e: React.ClipboardEvent<HTMLDivElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (const item of Array.from(items)) {
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) {
+          e.preventDefault();
+          onFileUpload(id, file);
+          break;
+        }
+      }
+    }
+  }, [id, onFileUpload]);
 
   return (
-    <div className="relative w-60 pb-4">
+    <div
+      ref={containerRef}
+      tabIndex={0}
+      className={`relative w-60 pb-4 focus:outline-none ${isFocused ? 'ring-2 ring-blue-400 ring-offset-2 rounded-lg' : ''}`}
+      onPaste={handlePaste}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
+    >
       <input
         type="file"
         id={`product-${id}`}
