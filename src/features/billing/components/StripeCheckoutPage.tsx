@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { CreditCard, AlertCircle, Repeat } from 'lucide-react';
+import { CreditCard, AlertCircle } from 'lucide-react';
 import type { CreditPackage } from '@/services/paymentService';
 import paymentService from '@/services/paymentService';
 
@@ -137,45 +137,6 @@ export const StripeCheckoutPage: React.FC<StripeCheckoutPageProps> = ({
                             {/* Header */}
                             <div>
                                 <h1 className="text-2xl font-light text-gray-900">Payment details</h1>
-                            </div>
-
-                            {/* Billing Type Toggle */}
-                            <div>
-                                <label className="block text-sm font-normal text-gray-600 mb-3">
-                                    Billing type
-                                </label>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <button
-                                        onClick={() => setBillingType('one-time')}
-                                        className={`flex items-center gap-2 p-4 border rounded-lg transition-all ${billingType === 'one-time'
-                                                ? 'border-gray-900 bg-gray-50 shadow-sm'
-                                                : 'border-gray-300 hover:border-gray-400'
-                                            }`}
-                                    >
-                                        <CreditCard className={`h-5 w-5 ${billingType === 'one-time' ? 'text-gray-900' : 'text-gray-500'}`} />
-                                        <div className="text-left">
-                                            <span className={`text-sm font-medium block ${billingType === 'one-time' ? 'text-gray-900' : 'text-gray-700'}`}>
-                                                One-time
-                                            </span>
-                                            <span className="text-xs text-gray-500">Buy once</span>
-                                        </div>
-                                    </button>
-                                    <button
-                                        onClick={() => setBillingType('subscription')}
-                                        className={`flex items-center gap-2 p-4 border rounded-lg transition-all ${billingType === 'subscription'
-                                                ? 'border-gray-900 bg-gray-50 shadow-sm'
-                                                : 'border-gray-300 hover:border-gray-400'
-                                            }`}
-                                    >
-                                        <Repeat className={`h-5 w-5 ${billingType === 'subscription' ? 'text-gray-900' : 'text-gray-500'}`} />
-                                        <div className="text-left">
-                                            <span className={`text-sm font-medium block ${billingType === 'subscription' ? 'text-gray-900' : 'text-gray-700'}`}>
-                                                Monthly
-                                            </span>
-                                            <span className="text-xs text-gray-500">Auto-renew</span>
-                                        </div>
-                                    </button>
-                                </div>
                             </div>
 
                             {/* Payment Method Label */}
