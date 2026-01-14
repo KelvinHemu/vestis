@@ -18,7 +18,7 @@ export const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
         <div className="space-y-4">
             <h2 className="text-lg font-medium text-gray-900">Select payment method</h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
                 {/* Mobile Money Option */}
                 <button
                     onClick={() => onMethodChange('mobile_money')}
