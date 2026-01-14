@@ -80,6 +80,38 @@ export interface PaymentHistoryResponse {
   };
 }
 
+// ============ Stripe Payment Types ============
+
+export interface StripeCheckoutRequest {
+  package_id: string;
+}
+
+export interface StripeCheckoutResponse {
+  success: boolean;
+  checkout_url: string;
+  session_id: string;
+  order_id: string;
+  amount_usd: number;
+  credits: number;
+  billing?: 'one-time' | 'monthly';
+  status: string;
+  message: string;
+}
+
+export interface StripePortalResponse {
+  success: boolean;
+  portal_url: string;
+  message: string;
+}
+
+export interface SubscriptionStatus {
+  has_subscription: boolean;
+  status: 'active' | 'past_due' | 'canceled' | 'unpaid' | null;
+  subscription_id?: string;
+  period_end?: string;
+  has_payment_history: boolean;
+}
+
 class PaymentService {
   /**
    * Get available credit packages and pricing (public endpoint)
@@ -131,7 +163,7 @@ class PaymentService {
     try {
       const endpoint = `/v1/payments/zenopay/status?order_id=${orderId}`;
       logger.apiRequest(endpoint, 'GET');
-      
+
       const response = await api.get(endpoint);
 
       if (!response.ok) {
@@ -174,7 +206,7 @@ class PaymentService {
   validatePhoneNumber(phone: string): boolean {
     // Remove spaces and dashes
     const cleaned = phone.replace(/[\s-]/g, '');
-    
+
     // Check format: 0XXXXXXXXX (10 digits) or 255XXXXXXXXX (12 digits)
     const pattern = /^(0\d{9}|255\d{9})$/;
     return pattern.test(cleaned);
@@ -202,9 +234,9 @@ class PaymentService {
         onUpdate(status);
 
         const statusUpper = status.payment_status.toUpperCase();
-        if (statusUpper === 'COMPLETED' || 
-            statusUpper === 'FAILED' || 
-            statusUpper === 'CANCELLED') {
+        if (statusUpper === 'COMPLETED' ||
+          statusUpper === 'FAILED' ||
+          statusUpper === 'CANCELLED') {
           return status;
         }
 
@@ -218,6 +250,115 @@ class PaymentService {
     }
 
     throw new Error('Payment status check timeout');
+  }
+
+  // ============ Stripe Payment Methods ============
+
+  /**
+   * Create a Stripe checkout session for one-time payment
+   */
+  async createStripeCheckout(packageId: string): Promise<StripeCheckoutResponse> {
+    try {
+      const endpoint = API_ENDPOINTS.payment.stripe.checkout;
+      logger.apiRequest(endpoint, 'POST', { package_id: packageId });
+
+      const response = await api.post(endpoint, { package_id: packageId });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        logger.apiError(endpoint, error);
+        throw new Error(error.error || 'Failed to create checkout session');
+      }
+
+      const data = await response.json();
+      logger.apiResponse(endpoint, response.status, data);
+      return data;
+    } catch (error) {
+      logger.apiError(API_ENDPOINTS.payment.stripe.checkout, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a Stripe subscription checkout session
+   */
+  async createStripeSubscription(packageId: string): Promise<StripeCheckoutResponse> {
+    try {
+      const endpoint = API_ENDPOINTS.payment.stripe.subscribe;
+      logger.apiRequest(endpoint, 'POST', { package_id: packageId });
+
+      const response = await api.post(endpoint, { package_id: packageId });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        logger.apiError(endpoint, error);
+        throw new Error(error.error || 'Failed to create subscription');
+      }
+
+      const data = await response.json();
+      logger.apiResponse(endpoint, response.status, data);
+      return data;
+    } catch (error) {
+      logger.apiError(API_ENDPOINTS.payment.stripe.subscribe, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user's subscription status
+   */
+  async getSubscriptionStatus(): Promise<SubscriptionStatus> {
+    try {
+      const endpoint = API_ENDPOINTS.user.subscription;
+      logger.apiRequest(endpoint, 'GET');
+
+      const response = await api.get(endpoint);
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        logger.apiError(endpoint, error);
+        throw new Error(error.error || 'Failed to get subscription status');
+      }
+
+      const data = await response.json();
+      logger.apiResponse(endpoint, response.status, data);
+      return data;
+    } catch (error) {
+      logger.apiError(API_ENDPOINTS.user.subscription, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Open Stripe customer billing portal
+   */
+  async openBillingPortal(): Promise<StripePortalResponse> {
+    try {
+      const endpoint = API_ENDPOINTS.payment.stripe.portal;
+      logger.apiRequest(endpoint, 'POST');
+
+      const response = await api.post(endpoint, {});
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        logger.apiError(endpoint, error);
+        throw new Error(error.error || 'Failed to open billing portal');
+      }
+
+      const data = await response.json();
+      logger.apiResponse(endpoint, response.status, data);
+      return data;
+    } catch (error) {
+      logger.apiError(API_ENDPOINTS.payment.stripe.portal, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Format USD currency
+   */
+  formatUSD(amount: number): string {
+    return `$${amount.toFixed(2)}`;
   }
 }
 

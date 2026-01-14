@@ -5,14 +5,16 @@ import { ArrowLeft, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { PricingCard } from './PricingCard';
 import { CheckoutPage } from './CheckoutPage';
+import { StripeCheckoutPage } from './StripeCheckoutPage';
+import { PaymentMethodSelector, type PaymentMethod } from './PaymentMethodSelector';
 import { PaymentProgress, PaymentSuccess, PaymentFailed } from './PaymentProgress';
 import { PaymentHistory } from './PaymentHistory';
-import paymentService, { type CreditPackage, type PaymentStatus } from '@/services/paymentService';
+import paymentService, { type CreditPackage, type PaymentStatus, type SubscriptionStatus } from '@/services/paymentService';
 import { useAuthStore } from '@/contexts/authStore';
 import userService from '@/services/userService';
 import type { User } from '@/types/user';
 
-type PaymentStep = 'packages' | 'checkout' | 'progress' | 'success' | 'failed' | 'history';
+type PaymentStep = 'packages' | 'method' | 'checkout' | 'progress' | 'success' | 'failed' | 'history';
 
 export const PaymentPage: React.FC = () => {
   const router = useRouter();
@@ -20,6 +22,8 @@ export const PaymentPage: React.FC = () => {
   const [, setUser] = useState<User | null>(null);
   const [packages, setPackages] = useState<CreditPackage[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
+  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<PaymentStep>('packages');
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -29,6 +33,7 @@ export const PaymentPage: React.FC = () => {
   useEffect(() => {
     loadPricing();
     loadUserData();
+    loadSubscriptionStatus();
   }, []);
 
   const loadUserData = async () => {
@@ -37,8 +42,6 @@ export const PaymentPage: React.FC = () => {
       const response = await userService.getCurrentUser(token);
       setUser(response.user);
     } catch (error: any) {
-      // If authentication fails, the error handler in apiClient will redirect
-      // Only log non-auth errors
       if (error?.status !== 401) {
         console.error('Failed to load user data:', error);
       }
@@ -54,11 +57,28 @@ export const PaymentPage: React.FC = () => {
     }
   };
 
+  const loadSubscriptionStatus = async () => {
+    try {
+      const status = await paymentService.getSubscriptionStatus();
+      setSubscriptionStatus(status);
+    } catch (error) {
+      console.log('Could not load subscription status:', error);
+    }
+  };
+
+  const handlePackageSelect = (pkg: CreditPackage) => {
+    setSelectedPackage(pkg);
+    setStep('method');
+  };
+
+  const handleMethodContinue = () => {
+    setStep('checkout');
+  };
+
   const handlePaymentInitiated = (newOrderId: string) => {
     setOrderId(newOrderId);
     setStep('progress');
-    
-    // Start polling for status
+
     paymentService.pollPaymentStatus(
       newOrderId,
       (status) => {
@@ -73,7 +93,7 @@ export const PaymentPage: React.FC = () => {
 
   const handlePaymentStatusUpdate = (status: PaymentStatus) => {
     setPaymentResult(status);
-    
+
     const statusUpper = status.payment_status.toUpperCase();
     if (statusUpper === 'COMPLETED') {
       setStep('success');
@@ -83,8 +103,20 @@ export const PaymentPage: React.FC = () => {
     }
   };
 
+  const handleManageBilling = async () => {
+    try {
+      const response = await paymentService.openBillingPortal();
+      if (response.success && response.portal_url) {
+        window.open(response.portal_url, '_blank');
+      }
+    } catch (error) {
+      console.error('Failed to open billing portal:', error);
+      setError('Could not open billing portal. Please try again.');
+    }
+  };
+
   const handleRetry = () => {
-    setStep('checkout');
+    setStep('method');
     setError(null);
     setOrderId(null);
     setPaymentResult(null);
@@ -113,8 +145,66 @@ export const PaymentPage: React.FC = () => {
     );
   }
 
-  // Checkout screen - Using new CheckoutPage component
+  // Payment method selection screen
+  if (step === 'method' && selectedPackage) {
+    return (
+      <div className="fixed inset-0 z-50 bg-gray-50 overflow-y-auto scrollbar-hide">
+        <div className="container mx-auto p-4 md:p-8">
+          <div className="max-w-2xl mx-auto">
+            <button
+              onClick={() => setStep('packages')}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              Back to Packages
+            </button>
+
+            {/* Selected Package Summary */}
+            <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">{selectedPackage.name} Package</h3>
+                  <p className="text-sm text-gray-600">{selectedPackage.credits.toLocaleString()} credits</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-gray-900">${selectedPackage.price_usd.toFixed(2)}</p>
+                  <p className="text-sm text-gray-500">TZS {selectedPackage.price_tzs.toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Method Selection */}
+            <PaymentMethodSelector
+              selectedMethod={paymentMethod}
+              onMethodChange={setPaymentMethod}
+            />
+
+            {/* Continue Button */}
+            <div className="mt-8">
+              <button
+                onClick={handleMethodContinue}
+                className="w-full py-4 bg-black text-white rounded-xl font-medium hover:bg-gray-900 transition-all shadow-lg"
+              >
+                Continue to {paymentMethod === 'card' ? 'Card Payment' : 'Mobile Money'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Checkout screen - route to appropriate checkout based on payment method
   if (step === 'checkout' && selectedPackage) {
+    if (paymentMethod === 'card') {
+      return (
+        <StripeCheckoutPage
+          selectedPackage={selectedPackage}
+          onError={(err) => setError(err)}
+          onCancel={() => setStep('method')}
+        />
+      );
+    }
     return (
       <CheckoutPage
         selectedPackage={selectedPackage}
@@ -187,20 +277,51 @@ export const PaymentPage: React.FC = () => {
             </p>
           </div>
 
+          {/* Subscription Status Badge */}
+          {subscriptionStatus?.has_subscription && (
+            <div className="mb-6 mx-4">
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <div>
+                    <p className="font-medium text-green-900">Active Subscription</p>
+                    <p className="text-sm text-green-700">
+                      {subscriptionStatus.period_end && `Renews ${new Date(subscriptionStatus.period_end).toLocaleDateString()}`}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleManageBilling}
+                  className="px-4 py-2 text-sm font-medium text-green-800 bg-white border border-green-300 rounded-lg hover:bg-green-50 transition-colors"
+                >
+                  Manage Billing
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Manage Billing for users with payment history */}
+          {!subscriptionStatus?.has_subscription && subscriptionStatus?.has_payment_history && (
+            <div className="mb-6 mx-4 flex justify-end">
+              <button
+                onClick={handleManageBilling}
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 underline"
+              >
+                View billing & invoices
+              </button>
+            </div>
+          )}
+
           {/* Package Selection */}
           {step === 'packages' && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-4">
-              {/* Paid Package Cards */}
               {packages.map((pkg) => (
                 <PricingCard
                   key={pkg.id}
                   package={pkg}
                   isSelected={selectedPackage?.id === pkg.id}
                   onSelect={() => setSelectedPackage(pkg)}
-                  onUpgrade={() => {
-                    setSelectedPackage(pkg);
-                    setStep('checkout');
-                  }}
+                  onUpgrade={() => handlePackageSelect(pkg)}
                 />
               ))}
             </div>

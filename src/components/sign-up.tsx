@@ -1,12 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, AlertCircle, X } from 'lucide-react'
 import { Logo } from '@/components/logo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ErrorMessage } from '@/components/ui/ErrorMessage'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useSignup } from '@/hooks/useAuth'
 import Link from 'next/link'
 
@@ -76,11 +76,10 @@ export default function SignUpPage() {
                     <div className="space-y-5">
                         {/* Error Message */}
                         {error && (
-                            <ErrorMessage
-                                message={error}
-                                type="error"
-                                onDismiss={clearError}
-                            />
+                            <Alert variant="destructive">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertDescription>{error}</AlertDescription>
+                            </Alert>
                         )}
 
                         {/* Name Input */}

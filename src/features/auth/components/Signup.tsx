@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Eye, EyeOff, Mail } from 'lucide-react';
+import { Eye, EyeOff, Mail, AlertCircle, X } from 'lucide-react';
 import { useSignup } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
-import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { MainContent } from '@/components/layout/MainContent';
 
 /* ============================================
@@ -86,11 +86,18 @@ export function Signup() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Error Message Display */}
               {error && (
-                <ErrorMessage
-                  message={error}
-                  type="error"
-                  onDismiss={handleClearError}
-                />
+                <Alert variant="destructive" className="relative">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                  <button
+                    type="button"
+                    onClick={handleClearError}
+                    className="absolute right-2 top-2 p-1 rounded-md hover:bg-destructive/20 transition-colors"
+                    aria-label="Dismiss error"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </Alert>
               )}
 
               {/* Email Input */}

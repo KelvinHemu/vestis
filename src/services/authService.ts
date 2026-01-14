@@ -65,7 +65,22 @@ class AuthService {
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
-        throw new Error(error.error || error.message || 'Signup failed');
+        // Handle nested error objects like {error: {email: "user with this email already exists"}}
+        let errorMessage = 'Signup failed';
+        if (error.error) {
+          if (typeof error.error === 'string') {
+            errorMessage = error.error;
+          } else if (typeof error.error === 'object') {
+            // Extract the first error message from the error object
+            const firstKey = Object.keys(error.error)[0];
+            if (firstKey && error.error[firstKey]) {
+              errorMessage = `${firstKey}: ${error.error[firstKey]}`;
+            }
+          }
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();

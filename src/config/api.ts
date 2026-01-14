@@ -9,7 +9,7 @@
  * Base URL for the backend API
  * Uses Next.js environment variable (NEXT_PUBLIC_ prefix for client-side access)
  */
-export const API_BASE_URL = 
+export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 /**
@@ -36,14 +36,15 @@ export const API_ENDPOINTS = {
     googleLogin: '/v1/auth/google/login',
     googleCallback: '/v1/auth/google/callback',
   },
-  
+
   // User endpoints
   user: {
     profile: '/v1/user',
     update: '/v1/user',
     credits: '/v1/user/credits',
+    subscription: '/v1/user/subscription',
   },
-  
+
   // Generation endpoints
   generation: {
     flatlay: '/v1/flatlay/generate',
@@ -54,7 +55,7 @@ export const API_ENDPOINTS = {
     status: (jobId: string) => `/v1/generation/${jobId}/status`,
     history: '/v1/generation/history',
   },
-  
+
   // Model endpoints
   model: {
     register: '/v1/models/register',
@@ -62,13 +63,19 @@ export const API_ENDPOINTS = {
     get: (id: string) => `/v1/models/${id}`,
     delete: (id: string) => `/v1/models/${id}`,
   },
-  
+
   // Payment endpoints
   payment: {
     pricing: '/v1/credits/pricing',
     createPayment: '/v1/payments/zenopay/create',
     checkStatus: (transactionId: string) => `/v1/payments/zenopay/status/${transactionId}`,
     history: '/v1/payments/history',
+    // Stripe endpoints
+    stripe: {
+      checkout: '/v1/payments/stripe/checkout',
+      subscribe: '/v1/payments/stripe/subscribe',
+      portal: '/v1/payments/stripe/portal',
+    },
   },
 } as const;
 
