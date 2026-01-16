@@ -6,6 +6,7 @@ import { useAuthStore } from "@/contexts/authStore";
 import HeroSection from "@/components/hero-section";
 import {
   Problem,
+  Solution,
   Testimonials,
   CTA,
   Footer
@@ -58,7 +59,8 @@ export default function HomePage() {
       {/* Problem Section - Key pain points */}
       <Problem />
 
-
+      {/* Solution Section - Feature showcase with tabs */}
+      <Solution />
 
       {/* Social Proof - Testimonials & stats */}
       <Testimonials />

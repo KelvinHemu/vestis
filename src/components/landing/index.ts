@@ -5,6 +5,7 @@
 
 export { Hero } from "./Hero";
 export { Problem } from "./problem";
+export { Solution } from "./solution";
 export { HowItWorks } from "./HowItWorks";
 export { Testimonials } from "./Testimonials";
 export { CTA } from "./CTA";

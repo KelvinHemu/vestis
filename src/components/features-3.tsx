@@ -1,64 +1,64 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Wallet, EyeOff, Clock } from 'lucide-react'
+import { Settings2, Sparkles, Zap } from 'lucide-react'
 import { ReactNode } from 'react'
 
-export function Problem() {
+export default function Features() {
     return (
-        <section id="problem" className="bg-zinc-50 py-16 md:py-32 dark:bg-transparent">
+        <section className="bg-zinc-50 py-16 md:py-32 dark:bg-transparent">
             <div className="@container mx-auto max-w-5xl px-6">
                 <div className="text-center">
-                    <h2 className="text-balance text-4xl font-semibold lg:text-5xl">What's holding your business back?</h2>
-                    <p className="mt-4">The hidden barriers standing between your products and your customers.</p>
+                    <h2 className="text-balance text-4xl font-semibold lg:text-5xl">Built to cover your needs</h2>
+                    <p className="mt-4">Libero sapiente aliquam quibusdam aspernatur, praesentium iusto repellendus.</p>
                 </div>
                 <Card className="@min-4xl:max-w-full @min-4xl:grid-cols-3 @min-4xl:divide-x @min-4xl:divide-y-0 mx-auto mt-8 grid max-w-sm divide-y overflow-hidden shadow-zinc-950/5 *:text-center md:mt-16">
                     <div className="group shadow-zinc-950/5">
                         <CardHeader className="pb-3">
                             <CardDecorator>
-                                <Wallet
+                                <Zap
                                     className="size-6"
                                     aria-hidden
                                 />
                             </CardDecorator>
 
-                            <h3 className="mt-6 font-medium">High Production Costs</h3>
+                            <h3 className="mt-6 font-medium">Customizable</h3>
                         </CardHeader>
 
                         <CardContent>
-                            <p className="text-sm">Professional photoshoots involving models, studios, and photographers drain your budget and eat into margins.</p>
+                            <p className="text-sm">Extensive customization options, allowing you to tailor every aspect to meet your specific needs.</p>
                         </CardContent>
                     </div>
 
                     <div className="group shadow-zinc-950/5">
                         <CardHeader className="pb-3">
                             <CardDecorator>
-                                <EyeOff
+                                <Settings2
                                     className="size-6"
                                     aria-hidden
                                 />
                             </CardDecorator>
 
-                            <h3 className="mt-6 font-medium">Low Buyer Confidence</h3>
+                            <h3 className="mt-6 font-medium">You have full control</h3>
                         </CardHeader>
 
                         <CardContent>
-                            <p className="mt-3 text-sm">Flat-lays and mannequins fail to show realistic fit and drape, causing customer hesitation and abandoned carts.</p>
+                            <p className="mt-3 text-sm">From design elements to functionality, you have complete control to create a unique and personalized experience.</p>
                         </CardContent>
                     </div>
 
                     <div className="group shadow-zinc-950/5">
                         <CardHeader className="pb-3">
                             <CardDecorator>
-                                <Clock
+                                <Sparkles
                                     className="size-6"
                                     aria-hidden
                                 />
                             </CardDecorator>
 
-                            <h3 className="mt-6 font-medium">Slow Speed to Market</h3>
+                            <h3 className="mt-6 font-medium">Powered By AI</h3>
                         </CardHeader>
 
                         <CardContent>
-                            <p className="mt-3 text-sm">Coordinating complex shoots takes weeks. By the time you get photos, you've missed the trend and the sale.</p>
+                            <p className="mt-3 text-sm">Elements to functionality, you have complete control to create a unique experience.</p>
                         </CardContent>
                     </div>
                 </Card>
