@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/contexts/authStore";
 import HeroSection from "@/components/hero-section";
 import {
-  Features,
+  Problem,
   Testimonials,
   CTA,
   Footer
@@ -55,8 +55,8 @@ export default function HomePage() {
       {/* Tailark Hero Section - includes header/navbar */}
       <HeroSection />
 
-      {/* Features Grid - Core capabilities showcase */}
-      <Features />
+      {/* Problem Section - Key pain points */}
+      <Problem />
 
 
 

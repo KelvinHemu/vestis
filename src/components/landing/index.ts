@@ -4,7 +4,7 @@
    ============================================ */
 
 export { Hero } from "./Hero";
-export { Features } from "./Features";
+export { Problem } from "./problem";
 export { HowItWorks } from "./HowItWorks";
 export { Testimonials } from "./Testimonials";
 export { CTA } from "./CTA";

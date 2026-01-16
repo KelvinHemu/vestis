@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { TextEffect } from '@/components/motion-primitives/text-effect'
@@ -29,6 +29,27 @@ const transitionVariants = {
 }
 
 export default function HeroSection() {
+    const imagePairs = [
+        {
+            before: '/images/before-1.jpeg',
+            after: '/images/after-1.png',
+        },
+        {
+            before: '/images/before-2.jpeg',
+            after: '/images/after-2.png',
+        },
+    ];
+
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    const nextSlide = () => {
+        setCurrentIndex((prev) => (prev + 1) % imagePairs.length);
+    };
+
+    const prevSlide = () => {
+        setCurrentIndex((prev) => (prev - 1 + imagePairs.length) % imagePairs.length);
+    };
+
     return (
         <>
             <HeroHeader />
@@ -116,19 +137,18 @@ export default function HeroSection() {
                                         ...transitionVariants,
                                     }}
                                     className="mt-12 flex flex-col items-center justify-center gap-2 md:flex-row">
-                                    <div
-                                        key={1}
-                                        className="bg-foreground/10 rounded-[calc(var(--radius-xl)+0.125rem)] border p-0.5">
-                                        <Button
-                                            asChild
-                                            size="lg"
-                                            className="rounded-xl px-5 text-base">
-                                            <Link href="/signup">
-                                                <span className="text-nowrap">Start Creating</span>
-                                            </Link>
-                                        </Button>
-                                    </div>
+                                    <Button
+                                        asChild
+                                        size="lg"
+                                        className="rounded-md px-8 py-6 text-base bg-blue-600 hover:bg-blue-500 text-white font-medium">
+                                        <Link href="/signup">
+                                            <span className="text-nowrap">Try Vestis for free</span>
+                                        </Link>
+                                    </Button>
                                 </AnimatedGroup>
+
+                                {/* Logo Cloud - Trusted by section */}
+                                <LogoCloud />
                             </div>
                         </div>
 
@@ -146,19 +166,71 @@ export default function HeroSection() {
                             }}>
                             <div className="mask-b-from-55% relative mt-8 overflow-hidden px-4 sm:mt-12 md:mt-20 lg:px-8">
                                 <div className="inset-shadow-2xs ring-white dark:inset-shadow-white/20 bg-white relative mx-auto max-w-6xl overflow-hidden rounded-2xl border-white p-2 shadow-lg shadow-zinc-950/15 ring-1">
-                                    <Image
-                                        className="bg-white aspect-video w-full relative rounded-xl object-cover object-center"
-                                        src="/hero-split.png"
-                                        alt="Vestis AI Studio - Flat Lay to Model"
-                                        width="1920"
-                                        height="1080"
-                                    />
+                                    <div className="relative">
+                                        <div className="flex gap-2 rounded-xl overflow-hidden">
+                                            <div className="relative flex-1">
+                                                <Image
+                                                    src={imagePairs[currentIndex].before}
+                                                    alt="Flat lay clothing photo"
+                                                    width={960}
+                                                    height={1080}
+                                                    className="w-full h-full object-cover rounded-xl"
+                                                />
+                                                <span className="absolute bottom-3 left-3 bg-black/60 text-white text-sm px-3 py-1.5 rounded-full backdrop-blur-sm font-medium">
+                                                    Before
+                                                </span>
+                                            </div>
+                                            <div className="relative flex-1">
+                                                <Image
+                                                    src={imagePairs[currentIndex].after}
+                                                    alt="AI-generated model wearing the clothes"
+                                                    width={960}
+                                                    height={1080}
+                                                    className="w-full h-full object-cover rounded-xl"
+                                                />
+                                                <span className="absolute bottom-3 right-3 bg-black/60 text-white text-sm px-3 py-1.5 rounded-full backdrop-blur-sm font-medium">
+                                                    After
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Navigation Buttons */}
+                                        <button
+                                            onClick={prevSlide}
+                                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg transition-all hover:scale-110"
+                                            aria-label="Previous image"
+                                        >
+                                            <ChevronLeft className="w-6 h-6" />
+                                        </button>
+                                        <button
+                                            onClick={nextSlide}
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg transition-all hover:scale-110"
+                                            aria-label="Next image"
+                                        >
+                                            <ChevronRight className="w-6 h-6" />
+                                        </button>
+
+                                        {/* Dots Indicator */}
+                                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                                            {imagePairs.map((_, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => setCurrentIndex(index)}
+                                                    className={`w-2 h-2 rounded-full transition-all ${index === currentIndex
+                                                        ? 'bg-white w-6'
+                                                        : 'bg-white/50 hover:bg-white/75'
+                                                        }`}
+                                                    aria-label={`Go to image ${index + 1}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </AnimatedGroup>
                     </div>
                 </section>
-                <LogoCloud />
+
             </main>
         </>
     )

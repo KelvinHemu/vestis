@@ -14,7 +14,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
    ============================================ */
 
 const navLinks = [
-  { href: "#features", label: "Features" },
+  { href: "#problem", label: "Problem" },
   { href: "#how-it-works", label: "How it Works" },
   { href: "#testimonials", label: "Testimonials" },
   { href: "#pricing", label: "Pricing" },
@@ -48,8 +48,8 @@ export function LandingNavbar() {
     <>
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-            ? "bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/50"
-            : "bg-transparent"
+          ? "bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/50"
+          : "bg-transparent"
           }`}
       >
         <div className="mx-auto max-w-7xl px-6">
@@ -122,8 +122,8 @@ export function LandingNavbar() {
       {/* Mobile menu overlay */}
       <div
         className={`fixed inset-0 z-40 lg:hidden transition-all duration-300 ${isMobileMenuOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
+          ? "opacity-100 pointer-events-auto"
+          : "opacity-0 pointer-events-none"
           }`}
       >
         {/* Backdrop */}
