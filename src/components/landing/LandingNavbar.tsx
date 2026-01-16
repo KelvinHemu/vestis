@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 /* ============================================
    Landing Page Navbar - Tailark Style
@@ -45,21 +46,20 @@ export function LandingNavbar() {
 
   return (
     <>
-      <nav 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled 
-            ? "bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/50" 
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+            ? "bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/50"
             : "bg-transparent"
-        }`}
+          }`}
       >
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3">
               <div className="relative w-8 h-8">
-                <Image 
-                  src="/Vestis.svg" 
-                  alt="Vestis" 
+                <Image
+                  src="/Vestis.svg"
+                  alt="Vestis"
                   fill
                   className="object-contain"
                 />
@@ -85,13 +85,14 @@ export function LandingNavbar() {
 
             {/* Desktop CTA */}
             <div className="hidden lg:flex items-center gap-4">
-              <Link 
+              <ThemeToggle />
+              <Link
                 href="/login"
                 className="text-sm text-zinc-400 hover:text-white transition-colors"
               >
                 Sign in
               </Link>
-              <Button 
+              <Button
                 asChild
                 className="h-10 px-5 bg-white text-zinc-900 hover:bg-zinc-100 rounded-full text-sm font-medium"
               >
@@ -119,25 +120,27 @@ export function LandingNavbar() {
       </nav>
 
       {/* Mobile menu overlay */}
-      <div 
-        className={`fixed inset-0 z-40 lg:hidden transition-all duration-300 ${
-          isMobileMenuOpen 
-            ? "opacity-100 pointer-events-auto" 
+      <div
+        className={`fixed inset-0 z-40 lg:hidden transition-all duration-300 ${isMobileMenuOpen
+            ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
-        }`}
+          }`}
       >
         {/* Backdrop */}
-        <div 
+        <div
           className="absolute inset-0 bg-zinc-950/90 backdrop-blur-xl"
           onClick={() => setIsMobileMenuOpen(false)}
         />
 
         {/* Menu content */}
-        <div className={`absolute top-16 left-0 right-0 bg-zinc-900 border-b border-zinc-800 transition-all duration-300 ${
-          isMobileMenuOpen ? "translate-y-0" : "-translate-y-full"
-        }`}>
+        <div className={`absolute top-16 left-0 right-0 bg-zinc-900 border-b border-zinc-800 transition-all duration-300 ${isMobileMenuOpen ? "translate-y-0" : "-translate-y-full"
+          }`}>
           <div className="px-6 py-8 space-y-6">
             {/* Mobile nav links */}
+            <div className="flex items-center justify-between">
+              <span className="text-zinc-400 text-sm">Theme</span>
+              <ThemeToggle />
+            </div>
             {navLinks.map((link) => (
               <a
                 key={link.href}
@@ -151,14 +154,14 @@ export function LandingNavbar() {
 
             {/* Mobile CTA */}
             <div className="pt-6 border-t border-zinc-800 space-y-4">
-              <Link 
+              <Link
                 href="/login"
                 className="block text-center text-zinc-400 hover:text-white transition-colors py-2"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Sign in
               </Link>
-              <Button 
+              <Button
                 asChild
                 className="w-full h-12 bg-white text-zinc-900 hover:bg-zinc-100 rounded-full font-medium"
               >

@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { queryClient } from "@/lib/queryClient";
 import { useAuthStore } from "@/contexts/authStore";
 import { ClarityProvider } from "@/components/shared/ClarityProvider";
+import { ThemeProvider } from "./theme-provider";
 
 /* ============================================
    Auth Provider - Initializes auth state
@@ -51,12 +52,19 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        {clarityProjectId && (
-          <ClarityProvider projectId={clarityProjectId}>
-            {children}
-          </ClarityProvider>
-        )}
-        {!clarityProjectId && children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {clarityProjectId && (
+            <ClarityProvider projectId={clarityProjectId}>
+              {children}
+            </ClarityProvider>
+          )}
+          {!clarityProjectId && children}
+        </ThemeProvider>
       </AuthProvider>
       {/* DevTools only visible in development */}
       <ReactQueryDevtools initialIsOpen={false} />

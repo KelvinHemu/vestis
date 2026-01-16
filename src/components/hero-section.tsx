@@ -67,7 +67,7 @@ export default function HeroSection() {
                                     },
                                 },
                             }}
-                            className="mask-b-from-35% mask-b-to-90% absolute inset-0 top-56 -z-20 lg:top-32">
+                            className="mask-b-from-35% mask-b-to-90% absolute inset-0 top-56 -z-20 lg:top-0">
                             <Image
                                 src="https://ik.imagekit.io/lrigu76hy/tailark/night-background.jpg?updatedAt=1745733451120"
                                 alt="background"
@@ -84,32 +84,14 @@ export default function HeroSection() {
 
                         <div className="mx-auto max-w-7xl px-6">
                             <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0">
-                                <AnimatedGroup variants={transitionVariants}>
-                                    <Link
-                                        href="/signup"
-                                        className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-zinc-950/5 transition-colors duration-300 dark:border-t-white/5 dark:shadow-zinc-950">
-                                        <span className="text-foreground text-sm">Say Hello to Next-Gen Content Creation</span>
-                                        <span className="dark:border-background block h-4 w-0.5 border-l bg-white dark:bg-zinc-700"></span>
 
-                                        <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
-                                            <div className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0">
-                                                <span className="flex size-6">
-                                                    <ArrowRight className="m-auto size-3" />
-                                                </span>
-                                                <span className="flex size-6">
-                                                    <ArrowRight className="m-auto size-3" />
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                </AnimatedGroup>
 
                                 <TextEffect
                                     preset="fade-in-blur"
                                     speedSegment={0.3}
                                     as="h1"
                                     className="mx-auto mt-8 max-w-4xl text-balance text-5xl max-md:font-semibold md:text-7xl lg:mt-16 xl:text-[5.25rem]">
-                                    The All-In-One AI Fashion Studio for Brands
+                                    Sell Clothes Online With Confidence
                                 </TextEffect>
                                 <TextEffect
                                     per="line"
@@ -118,7 +100,7 @@ export default function HeroSection() {
                                     delay={0.5}
                                     as="p"
                                     className="mx-auto mt-8 max-w-2xl text-balance text-lg">
-                                    Instantly transform Flat Lays, Ghost Mannequins, and On-Model photos into professional editorials. No photoshoot required.
+                                    Vestis helps Instagram & WhatsApp fashion sellers create realistic try-on visuals and mini stores that customers trust.
                                 </TextEffect>
 
                                 <AnimatedGroup
@@ -146,16 +128,6 @@ export default function HeroSection() {
                                             </Link>
                                         </Button>
                                     </div>
-                                    <Button
-                                        key={2}
-                                        asChild
-                                        size="lg"
-                                        variant="ghost"
-                                        className="h-10.5 rounded-xl px-5">
-                                        <Link href="#how-it-works">
-                                            <span className="text-nowrap">Request a demo</span>
-                                        </Link>
-                                    </Button>
                                 </AnimatedGroup>
                             </div>
                         </div>

@@ -8,7 +8,7 @@ export function Logo() {
                 alt="Vestis"
                 width={24}
                 height={24}
-                className="h-6 w-6 dark:invert"
+                className="h-6 w-6"
             />
             <span className="text-xl font-semibold">Vestis</span>
         </div>
