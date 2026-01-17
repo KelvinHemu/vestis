@@ -8,10 +8,12 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { cn } from '@/lib/utils'
 
 const menuItems = [
-    { name: 'Features', href: '#features' },
-    { name: 'Solution', href: '#how-it-works' },
-    // { name: 'Pricing', href: '#pricing' },
-    { name: 'About', href: '#testimonials' },
+    { name: 'Problem', href: '#problem' },
+    { name: 'Solution', href: '#solution' },
+    { name: 'What We Do', href: '#what-we-do' },
+    { name: 'Pricing', href: '#pricing' },
+    { name: 'FAQ', href: '#faq' },
+    { name: 'Team', href: '#team' },
 ]
 
 export const HeroHeader = () => {
