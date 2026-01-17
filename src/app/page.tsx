@@ -7,6 +7,7 @@ import HeroSection from "@/components/hero-section";
 import {
   Problem,
   Solution,
+  WhatWeDo,
   Testimonials,
   CTA,
   Footer
@@ -61,6 +62,7 @@ export default function HomePage() {
 
       {/* Solution Section - Feature showcase with tabs */}
       <Solution />
+      <WhatWeDo />
 
       {/* Social Proof - Testimonials & stats */}
       <Testimonials />
