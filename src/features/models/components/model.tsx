@@ -51,6 +51,8 @@ interface ModelCardProps {
   onClick?: () => void;
   onFavorite?: () => void;
   onPreview?: () => void;
+  // Whether to show age/size badges - useful for custom models that don't have this data
+  showDetails?: boolean;
 }
 
 export function ModelCard({
@@ -62,7 +64,8 @@ export function ModelCard({
   isFavorite = false,
   onClick,
   onFavorite,
-  onPreview
+  onPreview,
+  showDetails = true,
 }: ModelCardProps) {
   // Handle favorite click - prevent card selection
   const handleFavoriteClick = (e: React.MouseEvent) => {
@@ -146,7 +149,16 @@ export function ModelCard({
       </div>
 
       {/* Info Section - Below Image */}
-      <ModelCardInfo name={name} age={age} size={size} />
+      {showDetails ? (
+        <ModelCardInfo name={name} age={age} size={size} />
+      ) : (
+        // Simple name-only display for custom models
+        <div className="px-2 sm:px-3 py-2">
+          <div className="font-medium text-gray-900 dark:text-white text-sm sm:text-base truncate">
+            {name}
+          </div>
+        </div>
+      )}
     </Card>
   );
 }

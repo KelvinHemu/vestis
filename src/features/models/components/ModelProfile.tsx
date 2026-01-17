@@ -67,10 +67,10 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
   // ============================================================================
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
+      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-950">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-gray-200 border-t-black rounded-full animate-spin"></div>
-          <p className="text-gray-500 text-sm tracking-widest uppercase">Loading model...</p>
+          <div className="w-10 h-10 border-4 border-gray-200 dark:border-gray-700 border-t-black dark:border-t-white rounded-full animate-spin"></div>
+          <p className="text-gray-500 dark:text-gray-400 text-sm tracking-widest uppercase">Loading model...</p>
         </div>
       </div>
     );
@@ -82,13 +82,13 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
   if (error || !model) {
     const errorMessage = error instanceof Error ? error.message : 'Model not found';
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
+      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-950">
         <div className="text-center max-w-md px-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-2 uppercase tracking-widest">{errorMessage}</h3>
-          <p className="text-gray-500 mb-6">The model you&apos;re looking for doesn&apos;t exist or has been removed.</p>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 uppercase tracking-widest">{errorMessage}</h3>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">The model you&apos;re looking for doesn&apos;t exist or has been removed.</p>
           <button
             onClick={() => router.push('/models')}
-            className="px-6 py-3 bg-black text-white text-sm font-medium tracking-widest uppercase hover:bg-gray-800 transition-colors"
+            className="px-6 py-3 bg-black dark:bg-white text-white dark:text-gray-900 text-sm font-medium tracking-widest uppercase hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
           >
             Browse All Models
           </button>
@@ -107,15 +107,15 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
   // ============================================================================
   if (allImages.length === 0) {
     return (
-      <div className="min-h-screen bg-white text-gray-900 font-sans">
+      <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans">
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 md:py-8">
           <div className="flex items-center justify-center mb-8 relative">
             <button
               onClick={() => router.push('/models')}
-              className="absolute left-0 p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="absolute left-0 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
               title="Back to models"
             >
-              <ArrowLeft className="w-6 h-6 text-gray-900" />
+              <ArrowLeft className="w-6 h-6 text-gray-900 dark:text-gray-100" />
             </button>
 
             <div className="text-center">
@@ -127,16 +127,16 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
 
           <div className="flex items-center justify-center py-20">
             <div className="text-center max-w-md px-6">
-              <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+                <svg className="w-12 h-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 uppercase tracking-widest">No Images Available</h3>
-              <p className="text-gray-500 mb-6">This model&apos;s portfolio is currently being updated. Please check back soon.</p>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 uppercase tracking-widest">No Images Available</h3>
+              <p className="text-gray-500 dark:text-gray-400 mb-6">This model&apos;s portfolio is currently being updated. Please check back soon.</p>
               <button
                 onClick={() => router.push('/models')}
-                className="px-6 py-3 bg-black text-white text-sm font-medium tracking-widest uppercase hover:bg-gray-800 transition-colors"
+                className="px-6 py-3 bg-black dark:bg-white text-white dark:text-gray-900 text-sm font-medium tracking-widest uppercase hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
               >
                 Browse Other Models
               </button>
@@ -148,16 +148,16 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-gray-200">
+    <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans selection:bg-gray-200 dark:selection:bg-gray-700">
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 md:py-8">
         {/* Header with Back Button and Name on Same Row */}
         <div className="flex items-center justify-center mb-8 relative">
           <button
             onClick={() => router.push('/models')}
-            className="absolute left-0 p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="absolute left-0 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
             title="Back to models"
           >
-            <ArrowLeft className="w-6 h-6 text-gray-900" />
+            <ArrowLeft className="w-6 h-6 text-gray-900 dark:text-gray-100" />
           </button>
 
           <div className="text-center">
@@ -166,9 +166,9 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
             </h1>
 
             <div className="flex flex-wrap justify-center items-center gap-x-2 text-xs font-medium tracking-widest uppercase">
-              <span className="text-black font-bold">Portfolio</span>
-              <span className="text-gray-400">|</span>
-              <a href="#" className="text-gray-500 hover:text-black transition-colors">Instagram</a>
+              <span className="text-black dark:text-white font-bold">Portfolio</span>
+              <span className="text-gray-400 dark:text-gray-500">|</span>
+              <a href="#" className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors">Instagram</a>
             </div>
           </div>
         </div>
@@ -180,25 +180,25 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
           <div className="lg:w-48 flex-shrink-0 lg:sticky lg:top-32">
             <div className="grid grid-cols-2 gap-x-8 gap-y-4 lg:block lg:space-y-4 text-xs tracking-widest uppercase">
               <div>
-                <span className="block font-bold text-gray-900 mb-1">Gender</span>
-                <span className="text-gray-500">{model.gender}</span>
+                <span className="block font-bold text-gray-900 dark:text-gray-100 mb-1">Gender</span>
+                <span className="text-gray-500 dark:text-gray-400">{model.gender}</span>
               </div>
               <div>
-                <span className="block font-bold text-gray-900 mb-1">Age</span>
-                <span className="text-gray-500">{modelService.formatAgeRange(model.age_range)}</span>
+                <span className="block font-bold text-gray-900 dark:text-gray-100 mb-1">Age</span>
+                <span className="text-gray-500 dark:text-gray-400">{modelService.formatAgeRange(model.age_range)}</span>
               </div>
               {/* Placeholder stats */}
               <div>
-                <span className="block font-bold text-gray-900 mb-1">Height</span>
-                <span className="text-gray-400">175 cm</span>
+                <span className="block font-bold text-gray-900 dark:text-gray-100 mb-1">Height</span>
+                <span className="text-gray-400 dark:text-gray-500">175 cm</span>
               </div>
               <div>
-                <span className="block font-bold text-gray-900 mb-1">Eyes</span>
-                <span className="text-gray-400">Brown</span>
+                <span className="block font-bold text-gray-900 dark:text-gray-100 mb-1">Eyes</span>
+                <span className="text-gray-400 dark:text-gray-500">Brown</span>
               </div>
               <div>
-                <span className="block font-bold text-gray-900 mb-1">Hair</span>
-                <span className="text-gray-400">Dark Brown</span>
+                <span className="block font-bold text-gray-900 dark:text-gray-100 mb-1">Hair</span>
+                <span className="text-gray-400 dark:text-gray-500">Dark Brown</span>
               </div>
             </div>
           </div>
@@ -210,22 +210,22 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
               <>
                 <button
                   onClick={prevImage}
-                  className="absolute -left-12 md:-left-16 top-1/2 -translate-y-1/2 z-10 p-2 hover:bg-gray-100 rounded-full transition-colors opacity-100"
+                  className="absolute -left-12 md:-left-16 top-1/2 -translate-y-1/2 z-10 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors opacity-100"
                 >
-                  <ChevronLeft className="w-8 h-8 text-gray-900" />
+                  <ChevronLeft className="w-8 h-8 text-gray-900 dark:text-gray-100" />
                 </button>
                 <button
                   onClick={nextImage}
-                  className="absolute -right-12 md:-right-16 top-1/2 -translate-y-1/2 z-10 p-2 hover:bg-gray-100 rounded-full transition-colors opacity-100"
+                  className="absolute -right-12 md:-right-16 top-1/2 -translate-y-1/2 z-10 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors opacity-100"
                 >
-                  <ChevronRight className="w-8 h-8 text-gray-900" />
+                  <ChevronRight className="w-8 h-8 text-gray-900 dark:text-gray-100" />
                 </button>
               </>
             )}
 
             <div className={`grid ${secondImage ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 max-w-md mx-auto'} gap-0`}>
               {/* Image 1 */}
-              <div className="bg-gray-100 relative overflow-hidden h-full">
+              <div className="bg-gray-100 dark:bg-gray-800 relative overflow-hidden h-full">
                 <img
                   src={firstImage}
                   alt={`${model.name} 1`}
@@ -235,7 +235,7 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
 
               {/* Image 2 */}
               {secondImage && (
-                <div className="bg-gray-100 relative overflow-hidden h-full">
+                <div className="bg-gray-100 dark:bg-gray-800 relative overflow-hidden h-full">
                   <img
                     src={secondImage}
                     alt={`${model.name} 2`}
@@ -252,7 +252,7 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
                   <button
                     key={idx}
                     onClick={() => setCurrentImageIndex(idx * 2)}
-                    className={`w-1.5 h-1.5 rounded-full transition-colors ${Math.floor(currentImageIndex / 2) === idx ? 'bg-black' : 'bg-gray-300 hover:bg-gray-400'
+                    className={`w-1.5 h-1.5 rounded-full transition-colors ${Math.floor(currentImageIndex / 2) === idx ? 'bg-black dark:bg-white' : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
                       }`}
                   />
                 ))}

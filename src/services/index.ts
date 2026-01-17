@@ -21,6 +21,7 @@ export { onModelPhotosService } from './onModelPhotosService';
 // Model Services
 export { default as modelService } from './modelService';
 export { default as modelRegistrationService } from './modelRegistrationService';
+export { default as customModelService } from './customModelService';
 
 // Payment Services
 export { default as paymentService } from './paymentService';

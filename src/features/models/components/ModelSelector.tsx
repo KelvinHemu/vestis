@@ -1,16 +1,34 @@
 "use client";
 
+/**
+ * ModelSelector - Select models for generation
+ * 
+ * Shows all available models (platform + custom) in a unified grid.
+ * Custom models from the business are mixed in with platform models.
+ */
+
 import { useRouter } from 'next/navigation';
+import { Plus, Trash2 } from 'lucide-react';
 import { ModelCard } from './model';
 import { useModelsByGender } from '@/hooks/useModels';
+import { useCustomModelsByGender, useDeleteCustomModel } from '@/hooks/useCustomModels';
 import { useModelStore } from '@/contexts/modelStore';
 import modelService from '@/services/modelService';
-import type { Model } from '@/types/model';
+import type { Model, CustomModel } from '@/types/model';
+import { Button } from '@/components/ui/button';
+
+// ============================================================================
+// Props Interface
+// ============================================================================
 
 interface ModelSelectorProps {
   onModelSelect?: (modelId: string) => void;
   selectedModel?: string;
 }
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorProps) {
   const router = useRouter();
@@ -31,17 +49,31 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
   // Use selected model from props if provided, otherwise use store
   const effectiveSelectedId = selectedModel || selectedModelId;
   
-  // Convert category to gender filter for the hook
+  // Convert category to gender filter for the hooks
   const genderFilter = activeCategory === 'All' ? undefined : activeCategory;
-  const { data: models, isLoading, error } = useModelsByGender(genderFilter);
+  
+  // Platform models (from API)
+  const { data: platformModels, isLoading: isPlatformLoading, error: platformError } = useModelsByGender(genderFilter);
+  
+  // Custom models (business-specific)
+  const { data: customModels, isLoading: isCustomLoading } = useCustomModelsByGender(genderFilter as 'male' | 'female' | undefined);
+  
+  // Delete mutation for custom models
+  const deleteMutation = useDeleteCustomModel();
+
+  // Combined loading state
+  const isLoading = isPlatformLoading || isCustomLoading;
+  const error = platformError;
 
   // ============================================================================
   // Handle Model Selection
   // ============================================================================
-  const handleModelSelect = (modelId: string) => {
-    selectModel(modelId);
+  const handleModelSelect = (modelId: string, isCustom: boolean = false) => {
+    // Prefix custom model IDs to differentiate them
+    const fullId = isCustom ? `custom_${modelId}` : modelId;
+    selectModel(fullId);
     if (onModelSelect) {
-      onModelSelect(modelId);
+      onModelSelect(fullId);
     }
   };
 
@@ -56,6 +88,21 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
   };
 
   // ============================================================================
+  // Handle Delete Custom Model
+  // ============================================================================
+  const handleDeleteCustomModel = async (modelId: number, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent selecting the model
+    
+    if (window.confirm('Remove this model? This action cannot be undone.')) {
+      try {
+        await deleteMutation.mutateAsync(modelId);
+      } catch (error) {
+        console.error('Failed to delete custom model:', error);
+      }
+    }
+  };
+
+  // ============================================================================
   // Handle Preview - Navigate to Model Profile Page
   // ============================================================================
   const handlePreviewOpen = (model: Model) => {
@@ -65,7 +112,7 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
   // ============================================================================
   // Filter Models by Active Status
   // ============================================================================
-  const currentModels = models.filter(model => model.status === 'active');
+  const currentPlatformModels = platformModels.filter(model => model.status === 'active');
 
   // ============================================================================
   // Render Component
@@ -105,14 +152,27 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
                 Male
               </button>
             </div>
-            {effectiveSelectedId && (
-              <button
-                onClick={handleClearSelection}
-                className="py-1.5 px-4 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+            
+            <div className="flex gap-2">
+              {/* Add Model Button */}
+              <Button
+                onClick={() => router.push('/add-model')}
+                size="sm"
+                className="gap-1.5"
               >
-                Clear
-              </button>
-            )}
+                <Plus className="w-3.5 h-3.5" />
+                Add Model
+              </Button>
+              
+              {effectiveSelectedId && (
+                <button
+                  onClick={handleClearSelection}
+                  className="py-1.5 px-4 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -143,10 +203,53 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
             </div>
           )}
 
-          {/* Model Grid */}
+          {/* ================================================================ */}
+          {/* Models Grid - Platform + Custom Models Mixed */}
+          {/* ================================================================ */}
           {!isLoading && !error && (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 md:gap-6 pt-4 pb-8 pl-0 sm:pl-2">
-              {currentModels.map((model) => {
+              {/* Custom Models First (business's own models) */}
+              {customModels.map((model: CustomModel) => {
+                const modelIdStr = `custom_${model.id}`;
+                
+                return (
+                  <div key={`custom-${model.id}`} className="relative group">
+                    <ModelCard
+                      id={modelIdStr}
+                      name={model.name}
+                      age=""
+                      size=""
+                      image={model.image_url}
+                      isSelected={effectiveSelectedId === modelIdStr}
+                      isFavorite={false}
+                      onClick={() => handleModelSelect(model.id.toString(), true)}
+                      onFavorite={() => {}}
+                      onPreview={() => {}}
+                      showDetails={false}
+                    />
+                    
+                    {/* Delete Button - appears on hover */}
+                    <button
+                      onClick={(e) => handleDeleteCustomModel(model.id, e)}
+                      disabled={deleteMutation.isPending}
+                      className="
+                        absolute top-2 right-2 z-10
+                        w-8 h-8 rounded-full
+                        bg-red-500 hover:bg-red-600 text-white
+                        flex items-center justify-center
+                        opacity-0 group-hover:opacity-100
+                        transition-opacity duration-200
+                        shadow-lg
+                      "
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                );
+              })}
+
+              {/* Platform Models */}
+              {currentPlatformModels.map((model) => {
                 const mainImage = modelService.getMainImage(model) || '';
                 const ageRange = modelService.formatAgeRange(model.age_range);
                 const modelIdStr = model.id.toString();
@@ -157,11 +260,11 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
                     id={modelIdStr}
                     name={model.name}
                     age={ageRange}
-                    size="Standard" // Size is not in the new API response
+                    size="Standard"
                     image={mainImage}
                     isSelected={effectiveSelectedId === modelIdStr}
                     isFavorite={isFavorite(modelIdStr)}
-                    onClick={() => handleModelSelect(modelIdStr)}
+                    onClick={() => handleModelSelect(modelIdStr, false)}
                     onFavorite={() => toggleFavorite(modelIdStr)}
                     onPreview={() => handlePreviewOpen(model)}
                   />
@@ -171,20 +274,19 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
           )}
 
           {/* Empty State */}
-          {!isLoading && !error && currentModels.length === 0 && (
+          {!isLoading && !error && currentPlatformModels.length === 0 && customModels.length === 0 && (
             <div className="text-center py-12">
               <div className="flex flex-col items-center gap-2">
                 <svg className="w-16 h-16 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
                 <p className="text-gray-500 dark:text-gray-400 font-medium">No models available in this category.</p>
-                <p className="text-gray-400 dark:text-gray-500 text-sm">Try selecting a different category.</p>
+                <p className="text-gray-400 dark:text-gray-500 text-sm">Try selecting a different category or add your own model.</p>
               </div>
             </div>
           )}
         </div>
       </div>
-
     </div>
   );
 }

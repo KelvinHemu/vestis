@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { UserPlus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { ModelCard } from './model';
 import { useModelsByGender } from '@/hooks/useModels';
 import { useModelStore } from '@/contexts/modelStore';
@@ -67,11 +67,11 @@ export function ModelsPage() {
           </div>
 
           <Button
-            onClick={() => router.push('/register-model')}
+            onClick={() => router.push('/add-model')}
             className="flex items-center gap-2"
           >
-            <UserPlus className="w-4 h-4" />
-            Register as Model
+            <Plus className="w-4 h-4" />
+            Add Model
           </Button>
         </div>
 

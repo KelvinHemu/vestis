@@ -192,3 +192,37 @@ export interface ModelCardProps {
   onClick: () => void;
 }
 
+// ============================================================================
+// Custom Model Types (Business-specific models)
+// ============================================================================
+
+/**
+ * Custom model that belongs to a specific business/user
+ * Only visible to that business - simple structure: just name and image
+ */
+export interface CustomModel {
+  id: number;
+  user_id: number;
+  name: string;
+  gender: 'male' | 'female';
+  image_url: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Request payload for creating a custom model
+ */
+export interface CreateCustomModelRequest {
+  name: string;
+  gender: 'male' | 'female';
+  image: string; // Base64 encoded image
+}
+
+/**
+ * API response for custom models list
+ */
+export interface CustomModelsResponse {
+  models: CustomModel[];
+}
+
