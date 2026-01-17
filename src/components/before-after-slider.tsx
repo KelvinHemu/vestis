@@ -107,10 +107,10 @@ export const BeforeAfterSlider = ({
             />
 
             {/* Labels */}
-            <div className="absolute bottom-4 left-4 z-30 bg-black/60 text-white text-sm px-3 py-1.5 rounded-full backdrop-blur-sm font-medium">
+            <div className="absolute top-4 left-4 z-30 bg-black/80 text-white text-base px-4 py-2 rounded-full backdrop-blur-sm font-semibold shadow-lg">
                 Before
             </div>
-            <div className="absolute bottom-4 right-4 z-30 bg-black/60 text-white text-sm px-3 py-1.5 rounded-full backdrop-blur-sm font-medium">
+            <div className="absolute top-4 right-4 z-30 bg-primary text-primary-foreground text-base px-4 py-2 rounded-full backdrop-blur-sm font-semibold shadow-lg">
                 After
             </div>
         </div>
