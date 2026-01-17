@@ -14,27 +14,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/* ============================================
-   Solution Section - Cadence Style
-   Showcase features with interactive tabs
-   Clean, minimal design with stats dashboard
-   ============================================ */
+
 
 const features = [
-  {
-    id: "mini-store",
-    icon: Store,
-    label: "Mini Stores",
-    title: "Seller-Hosted Digital Catalogs",
-    description:
-      "Launch your dedicated mini-store on Vestis. Showcase your full catalog where buyers can browse, virtually try items, and discover your brand through social links.",
-    stats: {
-      primary: { value: "100%", label: "Inventory Online", change: "Instant setup" },
-      secondary: { value: "24/7", label: "Store Access", change: "Via social links" },
-    },
-    chartData: [120, 180, 240, 300, 420, 580, 650, 820],
-    cta: "Launch your store",
-  },
+
   {
     id: "social-content",
     icon: Share2,
@@ -62,6 +45,20 @@ const features = [
     },
     chartData: [280, 320, 290, 350, 400, 380, 420, 390],
     cta: "Try it out",
+  },
+    {
+    id: "mini-store",
+    icon: Store,
+    label: "Mini Stores",
+    title: "Seller-Hosted Digital Catalogs",
+    description:
+      "Launch your dedicated mini-store on Vestis. Showcase your full catalog where buyers can browse, virtually try items, and discover your brand through social links.",
+    stats: {
+      primary: { value: "100%", label: "Inventory Online", change: "Instant setup" },
+      secondary: { value: "24/7", label: "Store Access", change: "Via social links" },
+    },
+    chartData: [120, 180, 240, 300, 420, 580, 650, 820],
+    cta: "Launch your store",
   },
   {
     id: "conversion",
@@ -145,11 +142,11 @@ export function Solution() {
       <div className="mx-auto max-w-5xl px-6">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium text-foreground mb-4">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium text-foreground mb-4 tracking-tight md:whitespace-nowrap">
             How Vestis turns lost sales into confident buyers
           </h2>
           <p className="text-muted-foreground text-lg">
-            When customers can clearly visualize , confidence follows.
+            When customers can clearly visualize, confidence follows.
           </p>
         </div>
 

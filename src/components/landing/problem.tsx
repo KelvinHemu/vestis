@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Wallet, EyeOff, Clock } from 'lucide-react'
+import { Wallet, EyeOff, MessageCircleX } from 'lucide-react'
 import { ReactNode } from 'react'
 
 export function Problem() {
@@ -48,17 +48,17 @@ export function Problem() {
                     <div className="group shadow-zinc-950/5">
                         <CardHeader className="pb-3">
                             <CardDecorator>
-                                <Clock
+                                <MessageCircleX
                                     className="size-6"
                                     aria-hidden
                                 />
                             </CardDecorator>
 
-                            <h3 className="mt-6 font-medium">Slow Speed to Market</h3>
+                            <h3 className="mt-6 font-medium">Chaotic Sales Process</h3>
                         </CardHeader>
 
                         <CardContent>
-                            <p className="mt-3 text-sm">Coordinating complex shoots takes weeks. By the time you get photos, you've missed the trend and the sale.</p>
+                            <p className="mt-3 text-sm">Managing orders via DMs is unscalable. "Price please" and back-and-forth messaging kill conversion momentum.</p>
                         </CardContent>
                     </div>
                 </Card>
