@@ -4,7 +4,7 @@ import { ProgressiveBlur } from '@/components/ui/progressive-blur'
 export default function LogoCloud() {
     return (
         <div className="mt-16 mb-8">
-            <p className="text-center text-xs text-muted-foreground mb-4">Trusted by 100+ businesses worldwide</p>
+            <p className="text-center text-xs text-muted-foreground mb-4">Trusted by 100+ businesses in Africa</p>
             <div className="relative mx-auto max-w-xl">
                 <InfiniteSlider
                     speedOnHover={20}
