@@ -89,14 +89,18 @@ export default function HeroSection() {
                                 },
                             }}
                             className="mask-b-from-35% mask-b-to-90% absolute inset-0 top-56 -z-20 lg:top-0">
-                            <Image
+                            {/* Background image temporarily disabled due to ImageKit rate limiting */}
+                            {/* <Image
                                 src="https://ik.imagekit.io/lrigu76hy/tailark/night-background.jpg?updatedAt=1745733451120"
                                 alt="background"
                                 className="hidden size-full dark:block"
                                 width="3276"
                                 height="4095"
                                 unoptimized
-                            />
+                                priority
+                                loading="eager"
+                            /> */}
+                            <div className="hidden size-full dark:block bg-gradient-to-b from-zinc-900 via-zinc-950 to-black" />
                         </AnimatedGroup>
 
                         <div
@@ -176,6 +180,7 @@ export default function HeroSection() {
                                                     width={960}
                                                     height={1080}
                                                     className="w-full h-full object-cover rounded-xl"
+                                                    priority={currentIndex === 0}
                                                 />
                                                 <span className="absolute bottom-3 left-3 bg-black/60 text-white text-sm px-3 py-1.5 rounded-full backdrop-blur-sm font-medium">
                                                     Before
@@ -188,6 +193,7 @@ export default function HeroSection() {
                                                     width={960}
                                                     height={1080}
                                                     className="w-full h-full object-cover rounded-xl"
+                                                    priority={currentIndex === 0}
                                                 />
                                                 <span className="absolute bottom-3 right-3 bg-black/60 text-white text-sm px-3 py-1.5 rounded-full backdrop-blur-sm font-medium">
                                                     After

@@ -57,6 +57,7 @@ export function Providers({ children }: { children: ReactNode }) {
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
+          storageKey="vestis-theme"
         >
           {clarityProjectId && (
             <ClarityProvider projectId={clarityProjectId}>
