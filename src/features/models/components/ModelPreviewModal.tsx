@@ -73,7 +73,7 @@ export function ModelPreviewModal({
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
       {/* Modal Content */}
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-in fade-in zoom-in duration-200">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -92,7 +92,7 @@ export function ModelPreviewModal({
         </button>
 
         {/* Main Image Section */}
-        <div className="relative aspect-[4/5] bg-gray-100">
+        <div className="relative aspect-[4/5] bg-gray-100 dark:bg-gray-800">
           {allImages.length > 0 ? (
             <img
               src={allImages[activeImageIndex]}
@@ -135,14 +135,14 @@ export function ModelPreviewModal({
 
         {/* Thumbnail Strip */}
         {allImages.length > 1 && (
-          <div className="flex gap-2 p-3 bg-gray-50 overflow-x-auto">
+          <div className="flex gap-2 p-3 bg-gray-50 dark:bg-gray-800 overflow-x-auto">
             {allImages.map((imageUrl, index) => (
               <button
                 key={index}
                 onClick={() => setActiveImageIndex(index)}
                 className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden transition-all ${
                   index === activeImageIndex
-                    ? 'ring-2 ring-black ring-offset-2'
+                    ? 'ring-2 ring-black dark:ring-white ring-offset-2 dark:ring-offset-gray-800'
                     : 'opacity-60 hover:opacity-100'
                 }`}
               >
@@ -157,14 +157,14 @@ export function ModelPreviewModal({
         )}
 
         {/* Model Info Section */}
-        <div className="p-4 border-t border-gray-100">
+        <div className="p-4 border-t border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">{model.name}</h2>
-              <p className="text-sm text-gray-500 capitalize">{model.gender} Model</p>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{model.name}</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{model.gender} Model</p>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 px-3 py-1 rounded-full border border-gray-300">
+              <span className="text-sm text-gray-600 dark:text-gray-400 px-3 py-1 rounded-full border border-gray-300 dark:border-gray-600">
                 Age: {ageRange}
               </span>
             </div>
@@ -177,7 +177,7 @@ export function ModelPreviewModal({
                 onSelect();
                 onClose();
               }}
-              className="w-full py-3 px-4 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+              className="w-full py-3 px-4 bg-black dark:bg-white text-white dark:text-black rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
             >
               Select This Model
             </button>

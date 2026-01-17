@@ -363,12 +363,12 @@ export function OnModelPhotos() {
                 </div>
               ) : generationError ? (
                 <div className="text-center max-w-md">
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+                  <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-6">
                     <svg className="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Generation Failed</h3>
-                    <p className="text-sm text-gray-600 mb-4">{generationError}</p>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Generation Failed</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{generationError}</p>
                     <button
                       onClick={resetGeneration}
                       className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors inline-flex items-center gap-2"
@@ -383,13 +383,13 @@ export function OnModelPhotos() {
                   {/* Start Over button */}
                   <button
                     onClick={handleStartOver}
-                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors text-xs sm:text-sm"
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full font-medium transition-colors text-xs sm:text-sm"
                   >
                     Start Over
                   </button>
 
                   <div
-                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[140px] xs:max-w-[160px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[300px] xl:max-w-[340px] mb-20"
+                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[140px] xs:max-w-[160px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[300px] xl:max-w-[340px] mb-20"
                     style={{ aspectRatio: getAspectRatioValue(aspectRatio) }}
                     onDoubleClick={() => setIsFullscreenOpen(true)}
                   >
@@ -410,7 +410,7 @@ export function OnModelPhotos() {
                 </>
               ) : (
                 <div className="text-center">
-                  <p className="text-gray-600 mb-4">Review your selections and generate your on-model photos</p>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">Review your selections and generate your on-model photos</p>
                 </div>
               )}
             </div>
@@ -478,7 +478,7 @@ export function OnModelPhotos() {
                     alert('Failed to download image');
                   }
                 }}
-                className="flex-1 bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                className="flex-1 bg-black dark:bg-white text-white dark:text-black py-3 rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
               >
                 Download
               </button>
@@ -488,7 +488,7 @@ export function OnModelPhotos() {
                   await handleGenerateImage();
                 }}
                 disabled={isGenerating}
-                className="px-3 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-3 bg-black dark:bg-white text-white dark:text-black rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Regenerate Image"
               >
                 <RotateCw className={`w-5 h-5 ${isGenerating ? 'animate-spin' : ''}`} />
@@ -501,7 +501,7 @@ export function OnModelPhotos() {
             <div className="mt-auto pt-4 pb-4">
               {/* Show error if any */}
               {generationError && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">
                   {generationError}
                 </div>
               )}
@@ -509,7 +509,7 @@ export function OnModelPhotos() {
               <button
                 disabled={!canProceedToNextStep() || isGenerating}
                 onClick={handleNextStep}
-                className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="w-full bg-black dark:bg-white text-white dark:text-black py-3 rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
               >
                 {isGenerating
                   ? 'Generating...'
@@ -565,10 +565,10 @@ export function OnModelPhotos() {
       )}
 
       {/* Content Area with Left and Right Sections */}
-      <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 overflow-hidden">
+      <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 dark:border-gray-700 overflow-hidden">
         {/* Left Component - full width on phone, flex-1 on tablet+ */}
-        <div className="flex-1 bg-white md:border-r-2 border-gray-300 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
-          <div className="border-b-2 border-gray-300">
+        <div className="flex-1 bg-white dark:bg-gray-900 md:border-r-2 border-gray-300 dark:border-gray-700 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
+          <div className="border-b-2 border-gray-300 dark:border-gray-700">
             <Steps
               steps={steps}
               currentStep={currentStep}
@@ -593,7 +593,7 @@ export function OnModelPhotos() {
         </div>
 
         {/* Right Component - fixed bottom bar on phone, sidebar on tablet+ */}
-        <div className="fixed bottom-0 left-0 right-0 md:static md:w-80 lg:w-96 bg-white p-4 sm:p-6 m-0 md:overflow-y-auto flex flex-col border-t-2 md:border-t-0 border-gray-300 shrink-0 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none">
+        <div className="fixed bottom-0 left-0 right-0 md:static md:w-80 lg:w-96 bg-white dark:bg-gray-900 p-4 sm:p-6 m-0 md:overflow-y-auto flex flex-col border-t-2 md:border-t-0 border-gray-300 dark:border-gray-700 shrink-0 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none">
           {renderRightPanel()}
         </div>
       </div>

@@ -20,29 +20,29 @@ const statusConfig: Record<RegistrationStatus, {
 }> = {
   draft: {
     icon: FileEdit,
-    color: 'text-gray-700',
-    bg: 'bg-white border-gray-200',
+    color: 'text-gray-700 dark:text-gray-300',
+    bg: 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700',
     title: 'Draft Profile',
     description: 'Your profile is saved as a draft. Upload at least 2 photos and submit for review.',
   },
   pending_review: {
     icon: Clock,
-    color: 'text-gray-700',
-    bg: 'bg-white border-gray-200',
+    color: 'text-gray-700 dark:text-gray-300',
+    bg: 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700',
     title: 'Under Review',
     description: 'Your profile has been submitted and is being reviewed by our team. We\'ll notify you once it\'s approved.',
   },
   approved: {
     icon: CheckCircle,
-    color: 'text-gray-900',
-    bg: 'bg-white border-gray-200',
+    color: 'text-gray-900 dark:text-white',
+    bg: 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700',
     title: 'Profile Approved',
     description: 'Congratulations! Your model profile is active and visible to users.',
   },
   rejected: {
     icon: XCircle,
-    color: 'text-gray-700',
-    bg: 'bg-white border-gray-200',
+    color: 'text-gray-700 dark:text-gray-300',
+    bg: 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700',
     title: 'Profile Rejected',
     description: 'Unfortunately, your profile was not approved. Please review the feedback and register again.',
   },
@@ -70,18 +70,18 @@ export function ModelProfileStatus({
   return (
     <div className={`rounded-lg border p-8 shadow-sm ${config.bg}`}>
       <div className="flex items-start gap-6">
-        <div className={`w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0`}>
+        <div className={`w-12 h-12 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center flex-shrink-0`}>
           <Icon className={`w-6 h-6 ${config.color}`} />
         </div>
 
         <div className="flex-1 space-y-4">
           <div>
-            <h3 className="text-2xl font-bold mb-2">{config.title}</h3>
-            <p className="text-base text-gray-600">{config.description}</p>
+            <h3 className="text-2xl font-bold mb-2 dark:text-white">{config.title}</h3>
+            <p className="text-base text-gray-600 dark:text-gray-400">{config.description}</p>
           </div>
 
           {/* Profile Preview */}
-          <div className="bg-gray-50 rounded-lg p-6 space-y-4 border border-gray-100">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6 space-y-4 border border-gray-100 dark:border-gray-700">
             <div className="flex items-start gap-6">
               {model.images && model.images.length > 0 && (
                 <img
@@ -91,26 +91,26 @@ export function ModelProfileStatus({
                 />
               )}
               <div className="flex-1 space-y-3">
-                <p className="text-xl font-semibold">{model.name}</p>
+                <p className="text-xl font-semibold dark:text-white">{model.name}</p>
 
                 {/* Info Grid */}
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-base text-gray-600">
+                  <div className="flex items-center gap-2 text-base text-gray-600 dark:text-gray-400">
                     <User className="w-4 h-4 text-gray-400" />
                     <span className="capitalize">{model.gender}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-base text-gray-600">
+                  <div className="flex items-center gap-2 text-base text-gray-600 dark:text-gray-400">
                     <Calendar className="w-4 h-4 text-gray-400" />
                     <span>{displayAge}</span>
                   </div>
                   {model.country && (
-                    <div className="flex items-center gap-2 text-base text-gray-600">
+                    <div className="flex items-center gap-2 text-base text-gray-600 dark:text-gray-400">
                       <MapPin className="w-4 h-4 text-gray-400" />
                       <span>{model.country}</span>
                     </div>
                   )}
                   {model.height_cm && (
-                    <div className="flex items-center gap-2 text-base text-gray-600">
+                    <div className="flex items-center gap-2 text-base text-gray-600 dark:text-gray-400">
                       <Ruler className="w-4 h-4 text-gray-400" />
                       <span>{model.height_cm} cm</span>
                     </div>
@@ -121,8 +121,8 @@ export function ModelProfileStatus({
 
             {/* Photo count for draft status */}
             {model.registration_status === 'draft' && (
-              <div className="pt-3 border-t border-gray-200">
-                <p className="text-base text-gray-600">
+              <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-base text-gray-600 dark:text-gray-400">
                   Photos uploaded: <span className={imageCount >= 2 ? 'text-green-600 font-semibold' : 'text-amber-600 font-semibold'}>
                     {imageCount}/2 minimum
                   </span>
@@ -132,23 +132,23 @@ export function ModelProfileStatus({
 
             {/* Consent status */}
             {(model.consent_age_confirmation || model.consent_ai_usage || model.consent_brand_usage) && (
-              <div className="pt-3 border-t border-gray-200 space-y-2">
-                <p className="text-sm font-medium text-gray-700 mb-2">Verification Status:</p>
+              <div className="pt-3 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Verification Status:</p>
                 <div className="flex flex-wrap gap-3">
                   {model.consent_age_confirmation && (
-                    <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                    <div className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
                       <CheckCircle2 className="w-4 h-4 text-blue-500" />
                       <span>Age Verified</span>
                     </div>
                   )}
                   {model.consent_ai_usage && (
-                    <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                    <div className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
                       <CheckCircle2 className="w-4 h-4 text-blue-500" />
                       <span>AI Usage</span>
                     </div>
                   )}
                   {model.consent_brand_usage && (
-                    <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                    <div className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
                       <CheckCircle2 className="w-4 h-4 text-blue-500" />
                       <span>Brand Usage</span>
                     </div>

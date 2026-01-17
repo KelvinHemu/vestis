@@ -253,15 +253,15 @@ export const PaymentPage: React.FC = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-gray-50 overflow-y-auto scrollbar-hide">
+    <div className="fixed inset-0 z-50 bg-white dark:bg-gray-950 overflow-y-auto scrollbar-hide">
       {/* Close Button */}
       <div className="fixed top-4 right-4 z-50">
         <button
           onClick={() => router.back()}
-          className="p-2 bg-white rounded-full shadow-lg border border-gray-200 hover:bg-gray-100 transition-colors"
+          className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
           title="Close"
         >
-          <X className="h-5 w-5 text-gray-600" />
+          <X className="h-5 w-5 text-gray-600 dark:text-gray-300" />
         </button>
       </div>
 
@@ -269,10 +269,10 @@ export const PaymentPage: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-6 md:mb-8 text-center px-4">
-            <p className="text-base md:text-lg text-gray-600 mb-1">
+            <p className="text-base md:text-lg text-gray-700 dark:text-gray-200 mb-1">
               Choose the perfect plan for your needs
             </p>
-            <p className="text-xs md:text-sm text-gray-500">
+            <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">
               Unlock powerful AI generation capabilities
             </p>
           </div>

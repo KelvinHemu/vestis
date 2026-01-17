@@ -21,12 +21,12 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({ feature }) => {
 
   return (
     <Card
-      className="group cursor-pointer transition-all duration-300 hover:shadow-xl border border-gray-200 rounded-xl sm:rounded-2xl overflow-hidden bg-white"
+      className="group cursor-pointer transition-all duration-300 hover:shadow-xl border border-gray-200 dark:border-gray-800 rounded-xl sm:rounded-2xl overflow-hidden bg-white dark:bg-gray-900"
       onClick={() => router.push(feature.path)}
     >
       <div className="flex items-center h-full gap-3 sm:gap-3 p-2 sm:p-3">
         {/* Image Container - Left Side - Larger on mobile for single column */}
-        <div className="flex-shrink-0 w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-lg sm:rounded-xl overflow-hidden bg-gradient-to-br from-orange-200 via-yellow-100 to-green-200">
+        <div className="flex-shrink-0 w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-lg sm:rounded-xl overflow-hidden bg-gradient-to-br from-orange-200 via-yellow-100 to-green-200 dark:from-orange-900 dark:via-yellow-900 dark:to-green-900">
           {feature.backgroundImage ? (
             <img
               src={feature.backgroundImage}
@@ -34,17 +34,17 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({ feature }) => {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-orange-200 via-yellow-100 to-green-200" />
+            <div className="w-full h-full bg-gradient-to-br from-orange-200 via-yellow-100 to-green-200 dark:from-orange-900 dark:via-yellow-900 dark:to-green-900" />
           )}
         </div>
 
         {/* Content Container - Right Side */}
         <div className="flex-1 flex flex-col justify-center min-w-0 pr-1">
-          <h3 className="text-sm sm:text-sm md:text-base font-semibold text-gray-900 mb-1 line-clamp-2">
+          <h3 className="text-sm sm:text-sm md:text-base font-semibold text-gray-900 dark:text-white mb-1 line-clamp-2">
             {feature.title}
           </h3>
 
-          <p className="text-xs sm:text-xs text-gray-600 leading-snug line-clamp-2">
+          <p className="text-xs sm:text-xs text-gray-600 dark:text-gray-400 leading-snug line-clamp-2">
             {feature.description}
           </p>
         </div>

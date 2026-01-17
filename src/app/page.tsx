@@ -4,10 +4,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/contexts/authStore";
 import HeroSection from "@/components/hero-section";
+import Pricing from "@/components/pricing";
+import FAQsThree from "@/components/faqs-3";
 import {
   Problem,
   Solution,
   WhatWeDo,
+  ScrollSection,
   Testimonials,
   CTA,
   Footer
@@ -63,9 +66,15 @@ export default function HomePage() {
       {/* Solution Section - Feature showcase with tabs */}
       <Solution />
       <WhatWeDo />
+      <ScrollSection />
 
       {/* Social Proof - Testimonials & stats */}
       <Testimonials />
+
+      <Pricing />
+
+      {/* FAQs Section */}
+      <FAQsThree />
 
       {/* Final CTA - Conversion push with pricing */}
       {/* <CTA /> */}

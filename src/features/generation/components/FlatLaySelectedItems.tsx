@@ -25,9 +25,9 @@ export function FlatLaySelectedItems({
   onResolutionChange,
 }: FlatLaySelectedItemsProps) {
   return (
-    <div className="border-t pt-4 space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900 mb-3">Selected Items</h3>
-      <div className="space-y-2 text-sm text-gray-600">
+    <div className="border-t dark:border-gray-700 pt-4 space-y-4">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Selected Items</h3>
+      <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
         <p>Products: <span className="font-medium">{uploadedImagesCount} selected</span></p>
         <p>Type: <span className="font-medium capitalize">
           {isFullBody ? 'Full Body' : selectionType.join(' + ')}

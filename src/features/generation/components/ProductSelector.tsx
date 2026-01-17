@@ -112,7 +112,7 @@ export function ProductSelector({
           >
             {/* Background Image Layer */}
             <div
-              className="absolute inset-0 rounded-2xl"
+              className="absolute inset-0 rounded-2xl dark:opacity-80"
               style={{
                 backgroundImage: `url(${getBackgroundImage(item.bgImages)})`,
                 backgroundSize: 'cover',
@@ -122,7 +122,7 @@ export function ProductSelector({
               }}
             />
 
-            <h3 className="absolute top-4 left-6 text-lg font-semibold text-gray-700 z-10">{item.label}</h3>
+            <h3 className="absolute top-4 left-6 text-lg font-semibold text-gray-700 dark:text-gray-200 z-10">{item.label}</h3>
             <div className="relative z-10">
               <ProductUpload
                 id={item.id}

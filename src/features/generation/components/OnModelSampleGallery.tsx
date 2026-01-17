@@ -29,10 +29,10 @@ export function OnModelSampleGallery({
                         onClick={() => onSelectSample(item.image)}
                         className={`
               relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden
-              border-2 transition-all duration-200 bg-gray-50
+              border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-800
               ${isSelected(item.image)
-                                ? 'border-blue-500 ring-2 ring-blue-200 shadow-md'
-                                : 'border-gray-200 hover:border-gray-400 hover:shadow-sm'
+                                ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800 shadow-md'
+                                : 'border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm'
                             }
             `}
                     >

@@ -215,7 +215,7 @@ export const CreatePage: React.FC = () => {
             {/* Start Over button */}
             <button
               onClick={handleStartOver}
-              className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors text-sm sm:text-base"
+              className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full font-medium transition-colors text-sm sm:text-base"
             >
               Start Over
             </button>
@@ -224,7 +224,7 @@ export const CreatePage: React.FC = () => {
             <div className="flex gap-2 sm:fixed sm:top-8 sm:right-8 sm:z-10">
               <button
                 onClick={handleDownload}
-                className="p-2 sm:p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-all shadow-sm"
+                className="p-2 sm:p-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full transition-all shadow-sm"
                 title="Download image"
               >
                 <Download className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -232,7 +232,7 @@ export const CreatePage: React.FC = () => {
 
               <button
                 onClick={handleShare}
-                className="p-2 sm:p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-all shadow-sm"
+                className="p-2 sm:p-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full transition-all shadow-sm"
                 title="Share image"
               >
                 <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -241,7 +241,7 @@ export const CreatePage: React.FC = () => {
           </div>
 
           <div
-            className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px]"
+            className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px]"
             style={{ aspectRatio: '3/4' }}
             onDoubleClick={handleImageDoubleClick}
           >
@@ -256,7 +256,7 @@ export const CreatePage: React.FC = () => {
           {generationHistory.length > 0 && (
             <button
               onClick={handleUndoEdit}
-              className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors flex items-center gap-2 text-sm sm:text-base"
+              className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full font-medium transition-colors flex items-center gap-2 text-sm sm:text-base"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
@@ -269,8 +269,8 @@ export const CreatePage: React.FC = () => {
       ) : error ? (
         <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-12rem)] p-4 sm:p-8">
           <div className="text-center px-4">
-            <p className="text-red-600 font-medium mb-2 text-sm sm:text-base">Generation Failed</p>
-            <p className="text-gray-600 text-xs sm:text-sm">{error}</p>
+            <p className="text-red-600 dark:text-red-400 font-medium mb-2 text-sm sm:text-base">Generation Failed</p>
+            <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">{error}</p>
           </div>
         </div>
       ) : uploadedImages.length > 0 ? (
@@ -289,7 +289,7 @@ export const CreatePage: React.FC = () => {
       )}
 
       {/* Fixed FloatingAskBar at bottom - responsive positioning */}
-      <div className="fixed bottom-0 left-20 right-0 px-3 py-3 sm:px-6 sm:py-4 bg-gradient-to-t from-gray-100 via-gray-100/95 to-transparent pointer-events-none z-20">
+      <div className="fixed bottom-0 left-20 right-0 px-3 py-3 sm:px-6 sm:py-4 bg-gradient-to-t from-gray-100 dark:from-gray-950 via-gray-100/95 dark:via-gray-950/95 to-transparent pointer-events-none z-20">
         <div className="w-full max-w-3xl mx-auto pointer-events-auto">
           <FloatingAskBar
             onFilesSelected={handleFilesSelected}

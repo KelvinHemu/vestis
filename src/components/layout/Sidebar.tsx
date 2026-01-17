@@ -31,7 +31,7 @@ export function Sidebar() {
 
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-20 bg-white flex flex-col items-center py-4 z-40">
+    <aside className="fixed left-0 top-0 h-screen w-20 bg-white dark:bg-gray-900 border-r border-transparent dark:border-gray-800 flex flex-col items-center py-4 z-40">
       {/* Brand Logo with Beta Badge - Links to Dashboard */}
       <Link href="/dashboard" className="mb-6 relative block">
         <NextImage
@@ -41,7 +41,7 @@ export function Sidebar() {
           height={24}
           className="w-6 h-6"
         />
-        <span className="absolute -top-1 -right-4 text-[7px] font-bold text-amber-500 ">Beta</span>
+        <span className="absolute -top-1 -right-4 text-[7px] font-bold text-amber-500">Beta</span>
       </Link>
 
       {/* Main Navigation Menu */}
@@ -57,8 +57,8 @@ export function Sidebar() {
               className={cn(
                 "relative group flex flex-col items-center justify-center w-16 py-2 rounded-lg transition-all duration-200",
                 isActive
-                  ? "bg-gray-100 text-gray-900"
-                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                  ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
               )}
             >
               <Icon className="w-5 h-5 mb-1" />
@@ -66,7 +66,7 @@ export function Sidebar() {
 
               {/* Optional Badge (e.g., for notifications) */}
               {item.badge && (
-                <span className="absolute -top-1 -right-1 text-[10px] bg-gray-600 text-white px-1 rounded">
+                <span className="absolute -top-1 -right-1 text-[10px] bg-gray-600 dark:bg-gray-500 text-white px-1 rounded">
                   {item.badge}
                 </span>
               )}
@@ -89,8 +89,8 @@ export function Sidebar() {
               className="w-9 h-9 rounded-lg object-cover"
             />
           ) : (
-            <div className="w-9 h-9 rounded-lg bg-gray-200 flex items-center justify-center">
-              <User className="w-5 h-5 text-gray-400" />
+            <div className="w-9 h-9 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+              <User className="w-5 h-5 text-gray-400 dark:text-gray-500" />
             </div>
           )}
         </Link>
@@ -98,11 +98,11 @@ export function Sidebar() {
         {/* Credits Display with Link to Payment */}
         <Link
           href="/payment"
-          className="flex flex-col items-center justify-center w-9 h-9 rounded-lg bg-gray-100 border border-gray-200 hover:bg-gray-200 transition-colors cursor-pointer"
+          className="flex flex-col items-center justify-center w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
           title="Buy credits"
         >
-          <Zap className="w-3 h-3 fill-gray-900 text-gray-900 mb-0.5" />
-          <span className="text-xs font-bold text-gray-900 leading-none">{user?.credits ?? 0}</span>
+          <Zap className="w-3 h-3 fill-gray-900 dark:fill-white text-gray-900 dark:text-white mb-0.5" />
+          <span className="text-xs font-bold text-gray-900 dark:text-white leading-none">{user?.credits ?? 0}</span>
         </Link>
       </div>
     </aside>

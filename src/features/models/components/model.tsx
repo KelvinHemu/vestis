@@ -17,16 +17,16 @@ function ModelCardInfo({ name, age, size }: ModelCardInfoProps) {
     <div className="px-2 sm:px-3 py-1">
       <div className="flex flex-wrap items-center justify-between gap-1 sm:gap-2">
         {/* Name - Left */}
-        <div className="font-medium text-gray-900 text-sm sm:text-base truncate max-w-[45%] sm:max-w-none">
+        <div className="font-medium text-gray-900 dark:text-white text-sm sm:text-base truncate max-w-[45%] sm:max-w-none">
           {name}
         </div>
 
         {/* Age and Size - Right */}
         <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-          <span className="text-xs sm:text-sm text-gray-600 px-1.5 sm:px-2.5 py-0.5 rounded-full border border-gray-300 whitespace-nowrap">
+          <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 px-1.5 sm:px-2.5 py-0.5 rounded-full border border-gray-300 dark:border-gray-600 whitespace-nowrap">
             {age}
           </span>
-          <span className="text-xs sm:text-sm text-gray-600 px-1.5 sm:px-2.5 py-0.5 rounded-full border border-gray-300 whitespace-nowrap">
+          <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 px-1.5 sm:px-2.5 py-0.5 rounded-full border border-gray-300 dark:border-gray-600 whitespace-nowrap">
             {size}
           </span>
         </div>
@@ -79,13 +79,13 @@ export function ModelCard({
   return (
     <Card
       onClick={onClick}
-      className={`relative cursor-pointer overflow-hidden transition-all bg-white group ${isSelected
-        ? 'ring-2 ring-black shadow-lg'
+      className={`relative cursor-pointer overflow-hidden transition-all bg-white dark:bg-gray-800 group ${isSelected
+        ? 'ring-2 ring-black dark:ring-white shadow-lg'
         : 'hover:shadow-md'
         }`}
     >
       {/* Model Image */}
-      <div className="aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+      <div className="aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 relative overflow-hidden">
         {image ? (
           <img
             src={image}
@@ -93,7 +93,7 @@ export function ModelCard({
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">
+          <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
             <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
             </svg>
@@ -103,8 +103,8 @@ export function ModelCard({
         {/* Selected Checkmark - Top Right */}
         {isSelected && (
           <div className="absolute top-2 right-2 z-20">
-            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center shadow-lg">
-              <Check className="w-4 h-4 text-white" strokeWidth={3} />
+            <div className="w-6 h-6 bg-black dark:bg-white rounded-full flex items-center justify-center shadow-lg">
+              <Check className="w-4 h-4 text-white dark:text-black" strokeWidth={3} />
             </div>
           </div>
         )}

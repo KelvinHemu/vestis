@@ -79,7 +79,7 @@ export function ClothingGallery({
                 <>
                     {/* Tops Section */}
                     <div>
-                        <h4 className="text-sm font-medium text-gray-600 mb-2">Tops</h4>
+                        <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Tops</h4>
                         <div className="flex justify-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
                             {SAMPLE_CLOTHING.tops.map((item) => (
                                 <button
@@ -87,10 +87,10 @@ export function ClothingGallery({
                                     onClick={() => handleSelectItem('top', item)}
                                     className={`
                     relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden
-                    border-2 transition-all duration-200 bg-gray-50
+                    border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-800
                     ${isSelected('top', item.frontImage)
-                                            ? 'border-blue-500 ring-2 ring-blue-200 shadow-md'
-                                            : 'border-gray-200 hover:border-gray-400 hover:shadow-sm'
+                                            ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800 shadow-md'
+                                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm'
                                         }
                   `}
                                 >
@@ -106,7 +106,7 @@ export function ClothingGallery({
 
                     {/* Bottoms Section */}
                     <div>
-                        <h4 className="text-sm font-medium text-gray-600 mb-2">Bottoms</h4>
+                        <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Bottoms</h4>
                         <div className="flex justify-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
                             {SAMPLE_CLOTHING.bottoms.map((item) => (
                                 <button
@@ -114,10 +114,10 @@ export function ClothingGallery({
                                     onClick={() => handleSelectItem('bottom', item)}
                                     className={`
                     relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden
-                    border-2 transition-all duration-200 bg-gray-50
+                    border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-800
                     ${isSelected('bottom', item.frontImage)
-                                            ? 'border-blue-500 ring-2 ring-blue-200 shadow-md'
-                                            : 'border-gray-200 hover:border-gray-400 hover:shadow-sm'
+                                            ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800 shadow-md'
+                                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm'
                                         }
                   `}
                                 >
@@ -140,10 +140,10 @@ export function ClothingGallery({
                             onClick={() => handleSelectItem(type, item)}
                             className={`
                 relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden
-                border-2 transition-all duration-200 bg-gray-50
+                border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-800
                 ${isSelected(type, item.frontImage)
-                                    ? 'border-blue-500 ring-2 ring-blue-200 shadow-md'
-                                    : 'border-gray-200 hover:border-gray-400 hover:shadow-sm'
+                                    ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800 shadow-md'
+                                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm'
                                 }
               `}
                         >

@@ -25,10 +25,10 @@ export function Steps({ steps, onStepChange, currentStep = 0, maxUnlockedStep = 
               disabled={index > maxUnlockedStep}
               className={`px-3 py-1.5 rounded-lg font-medium text-xs md:text-sm transition-all whitespace-nowrap ${
                 currentStep === index
-                  ? 'bg-gray-900 text-white shadow-sm'
+                  ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-sm'
                   : index <= maxUnlockedStep
-                  ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 cursor-pointer'
-                  : 'text-gray-400 pointer-events-none opacity-50'
+                  ? 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer'
+                  : 'text-gray-400 dark:text-gray-600 pointer-events-none opacity-50'
               }`}
             >
               {step}

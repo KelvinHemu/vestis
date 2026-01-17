@@ -43,23 +43,23 @@ const AspectRatio: React.FC<AspectRatioProps> = ({
 
   return (
     <div className={`space-y-2.5 ${className}`}>
-      <Label htmlFor="aspect-ratio" className="text-sm font-semibold text-gray-900">
+      <Label htmlFor="aspect-ratio" className="text-sm font-semibold text-gray-900 dark:text-white">
         {label}
       </Label>
       <div className="relative">
         <Select value={value} onValueChange={onValueChange} onOpenChange={setIsOpen}>
           <SelectTrigger 
             id="aspect-ratio" 
-            className="w-full h-11 bg-white border-gray-300 hover:border-gray-400 focus:border-gray-400 focus:ring-0 focus:ring-offset-0 transition-colors rounded-xl [&>svg]:hidden"
+            className="w-full h-11 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 focus:border-gray-400 dark:focus:border-gray-500 focus:ring-0 focus:ring-offset-0 transition-colors rounded-xl [&>svg]:hidden text-gray-900 dark:text-white"
           >
             <SelectValue placeholder="Select aspect ratio" />
           </SelectTrigger>
-          <SelectContent className="max-h-[300px] rounded-xl">
+          <SelectContent className="max-h-[300px] rounded-xl bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             {aspectRatioOptions.map((option) => (
               <SelectItem 
                 key={option.value} 
                 value={option.value}
-                className="cursor-pointer hover:bg-gray-100 focus:bg-gray-100 rounded-lg"
+                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 rounded-lg text-gray-900 dark:text-white"
               >
                 <span className="font-medium">{option.label}</span>
               </SelectItem>

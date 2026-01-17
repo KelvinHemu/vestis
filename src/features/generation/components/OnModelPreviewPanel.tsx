@@ -22,7 +22,7 @@ export function OnModelPreviewPanel({
 
   return (
     <div>
-      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">
         Preview
       </h3>
       <div className="space-y-3 sm:space-y-4">
@@ -58,8 +58,8 @@ export function OnModelPreviewPanel({
           </>
         ) : (
           /* Show placeholder if no selection */
-          <div className="aspect-square bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
-            <span className="text-gray-400 text-center px-4">
+          <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center">
+            <span className="text-gray-400 dark:text-gray-500 text-center px-4">
               Upload photos and select options to see preview
             </span>
           </div>

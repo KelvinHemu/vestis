@@ -97,9 +97,9 @@ function MiniChart({ data }: { data: number[] }) {
         </linearGradient>
       </defs>
       {/* Grid lines */}
-      <line x1="0" y1="25" x2="280" y2="25" stroke="rgb(63, 63, 70)" strokeWidth="1" strokeDasharray="4" />
-      <line x1="0" y1="50" x2="280" y2="50" stroke="rgb(63, 63, 70)" strokeWidth="1" strokeDasharray="4" />
-      <line x1="0" y1="75" x2="280" y2="75" stroke="rgb(63, 63, 70)" strokeWidth="1" strokeDasharray="4" />
+      <line x1="0" y1="25" x2="280" y2="25" stroke="currentColor" strokeWidth="1" strokeDasharray="4" className="text-zinc-300 dark:text-zinc-700" />
+      <line x1="0" y1="50" x2="280" y2="50" stroke="currentColor" strokeWidth="1" strokeDasharray="4" className="text-zinc-300 dark:text-zinc-700" />
+      <line x1="0" y1="75" x2="280" y2="75" stroke="currentColor" strokeWidth="1" strokeDasharray="4" className="text-zinc-300 dark:text-zinc-700" />
       {/* Area fill */}
       <polygon
         points={`0,100 ${points} 280,100`}
@@ -124,7 +124,7 @@ function MiniChart({ data }: { data: number[] }) {
             cx={x}
             cy={y}
             r="3"
-            fill="rgb(24, 24, 27)"
+            className="fill-white dark:fill-zinc-900"
             stroke="rgb(59, 130, 246)"
             strokeWidth="2"
           />
@@ -177,47 +177,47 @@ export function Solution() {
         {/* Feature Content */}
         <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
           {/* Dashboard Preview Card */}
-          <Card className="bg-zinc-900 border-zinc-800 p-6 rounded-2xl">
+          <Card className="bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 p-6 rounded-2xl">
             {/* Stats Row */}
             <div className="grid grid-cols-2 gap-4 mb-6">
               {/* Primary Stat */}
-              <Card className="bg-zinc-800/50 border-zinc-700 p-4 rounded-xl">
+              <Card className="bg-white/80 dark:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700 p-4 rounded-xl">
                 <div className="flex items-start justify-between mb-2">
-                  <span className="text-zinc-400 text-sm">{activeFeature.stats.primary.label}</span>
-                  <Copy className="h-4 w-4 text-zinc-500" />
+                  <span className="text-zinc-600 dark:text-zinc-400 text-sm">{activeFeature.stats.primary.label}</span>
+                  <Copy className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
                 </div>
-                <div className="text-2xl font-semibold text-white mb-1">
+                <div className="text-2xl font-semibold text-zinc-900 dark:text-white mb-1">
                   {activeFeature.stats.primary.value}
                 </div>
-                <div className="text-xs text-zinc-500">
+                <div className="text-xs text-zinc-500 dark:text-zinc-500">
                   {activeFeature.stats.primary.change}
                 </div>
               </Card>
 
               {/* Secondary Stat */}
-              <Card className="bg-zinc-800/50 border-zinc-700 p-4 rounded-xl">
+              <Card className="bg-white/80 dark:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700 p-4 rounded-xl">
                 <div className="flex items-start justify-between mb-2">
-                  <span className="text-zinc-400 text-sm">{activeFeature.stats.secondary.label}</span>
-                  <Copy className="h-4 w-4 text-zinc-500" />
+                  <span className="text-zinc-600 dark:text-zinc-400 text-sm">{activeFeature.stats.secondary.label}</span>
+                  <Copy className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
                 </div>
-                <div className="text-2xl font-semibold text-white mb-1">
+                <div className="text-2xl font-semibold text-zinc-900 dark:text-white mb-1">
                   {activeFeature.stats.secondary.value}
                 </div>
-                <div className="text-xs text-zinc-500">
+                <div className="text-xs text-zinc-500 dark:text-zinc-500">
                   {activeFeature.stats.secondary.change}
                 </div>
               </Card>
             </div>
 
             {/* Chart Card */}
-            <Card className="bg-zinc-800/50 border-zinc-700 p-4 rounded-xl">
+            <Card className="bg-white/80 dark:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700 p-4 rounded-xl">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-zinc-400 text-sm">{activeFeature.stats.primary.label}</span>
+                <span className="text-zinc-600 dark:text-zinc-400 text-sm">{activeFeature.stats.primary.label}</span>
                 <TrendingUp className="h-4 w-4 text-blue-500" />
               </div>
               {/* Y-axis labels */}
               <div className="flex">
-                <div className="flex flex-col justify-between text-xs text-zinc-500 pr-2 h-24">
+                <div className="flex flex-col justify-between text-xs text-zinc-500 dark:text-zinc-500 pr-2 h-24">
                   <span>400</span>
                   <span>300</span>
                   <span>200</span>

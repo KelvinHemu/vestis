@@ -609,7 +609,7 @@ export function MannequinPhotos() {
                     alert('Failed to download image');
                   }
                 }}
-                className="flex-1 bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                className="flex-1 bg-black dark:bg-white text-white dark:text-black py-3 rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
               >
                 Download
               </button>
@@ -620,7 +620,7 @@ export function MannequinPhotos() {
                   await handleGenerateImage();
                 }}
                 disabled={isGenerating}
-                className="px-3 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-3 bg-black dark:bg-white text-white dark:text-black rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Regenerate Image"
               >
                 <RotateCw className={`w-5 h-5 ${isGenerating ? 'animate-spin' : ''}`} />
@@ -683,10 +683,10 @@ export function MannequinPhotos() {
       )}
 
       {/* Content Area with Left and Right Sections */}
-      <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 overflow-hidden">
+      <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 dark:border-gray-700 overflow-hidden">
         {/* Left Component - full width on phone, flex-1 on tablet+ */}
-        <div className="flex-1 bg-white md:border-r-2 border-gray-300 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
-          <div className="border-b-2 border-gray-300">
+        <div className="flex-1 bg-white dark:bg-gray-900 md:border-r-2 border-gray-300 dark:border-gray-700 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
+          <div className="border-b-2 border-gray-300 dark:border-gray-700">
             <Steps
               steps={steps}
               currentStep={currentStep}
@@ -710,7 +710,7 @@ export function MannequinPhotos() {
         </div>
 
         {/* Right Component - fixed bottom bar on phone, sidebar on tablet+ */}
-        <div className="fixed bottom-0 left-0 right-0 md:static md:w-80 lg:w-96 bg-white p-4 sm:p-6 m-0 md:overflow-y-auto flex flex-col border-t-2 md:border-t-0 border-gray-300 shrink-0 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none">
+        <div className="fixed bottom-0 left-0 right-0 md:static md:w-80 lg:w-96 bg-white dark:bg-gray-900 p-4 sm:p-6 m-0 md:overflow-y-auto flex flex-col border-t-2 md:border-t-0 border-gray-300 dark:border-gray-700 shrink-0 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none">
           {renderRightPanel()}
         </div>
       </div>

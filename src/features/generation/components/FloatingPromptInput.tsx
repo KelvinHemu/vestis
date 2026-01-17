@@ -23,9 +23,9 @@ export function FloatingPromptInput({
     }
   };
   return (
-    <div className="fixed bottom-20 md:bottom-4 left-0 md:left-[80px] right-0 md:right-80 lg:right-96 p-4 bg-gradient-to-t from-white via-white to-transparent pointer-events-none z-[60]">
+    <div className="fixed bottom-20 md:bottom-4 left-0 md:left-[80px] right-0 md:right-80 lg:right-96 p-4 bg-gradient-to-t from-white dark:from-gray-900 via-white dark:via-gray-900 to-transparent pointer-events-none z-[60]">
       <div className="max-w-3xl mx-auto pointer-events-auto">
-        <div className="bg-white rounded-full shadow-lg border border-gray-300 flex items-center gap-3 px-4 py-2.5">
+        <div className="bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-300 dark:border-gray-600 flex items-center gap-3 px-4 py-2.5">
           <input
             type="text"
             value={value}
@@ -37,22 +37,22 @@ export function FloatingPromptInput({
               }
             }}
             placeholder={disabled ? "Generating..." : placeholder}
-            className={`flex-1 bg-transparent border-none outline-none text-gray-900 placeholder-gray-400 text-base ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
+            className={`flex-1 bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-base ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
             maxLength={maxLength}
             disabled={disabled}
           />
           <div className="flex items-center gap-3">
-            <div className="text-xs text-gray-400">
+            <div className="text-xs text-gray-400 dark:text-gray-500">
               {value.length}/{maxLength}
             </div>
             <button
               type="button"
               onClick={handleSubmit}
               disabled={disabled || !value.trim()}
-              className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${disabled || !value.trim() ? 'bg-gray-100 cursor-not-allowed opacity-50' : 'bg-gray-100 hover:bg-gray-200'}`}
+              className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${disabled || !value.trim() ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-50' : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
               aria-label="Generate with AI"
             >
-              <Sparkles className={`w-4 h-4 ${disabled ? 'animate-pulse text-gray-500' : 'text-gray-700'}`} />
+              <Sparkles className={`w-4 h-4 ${disabled ? 'animate-pulse text-gray-500' : 'text-gray-700 dark:text-gray-300'}`} />
             </button>
           </div>
         </div>

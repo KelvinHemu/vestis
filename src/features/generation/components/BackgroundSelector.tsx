@@ -57,12 +57,12 @@ export function BackgroundSelector({
       <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2 -mr-2 scrollbar-hide">
         {/* Header Section - Will scroll */}
         <div className="space-y-4 pb-4">
-          <h2 className="text-2xl font-semibold text-gray-900">Select Background</h2>
-          <p className="text-gray-600">Choose a background style for your on-model photo</p>
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Select Background</h2>
+          <p className="text-gray-600 dark:text-gray-400">Choose a background style for your on-model photo</p>
         </div>
 
         {/* Sticky Category Tabs - Sticks to top when scrolling */}
-        <div className="sticky top-0 bg-white z-10 pb-4 pt-2 -mt-2">
+        <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 pb-4 pt-2 -mt-2">
           <div className="flex justify-between items-center gap-3">
             <div className="flex gap-2">
               {categories.map((category) => (
@@ -70,8 +70,8 @@ export function BackgroundSelector({
                   key={category.id}
                   onClick={() => setActiveCategory(category.id)}
                   className={`py-1.5 px-3 rounded text-xs font-medium transition-all ${activeCategory === category.id
-                      ? 'bg-black text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-black dark:bg-white text-white dark:text-black'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                     }`}
                 >
                   {category.label}
@@ -81,7 +81,7 @@ export function BackgroundSelector({
             {selectedBackground && (
               <button
                 onClick={() => onBackgroundSelect('')}
-                className="py-1.5 px-4 rounded text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all"
+                className="py-1.5 px-4 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
               >
                 Clear
               </button>
@@ -93,21 +93,21 @@ export function BackgroundSelector({
         <div>
           {loading ? (
             <div className="text-center py-12 pt-4 pl-4">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-black"></div>
-              <p className="text-gray-500 mt-4">Loading backgrounds...</p>
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 dark:border-gray-600 border-t-black dark:border-t-white"></div>
+              <p className="text-gray-500 dark:text-gray-400 mt-4">Loading backgrounds...</p>
             </div>
           ) : error ? (
-            <div className="text-center py-12 pt-4 pl-4 text-red-500">
+            <div className="text-center py-12 pt-4 pl-4 text-red-500 dark:text-red-400">
               <p>{error}</p>
               <button
                 onClick={() => window.location.reload()}
-                className="mt-4 px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
+                className="mt-4 px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded hover:bg-gray-800 dark:hover:bg-gray-100"
               >
                 Retry
               </button>
             </div>
           ) : filteredBackgrounds.length === 0 ? (
-            <div className="text-center py-12 pt-4 pl-4 text-gray-500">
+            <div className="text-center py-12 pt-4 pl-4 text-gray-500 dark:text-gray-400">
               <p>No backgrounds available in this category.</p>
             </div>
           ) : (
@@ -119,8 +119,8 @@ export function BackgroundSelector({
                     key={background.id}
                     onClick={() => handleBackgroundClick(background.id)}
                     className={`relative rounded-lg overflow-hidden transition-all transform-gpu ${selectedBackground === background.id
-                        ? 'ring-2 sm:ring-4 ring-black ring-offset-1 sm:ring-offset-2'
-                        : 'ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400'
+                        ? 'ring-2 sm:ring-4 ring-black dark:ring-white ring-offset-1 sm:ring-offset-2'
+                        : 'ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500'
                       }`}
                   >
                     {/* Image Container */}
@@ -143,17 +143,17 @@ export function BackgroundSelector({
                     </div>
 
                     {/* Name Label */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-white bg-opacity-90 py-1 sm:py-2 px-1.5 sm:px-3 z-10">
-                      <p className="text-xs sm:text-sm font-medium text-gray-900 text-center truncate">
+                    <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-90 py-1 sm:py-2 px-1.5 sm:px-3 z-10">
+                      <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white text-center truncate">
                         {background.name}
                       </p>
                     </div>
 
                     {/* Selected Checkmark */}
                     {selectedBackground === background.id && (
-                      <div className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-black rounded-full p-0.5 sm:p-1 z-10">
+                      <div className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-black dark:bg-white rounded-full p-0.5 sm:p-1 z-10">
                         <svg
-                          className="w-3 h-3 sm:w-4 sm:h-4 text-white"
+                          className="w-3 h-3 sm:w-4 sm:h-4 text-white dark:text-black"
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >

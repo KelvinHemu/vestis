@@ -12,4 +12,6 @@ export { CTA } from "./CTA";
 export { LandingNavbar } from "./LandingNavbar";
 export { Footer } from "./Footer";
 export { WhatWeDo } from "./WhatWeDo";
+export { ScrollSection } from "./ScrollSection";
+
 
