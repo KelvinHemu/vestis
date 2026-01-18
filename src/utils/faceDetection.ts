@@ -1,6 +1,7 @@
 import * as faceapi from '@vladmandic/face-api';
 
 let modelsLoaded = false;
+let genderModelLoaded = false;
 
 /**
  * Load face detection models
@@ -25,14 +26,47 @@ export async function loadFaceDetectionModels(): Promise<void> {
 }
 
 /**
- * Detect and crop face from an image
+ * Load gender detection model (separate to keep face detection fast)
+ */
+export async function loadGenderDetectionModel(): Promise<void> {
+  if (genderModelLoaded) return;
+
+  try {
+    const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
+    await faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL);
+    genderModelLoaded = true;
+  } catch (error) {
+    console.error('Failed to load gender detection model:', error);
+    throw error;
+  }
+}
+
+export interface FaceDetectionResult {
+  croppedFace: string;
+  gender: 'male' | 'female';
+  genderProbability: number;
+}
+
+/**
+ * Detect and crop face from an image, also detect gender
  * @param imageUrl - Base64 or URL of the image
- * @returns Base64 string of cropped face image, or null if no face detected
+ * @returns Object with cropped face image and detected gender, or null if no face detected
  */
 export async function detectAndCropFace(imageUrl: string): Promise<string | null> {
+  const result = await detectFaceWithGender(imageUrl);
+  return result?.croppedFace || null;
+}
+
+/**
+ * Detect face, crop it, and determine gender
+ * @param imageUrl - Base64 or URL of the image
+ * @returns Object with cropped face and gender info, or null if no face detected
+ */
+export async function detectFaceWithGender(imageUrl: string): Promise<FaceDetectionResult | null> {
   try {
     // Ensure models are loaded
     await loadFaceDetectionModels();
+    await loadGenderDetectionModel();
 
     // Create image element
     const img = new Image();
@@ -44,10 +78,11 @@ export async function detectAndCropFace(imageUrl: string): Promise<string | null
       img.src = imageUrl;
     });
 
-    // Detect faces
+    // Detect faces with landmarks and gender
     const detections = await faceapi
       .detectAllFaces(img, new faceapi.TinyFaceDetectorOptions())
-      .withFaceLandmarks();
+      .withFaceLandmarks()
+      .withAgeAndGender();
 
     if (!detections || detections.length === 0) {
       return null;
@@ -57,6 +92,10 @@ export async function detectAndCropFace(imageUrl: string): Promise<string | null
     const detection = detections[0];
     const box = detection.detection.box;
     const landmarks = detection.landmarks;
+    
+    // Get gender info
+    const detectedGender = detection.gender as 'male' | 'female';
+    const genderProbability = detection.genderProbability;
 
     // Calculate face center using landmarks for better centering
     const noseTip = landmarks.getNose()[3]; // Tip of nose
@@ -113,7 +152,13 @@ export async function detectAndCropFace(imageUrl: string): Promise<string | null
     );
 
     // Convert to base64
-    return canvas.toDataURL('image/jpeg', 0.95);
+    const croppedFace = canvas.toDataURL('image/jpeg', 0.95);
+    
+    return {
+      croppedFace,
+      gender: detectedGender,
+      genderProbability,
+    };
   } catch (error) {
     console.error('Face detection error:', error);
     return null;

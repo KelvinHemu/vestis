@@ -217,6 +217,7 @@ export interface CreateCustomModelRequest {
   name: string;
   gender: 'male' | 'female';
   image: string; // Base64 encoded image
+  faceImage?: string; // Optional Base64 encoded face/profile image
 }
 
 /**

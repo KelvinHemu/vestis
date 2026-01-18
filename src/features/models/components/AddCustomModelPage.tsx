@@ -22,7 +22,9 @@ import { logger } from '@/utils/logger';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { MainContent } from '@/components/layout/MainContent';
-import { detectAndCropFace } from '@/utils/faceDetection';
+import { detectFaceWithGender } from '@/utils/faceDetection';
+import { STORAGE_KEYS } from '@/config/api';
+import { da } from 'zod/v4/locales';
 
 // ============================================================================
 // Component
@@ -49,6 +51,43 @@ export function AddCustomModelPage() {
   const [faceBase64, setFaceBase64] = useState<string | null>(null);
 
   // ============================================================================
+  // Load cached data on mount (only name/gender are cached)
+  // ============================================================================
+  
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem(STORAGE_KEYS.addModelFormCache);
+      if (cached) {
+        const data = JSON.parse(cached);
+        if (data.name) setName(data.name);
+        if (data.gender) setGender(data.gender);
+      }
+    } catch (err) {
+      // Silently ignore - cache is not critical
+      logger.warn('[AddCustomModelPage] Failed to load cached data');
+    }
+  }, []);
+
+  // ============================================================================
+  // Save to cache whenever form data changes
+  // Note: Only cache name/gender, not images (localStorage has ~5MB limit)
+  // ============================================================================
+  
+  useEffect(() => {
+    try {
+      // Only cache lightweight data - images are too large for localStorage
+      const cacheData = {
+        name,
+        gender,
+      };
+      localStorage.setItem(STORAGE_KEYS.addModelFormCache, JSON.stringify(cacheData));
+    } catch (err) {
+      // Silently ignore cache errors - not critical
+      logger.warn('[AddCustomModelPage] Failed to cache form data');
+    }
+  }, [name, gender]);
+
+  // ============================================================================
   // File Handling
   // ============================================================================
 
@@ -71,16 +110,21 @@ export function AddCustomModelPage() {
       setImagePreview(result);
       setImageBase64(result);
 
-      // Automatically detect and crop face
+      // Automatically detect face, crop it, and detect gender
       setIsDetectingFace(true);
       try {
-        const croppedFace = await detectAndCropFace(result);
-        if (croppedFace) {
-          setFacePreview(croppedFace);
-          setFaceBase64(croppedFace);
+        const faceResult = await detectFaceWithGender(result);
+        if (faceResult) {
+          setFacePreview(faceResult.croppedFace);
+          setFaceBase64(faceResult.croppedFace);
+          
+          // Auto-set gender if confidence is high enough (>70%)
+          if (faceResult.genderProbability > 0.7) {
+            setGender(faceResult.gender);
+          }
         }
       } catch (err) {
-        logger.error('[AddCustomModelPage] Face detection failed:', err);
+        logger.error('[AddCustomModelPage] Face detection failed:', { data: err });
         // Don't show error, face detection is optional
       } finally {
         setIsDetectingFace(false);
@@ -115,7 +159,7 @@ export function AddCustomModelPage() {
     if (file) handleFile(file);
   };
 
-  const handleFaceFile = useCallback((file: File) => {
+  const handleFaceFile = useCallback(async (file: File) => {
     if (!file.type.startsWith('image/')) {
       setError('Please select an valid image file (PNG, JPG)');
       return;
@@ -127,10 +171,34 @@ export function AddCustomModelPage() {
     }
 
     const reader = new FileReader();
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       const result = reader.result as string;
-      setFacePreview(result);
-      setFaceBase64(result);
+      
+      // Apply face detection to manually uploaded image too
+      setIsDetectingFace(true);
+      try {
+        const faceResult = await detectFaceWithGender(result);
+        if (faceResult) {
+          setFacePreview(faceResult.croppedFace);
+          setFaceBase64(faceResult.croppedFace);
+          
+          // Auto-set gender if confidence is high enough (>70%)
+          if (faceResult.genderProbability > 0.7) {
+            setGender(faceResult.gender);
+          }
+        } else {
+          // If no face detected, use the original image
+          setFacePreview(result);
+          setFaceBase64(result);
+        }
+      } catch (err) {
+        logger.error('[AddCustomModelPage] Face detection failed:', { data: err });
+        // Fallback to original image
+        setFacePreview(result);
+        setFaceBase64(result);
+      } finally {
+        setIsDetectingFace(false);
+      }
     };
     reader.onerror = () => {
       logger.error('[AddCustomModelPage] Face FileReader error');
@@ -190,7 +258,11 @@ export function AddCustomModelPage() {
         name: name.trim(),
         gender,
         image: imageBase64,
+        faceImage: faceBase64 || undefined, // Send face image if available
       });
+      
+      // Clear cache on success
+      localStorage.removeItem(STORAGE_KEYS.addModelFormCache);
       router.push('/models');
     } catch (err) {
       logger.error('[AddCustomModelPage] Failed to create custom model:', { data: err });
@@ -405,19 +477,19 @@ export function AddCustomModelPage() {
             )}
 
             <Button
-              onClick={handleSubmit}
-              disabled={!canSubmit}
-              className="w-full h-12 text-base font-medium"
-              size="lg"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            className="w-full h-12 text-base font-medium bg-black text-white hover:bg-black/90"
+            size="lg"
             >
-              {isSubmitting ? (
+            {isSubmitting ? (
                 <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Creating...
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Creating...
                 </>
-              ) : (
-                "Create Model"
-              )}
+            ) : (
+                "Add Model"
+            )}
             </Button>
           </div>
         </div>
@@ -425,3 +497,4 @@ export function AddCustomModelPage() {
     </MainContent>
   );
 }
+

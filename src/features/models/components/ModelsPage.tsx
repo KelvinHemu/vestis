@@ -1,13 +1,15 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
+import { Plus, User, Trash2 } from 'lucide-react';
 import { ModelCard } from './model';
 import { useModelsByGender } from '@/hooks/useModels';
+import { useCustomModelsByGender, useDeleteCustomModel } from '@/hooks/useCustomModels';
 import { useModelStore } from '@/contexts/modelStore';
 import modelService from '@/services/modelService';
 import type { Model } from '@/types/model';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 
 // ============================================================================
 // ModelsPage - Shows all available models in a grid
@@ -24,12 +26,34 @@ export function ModelsPage() {
   // Convert 'All' to undefined for the hook, or use lowercase gender
   const genderFilter = activeCategory === 'All' ? undefined : activeCategory;
   const { data: models, isLoading, error } = useModelsByGender(genderFilter);
+  
+  // Fetch custom models (My Models) - filtered by current gender
+  const { data: customModels, isLoading: isLoadingCustom } = useCustomModelsByGender(genderFilter);
+  const deleteCustomModel = useDeleteCustomModel();
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   // ============================================================================
   // Handle Preview - Navigate to Model Profile Page
   // ============================================================================
   const handlePreviewOpen = (model: Model) => {
     router.push(`/models/${model.id}`);
+  };
+
+  // ============================================================================
+  // Handle Custom Model Delete
+  // ============================================================================
+  const handleDeleteCustomModel = async (modelId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (deletingId) return; // Prevent multiple deletes
+    
+    if (window.confirm('Are you sure you want to delete this model?')) {
+      setDeletingId(modelId);
+      try {
+        await deleteCustomModel.mutateAsync(modelId);
+      } finally {
+        setDeletingId(null);
+      }
+    }
   };
 
   // ============================================================================
@@ -75,6 +99,74 @@ export function ModelsPage() {
             Add Model
           </Button>
         </div>
+
+        {/* ================================================================== */}
+        {/* My Models Section - User's Custom Models */}
+        {/* ================================================================== */}
+        {customModels && customModels.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">My Models</h2>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                ({customModels.length})
+              </span>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6">
+              {customModels.map((customModel) => (
+                <div key={`custom-${customModel.id}`} className="relative group">
+                  <ModelCard
+                    id={`custom-${customModel.id}`}
+                    name={customModel.name}
+                    age=""
+                    size="Custom"
+                    image={customModel.image_url}
+                    isSelected={false}
+                    isFavorite={false}
+                    onClick={() => {/* Custom models don't have profile pages yet */}}
+                    onFavorite={() => {/* Custom models favorites not implemented */}}
+                  />
+                  {/* Delete button overlay */}
+                  <button
+                    onClick={(e) => handleDeleteCustomModel(customModel.id, e)}
+                    disabled={deletingId === customModel.id}
+                    className="absolute top-2 right-2 p-2 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 disabled:opacity-50"
+                    title="Delete model"
+                  >
+                    {deletingId === customModel.id ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+              ))}
+            </div>
+            
+            {/* Divider */}
+            <div className="mt-8 mb-6 border-t border-gray-200 dark:border-gray-700" />
+            
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              All {activeCategory === 'female' ? 'Female' : 'Male'} Models
+            </h2>
+          </div>
+        )}
+
+        {/* Loading Custom Models */}
+        {isLoadingCustom && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <User className="w-5 h-5 text-gray-400" />
+              <h2 className="text-lg font-semibold text-gray-400">My Models</h2>
+            </div>
+            <div className="flex gap-4">
+              {[1, 2].map((i) => (
+                <div key={i} className="w-48 h-64 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse" />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Content Section */}
         <div>

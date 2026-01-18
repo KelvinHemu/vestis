@@ -86,4 +86,5 @@ export const STORAGE_KEYS = {
   authToken: 'auth_token',
   refreshToken: 'refresh_token',
   user: 'auth_user',
+  addModelFormCache: 'add_model_form_data',
 } as const;
