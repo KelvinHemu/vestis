@@ -5,10 +5,10 @@
  * These models are private to each business and only visible to them.
  */
 
-import type { 
-  CustomModel, 
-  CreateCustomModelRequest, 
-  CustomModelsResponse 
+import type {
+  CustomModel,
+  CreateCustomModelRequest,
+  CustomModelsResponse
 } from '@/types/model';
 import api from '@/utils/apiClient';
 import { logger } from '@/utils/logger';
@@ -18,7 +18,7 @@ import { logger } from '@/utils/logger';
 // ============================================================================
 
 class CustomModelService {
-  
+
   /**
    * Fetch all custom models for the current user's business
    * Backend automatically filters by authenticated user
@@ -26,7 +26,7 @@ class CustomModelService {
   async getCustomModels(): Promise<CustomModelsResponse> {
     try {
       logger.info('[CustomModelService] Fetching custom models...');
-      
+
       const response = await api.get('/v1/custom-models');
 
       if (!response.ok) {
@@ -36,10 +36,10 @@ class CustomModelService {
 
       const data: CustomModelsResponse = await response.json();
       logger.info(`[CustomModelService] Fetched ${data.models.length} custom models`);
-      
+
       return data;
     } catch (error) {
-      logger.error('[CustomModelService] Error fetching custom models:', error);
+      logger.error('[CustomModelService] Error fetching custom models:', { data: error });
       throw error;
     }
   }
@@ -62,8 +62,8 @@ class CustomModelService {
    */
   async createCustomModel(data: CreateCustomModelRequest): Promise<CustomModel> {
     try {
-      logger.info('[CustomModelService] Creating custom model:', data.name);
-      
+      logger.info('[CustomModelService] Creating custom model:', { data: data.name });
+
       const response = await api.post('/v1/custom-models', data);
 
       if (!response.ok) {
@@ -72,11 +72,11 @@ class CustomModelService {
       }
 
       const result = await response.json();
-      logger.info('[CustomModelService] Custom model created successfully:', result.id);
-      
+      logger.info('[CustomModelService] Custom model created successfully:', { data: result.id });
+
       return result;
     } catch (error) {
-      logger.error('[CustomModelService] Error creating custom model:', error);
+      logger.error('[CustomModelService] Error creating custom model:', { data: error });
       throw error;
     }
   }
@@ -86,8 +86,8 @@ class CustomModelService {
    */
   async deleteCustomModel(modelId: number): Promise<void> {
     try {
-      logger.info('[CustomModelService] Deleting custom model:', modelId);
-      
+      logger.info('[CustomModelService] Deleting custom model:', { data: modelId });
+
       const response = await api.delete(`/v1/custom-models/${modelId}`);
 
       if (!response.ok) {
@@ -97,7 +97,7 @@ class CustomModelService {
 
       logger.info('[CustomModelService] Custom model deleted successfully');
     } catch (error) {
-      logger.error('[CustomModelService] Error deleting custom model:', error);
+      logger.error('[CustomModelService] Error deleting custom model:', { data: error });
       throw error;
     }
   }
@@ -106,12 +106,12 @@ class CustomModelService {
    * Update a custom model (name or image)
    */
   async updateCustomModel(
-    modelId: number, 
+    modelId: number,
     data: Partial<CreateCustomModelRequest>
   ): Promise<CustomModel> {
     try {
-      logger.info('[CustomModelService] Updating custom model:', modelId);
-      
+      logger.info('[CustomModelService] Updating custom model:', { data: modelId });
+
       const response = await api.put(`/v1/custom-models/${modelId}`, data);
 
       if (!response.ok) {
@@ -121,10 +121,10 @@ class CustomModelService {
 
       const result = await response.json();
       logger.info('[CustomModelService] Custom model updated successfully');
-      
+
       return result;
     } catch (error) {
-      logger.error('[CustomModelService] Error updating custom model:', error);
+      logger.error('[CustomModelService] Error updating custom model:', { data: error });
       throw error;
     }
   }

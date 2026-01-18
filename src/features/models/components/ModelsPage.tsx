@@ -24,9 +24,9 @@ export function ModelsPage() {
   const { activeCategory, setActiveCategory, toggleFavorite, isFavorite } = useModelStore();
 
   // Convert 'All' to undefined for the hook, or use lowercase gender
-  const genderFilter = activeCategory === 'All' ? undefined : activeCategory;
+  const genderFilter = activeCategory === 'All' ? undefined : (activeCategory as 'male' | 'female');
   const { data: models, isLoading, error } = useModelsByGender(genderFilter);
-  
+
   // Fetch custom models (My Models) - filtered by current gender
   const { data: customModels, isLoading: isLoadingCustom } = useCustomModelsByGender(genderFilter);
   const deleteCustomModel = useDeleteCustomModel();
@@ -45,7 +45,7 @@ export function ModelsPage() {
   const handleDeleteCustomModel = async (modelId: number, e: React.MouseEvent) => {
     e.stopPropagation();
     if (deletingId) return; // Prevent multiple deletes
-    
+
     if (window.confirm('Are you sure you want to delete this model?')) {
       setDeletingId(modelId);
       try {
@@ -112,7 +112,7 @@ export function ModelsPage() {
                 ({customModels.length})
               </span>
             </div>
-            
+
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6">
               {customModels.map((customModel) => (
                 <div key={`custom-${customModel.id}`} className="relative group">
@@ -124,8 +124,8 @@ export function ModelsPage() {
                     image={customModel.image_url}
                     isSelected={false}
                     isFavorite={false}
-                    onClick={() => {/* Custom models don't have profile pages yet */}}
-                    onFavorite={() => {/* Custom models favorites not implemented */}}
+                    onClick={() => {/* Custom models don't have profile pages yet */ }}
+                    onFavorite={() => {/* Custom models favorites not implemented */ }}
                   />
                   {/* Delete button overlay */}
                   <button
@@ -143,10 +143,10 @@ export function ModelsPage() {
                 </div>
               ))}
             </div>
-            
+
             {/* Divider */}
             <div className="mt-8 mb-6 border-t border-gray-200 dark:border-gray-700" />
-            
+
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               All {activeCategory === 'female' ? 'Female' : 'Male'} Models
             </h2>
