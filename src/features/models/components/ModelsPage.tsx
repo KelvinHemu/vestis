@@ -68,7 +68,8 @@ export function ModelsPage() {
 
           <Button
             onClick={() => router.push('/add-model')}
-            className="flex items-center gap-2"
+            variant="outline"
+            className="flex items-center gap-2 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
           >
             <Plus className="w-4 h-4" />
             Add Model

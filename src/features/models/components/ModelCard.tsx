@@ -7,8 +7,8 @@ import { ModelCardInfo } from './ModelCardInfo';
 interface ModelCardProps {
   id: string;
   name: string;
-  age: string;
-  size: string;
+  age?: string;
+  size?: string;
   image: string;
   isSelected?: boolean;
   onClick?: () => void;

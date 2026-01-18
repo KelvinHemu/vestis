@@ -5,8 +5,8 @@
 
 interface ModelCardInfoProps {
   name: string;
-  age: string;
-  size: string;
+  age?: string;
+  size?: string;
 }
 
 export function ModelCardInfo({ name, age, size }: ModelCardInfoProps) {
@@ -19,14 +19,20 @@ export function ModelCardInfo({ name, age, size }: ModelCardInfoProps) {
         </div>
 
         {/* Age and Size - Right */}
-        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-          <span className="text-xs sm:text-sm text-gray-600 px-1.5 sm:px-2.5 py-0.5 rounded-full border border-gray-300 whitespace-nowrap">
-            {age}
-          </span>
-          <span className="text-xs sm:text-sm text-gray-600 px-1.5 sm:px-2.5 py-0.5 rounded-full border border-gray-300 whitespace-nowrap">
-            {size}
-          </span>
-        </div>
+        {(age || size) && (
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            {age && (
+              <span className="text-xs sm:text-sm text-gray-600 px-1.5 sm:px-2.5 py-0.5 rounded-full border border-gray-300 whitespace-nowrap">
+                {age}
+              </span>
+            )}
+            {size && (
+              <span className="text-xs sm:text-sm text-gray-600 px-1.5 sm:px-2.5 py-0.5 rounded-full border border-gray-300 whitespace-nowrap">
+                {size}
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

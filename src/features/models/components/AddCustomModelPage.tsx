@@ -10,7 +10,7 @@
  * - Framer Motion interactions
  */
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Upload, ImagePlus, Loader2, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,7 @@ import { logger } from '@/utils/logger';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { MainContent } from '@/components/layout/MainContent';
+import { detectAndCropFace } from '@/utils/faceDetection';
 
 // ============================================================================
 // Component
@@ -37,6 +38,7 @@ export function AddCustomModelPage() {
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDetectingFace, setIsDetectingFace] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const faceInputRef = useRef<HTMLInputElement>(null);
@@ -50,7 +52,7 @@ export function AddCustomModelPage() {
   // File Handling
   // ============================================================================
 
-  const handleFile = useCallback((file: File) => {
+  const handleFile = useCallback(async (file: File) => {
     setError(null);
 
     if (!file.type.startsWith('image/')) {
@@ -64,10 +66,25 @@ export function AddCustomModelPage() {
     }
 
     const reader = new FileReader();
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       const result = reader.result as string;
       setImagePreview(result);
       setImageBase64(result);
+
+      // Automatically detect and crop face
+      setIsDetectingFace(true);
+      try {
+        const croppedFace = await detectAndCropFace(result);
+        if (croppedFace) {
+          setFacePreview(croppedFace);
+          setFaceBase64(croppedFace);
+        }
+      } catch (err) {
+        logger.error('[AddCustomModelPage] Face detection failed:', err);
+        // Don't show error, face detection is optional
+      } finally {
+        setIsDetectingFace(false);
+      }
     };
     reader.onerror = () => {
       logger.error('[AddCustomModelPage] FileReader error');
@@ -128,6 +145,30 @@ export function AddCustomModelPage() {
   };
 
   // ============================================================================
+  // Paste Functionality
+  // ============================================================================
+
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const file = items[i].getAsFile();
+          if (file) {
+            handleFile(file);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [handleFile]);
+
+  // ============================================================================
   // Form Submission
   // ============================================================================
 
@@ -170,10 +211,7 @@ export function AddCustomModelPage() {
 
           {/* Header Bar */}
           <div className="border-b-2 border-gray-300 dark:border-gray-700 p-6 flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              <span className="text-gray-400 dark:text-gray-500 mr-2 font-medium">Add Model /</span>
-              Upload Photo
-            </h1>
+         
             <button
               onClick={() => router.back()}
               className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
@@ -183,9 +221,9 @@ export function AddCustomModelPage() {
           </div>
 
           {/* Upload Area */}
-          <div className="p-8 h-full flex flex-col items-center justify-center">
+          <div className="p-4 h-full flex flex-col items-center justify-center">
             <div
-              className="relative group w-full max-w-lg"
+              className="relative group w-full max-w-md"
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
@@ -239,21 +277,21 @@ export function AddCustomModelPage() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center"
+                      className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"
                     >
                       <div className={cn(
-                        "w-20 h-20 rounded-full flex items-center justify-center mb-6 transition-all duration-300 shadow-sm",
+                        "w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-all duration-300 shadow-sm",
                         isDragging ? "bg-black dark:bg-white text-white dark:text-black scale-110" : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 group-hover:bg-gray-300 dark:group-hover:bg-gray-600"
                       )}>
-                        <Upload className="w-8 h-8" />
+                        <Upload className="w-6 h-6" />
                       </div>
-                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                         {isDragging ? 'Drop it here!' : 'Upload Model Photo'}
                       </h3>
-                      <p className="text-gray-500 dark:text-gray-400 max-w-[200px]">
-                        Drag & drop or click to upload
+                      <p className="text-sm text-gray-500 dark:text-gray-400 max-w-[180px]">
+                        Drag, paste, or click to upload
                       </p>
-                      <p className="text-xs text-gray-400 mt-2">Max 10MB</p>
+                      <p className="text-xs text-gray-400 mt-1">Max 10MB</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -279,7 +317,13 @@ export function AddCustomModelPage() {
 
             {/* Portrait Preview Upload */}
             <div className="space-y-3">
-              <Label className="text-base font-medium">Portrait Face Preview</Label>
+              <Label className="text-base font-medium">Model Profile Photo</Label>
+              {isDetectingFace && (
+                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Detecting face...</span>
+                </div>
+              )}
               <div
                 onClick={() => faceInputRef.current?.click()}
                 className="group relative"
@@ -287,8 +331,6 @@ export function AddCustomModelPage() {
                 <ModelCard
                   id="preview"
                   name={name || "Model Name"}
-                  age="23"
-                  size="Standard"
                   image={facePreview || ""}
                 />
 
@@ -307,7 +349,7 @@ export function AddCustomModelPage() {
                 className="hidden"
               />
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Upload a clear close-up of the model's face for the card preview.
+                Face is auto-detected from the main photo. You can also upload a different photo manually.
               </p>
             </div>
 
