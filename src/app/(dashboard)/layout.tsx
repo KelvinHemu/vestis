@@ -92,9 +92,9 @@ export default function DashboardLayout({
   // 3. Auth state is being initialized
   if (isProcessingOAuth || !_hasHydrated || !isInitialized) {
     return (
-      <div className="min-h-screen bg-white dark:bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-gray-200 dark:border-gray-700 border-t-gray-900 dark:border-t-white rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-gray-200 dark:border-gray-300 border-t-gray-900 dark:border-t-white rounded-full animate-spin" />
           <p className="text-gray-500 dark:text-gray-400 text-sm tracking-widest uppercase">
             {isProcessingOAuth ? 'Signing you in...' : 'Loading...'}
           </p>
@@ -109,7 +109,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-950 flex">
+    <div className="min-h-screen bg-gray-100 dark:bg-black flex">
       {/* Sidebar Navigation */}
       <Sidebar />
 

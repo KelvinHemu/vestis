@@ -7,11 +7,6 @@ import { useModel } from '@/hooks/useModels';
 import modelService from '@/services/modelService';
 import type { ModelImage } from '@/types/model';
 
-/* ============================================
-   ModelProfile Component
-   Dedicated model profile page with gallery
-   Receives modelId as prop from page component
-   ============================================ */
 
 interface ModelProfileProps {
   modelId?: string;
@@ -67,9 +62,9 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
   // ============================================================================
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-950">
+      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-black">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-gray-200 dark:border-gray-700 border-t-black dark:border-t-white rounded-full animate-spin"></div>
+          <div className="w-10 h-10 border-4 border-gray-200 dark:border-gray-300 border-t-black dark:border-t-white rounded-full animate-spin"></div>
           <p className="text-gray-500 dark:text-gray-400 text-sm tracking-widest uppercase">Loading model...</p>
         </div>
       </div>
@@ -82,7 +77,7 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
   if (error || !model) {
     const errorMessage = error instanceof Error ? error.message : 'Model not found';
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-950">
+      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-black">
         <div className="text-center max-w-md px-6">
           <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 uppercase tracking-widest">{errorMessage}</h3>
           <p className="text-gray-500 dark:text-gray-400 mb-6">The model you&apos;re looking for doesn&apos;t exist or has been removed.</p>
@@ -107,7 +102,7 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
   // ============================================================================
   if (allImages.length === 0) {
     return (
-      <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans">
+      <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-gray-100 font-sans">
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 md:py-8">
           <div className="flex items-center justify-center mb-8 relative">
             <button
@@ -148,7 +143,7 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans selection:bg-gray-200 dark:selection:bg-gray-700">
+    <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-gray-100 font-sans selection:bg-gray-200 dark:selection:bg-gray-700">
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 md:py-8">
         {/* Header with Back Button and Name on Same Row */}
         <div className="flex items-center justify-center mb-8 relative">

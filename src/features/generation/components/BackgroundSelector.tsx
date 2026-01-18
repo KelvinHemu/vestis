@@ -62,7 +62,7 @@ export function BackgroundSelector({
         </div>
 
         {/* Sticky Category Tabs - Sticks to top when scrolling */}
-        <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 pb-4 pt-2 -mt-2">
+        <div className="sticky top-0 bg-white dark:bg-[#1A1A1A] z-10 pb-4 pt-2 -mt-2">
           <div className="flex justify-between items-center gap-3">
             <div className="flex gap-2">
               {categories.map((category) => (

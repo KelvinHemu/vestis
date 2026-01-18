@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Upload, ImagePlus, Loader2, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ModelCard } from './ModelCard';
 import { Label } from '@/components/ui/label';
 import { useCreateCustomModel } from '@/hooks/useCustomModels';
 import { logger } from '@/utils/logger';
@@ -38,7 +39,12 @@ export function AddCustomModelPage() {
   const [error, setError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const faceInputRef = useRef<HTMLInputElement>(null);
   const createMutation = useCreateCustomModel();
+
+  // Face Preview State
+  const [facePreview, setFacePreview] = useState<string | null>(null);
+  const [faceBase64, setFaceBase64] = useState<string | null>(null);
 
   // ============================================================================
   // File Handling
@@ -92,6 +98,35 @@ export function AddCustomModelPage() {
     if (file) handleFile(file);
   };
 
+  const handleFaceFile = useCallback((file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an valid image file (PNG, JPG)');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Image must be under 10MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      setFacePreview(result);
+      setFaceBase64(result);
+    };
+    reader.onerror = () => {
+      logger.error('[AddCustomModelPage] Face FileReader error');
+      setError('Failed to read face image file');
+    };
+    reader.readAsDataURL(file);
+  }, []);
+
+  const handleFaceFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleFaceFile(file);
+  };
+
   // ============================================================================
   // Form Submission
   // ============================================================================
@@ -131,7 +166,7 @@ export function AddCustomModelPage() {
       <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 dark:border-gray-700 overflow-hidden">
 
         {/* Left Component - Main Image Area */}
-        <div className="flex-1 bg-white dark:bg-gray-900 md:border-r-2 border-gray-300 dark:border-gray-700 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
+        <div className="flex-1 bg-white dark:bg-[#1A1A1A] md:border-r-2 border-gray-300 dark:border-gray-700 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
 
           {/* Header Bar */}
           <div className="border-b-2 border-gray-300 dark:border-gray-700 p-6 flex items-center justify-between">
@@ -235,11 +270,45 @@ export function AddCustomModelPage() {
         </div>
 
         {/* Right Component - Sidebar */}
-        <div className="fixed bottom-0 left-0 right-0 md:static md:w-80 lg:w-96 bg-white dark:bg-gray-900 p-6 m-0 md:overflow-y-auto flex flex-col border-t-2 md:border-t-0 border-gray-300 dark:border-gray-700 shrink-0 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none">
+        <div className="fixed bottom-0 left-0 right-0 md:static md:w-80 lg:w-96 bg-white dark:bg-[#1A1A1A] p-6 m-0 md:overflow-y-auto flex flex-col border-t-2 md:border-t-0 border-gray-300 dark:border-gray-700 shrink-0 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none">
           <div className="space-y-6 flex-1">
             <div>
               <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Model Details</h2>
               <p className="text-sm text-gray-500 dark:text-gray-400">Configure your new model.</p>
+            </div>
+
+            {/* Portrait Preview Upload */}
+            <div className="space-y-3">
+              <Label className="text-base font-medium">Portrait Face Preview</Label>
+              <div
+                onClick={() => faceInputRef.current?.click()}
+                className="group relative"
+              >
+                <ModelCard
+                  id="preview"
+                  name={name || "Model Name"}
+                  age="23"
+                  size="Standard"
+                  image={facePreview || ""}
+                />
+
+                {/* Hover Overlay for upload hint */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors rounded-xl flex items-center justify-center pointer-events-none">
+                  <div className="bg-white/90 text-black text-xs font-semibold px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+                    {facePreview ? 'Change Photo' : 'Upload Face'}
+                  </div>
+                </div>
+              </div>
+              <input
+                ref={faceInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFaceFileChange}
+                className="hidden"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Upload a clear close-up of the model's face for the card preview.
+              </p>
             </div>
 
             {/* Name Input */}
@@ -281,6 +350,8 @@ export function AddCustomModelPage() {
             <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-800 text-xs text-gray-500 dark:text-gray-400">
               <p>Models are private to your workspace.</p>
             </div>
+
+
           </div>
 
           {/* Bottom Actions */}

@@ -81,7 +81,7 @@ export function ModelProfileStatus({
           </div>
 
           {/* Profile Preview */}
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6 space-y-4 border border-gray-100 dark:border-gray-700">
+          <div className="bg-gray-50 dark:bg-[#1A1A1A] rounded-lg p-6 space-y-4 border border-gray-100 dark:border-gray-700">
             <div className="flex items-start gap-6">
               {model.images && model.images.length > 0 && (
                 <img

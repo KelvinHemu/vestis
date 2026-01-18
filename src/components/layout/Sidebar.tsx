@@ -31,7 +31,7 @@ export function Sidebar() {
 
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-20 bg-white dark:bg-gray-900 border-r border-transparent dark:border-gray-800 flex flex-col items-center py-4 z-40">
+    <aside className="fixed left-0 top-0 h-screen w-20 bg-white dark:bg-[#1A1A1A] border-r border-transparent dark:border-gray-700 flex flex-col items-center py-4 z-40">
       {/* Brand Logo with Beta Badge - Links to Dashboard */}
       <Link href="/dashboard" className="mb-6 relative block">
         <NextImage
@@ -57,7 +57,7 @@ export function Sidebar() {
               className={cn(
                 "relative group flex flex-col items-center justify-center w-16 py-2 rounded-lg transition-all duration-200",
                 isActive
-                  ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white"
+                  ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
               )}
             >
@@ -98,7 +98,7 @@ export function Sidebar() {
         {/* Credits Display with Link to Payment */}
         <Link
           href="/payment"
-          className="flex flex-col items-center justify-center w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+          className="flex flex-col items-center justify-center w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
           title="Buy credits"
         >
           <Zap className="w-3 h-3 fill-gray-900 dark:fill-white text-gray-900 dark:text-white mb-0.5" />

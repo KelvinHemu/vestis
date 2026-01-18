@@ -73,7 +73,7 @@ export function ModelPreviewModal({
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
       {/* Modal Content */}
-      <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div className="relative bg-white dark:bg-[#1A1A1A] rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-in fade-in zoom-in duration-200">
         {/* Close Button */}
         <button
           onClick={onClose}
