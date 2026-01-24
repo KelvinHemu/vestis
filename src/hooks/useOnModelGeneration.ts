@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { onModelPhotosService } from '../services/onModelPhotosService';
 import { InsufficientCreditsError } from '../types/errors';
 import { useFeatureGeneration } from '../contexts/generationStore';
-import { USER_QUERY_KEY } from './useUser';
+import { CREDITS_QUERY_KEY } from './useUser';
 import type { GenerateOnModelRequest, OnModelJobStatus } from '../types/onModel';
 
 interface UseOnModelGenerationResult {
@@ -52,8 +52,8 @@ export function useOnModelGeneration(): UseOnModelGenerationResult {
       // If we get an immediate image URL, use it
       if (response.imageUrl) {
         completeGeneration(response.imageUrl);
-        // Invalidate user query to refresh credits
-        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
+        // Invalidate credits query to refresh balance after generation
+        queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
         return;
       }
 
@@ -74,8 +74,8 @@ export function useOnModelGeneration(): UseOnModelGenerationResult {
         if (finalStatus.status === 'completed' && finalStatus.imageUrl) {
           completeGeneration(finalStatus.imageUrl);
           setJobStatus(finalStatus);
-          // Invalidate user query to refresh credits
-          queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
+          // Invalidate credits query to refresh balance after generation
+          queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
         } else if (finalStatus.status === 'failed') {
           failGeneration(finalStatus.error || 'Generation failed');
           setJobStatus(finalStatus);

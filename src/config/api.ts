@@ -45,6 +45,11 @@ export const API_ENDPOINTS = {
     subscription: '/v1/user/subscription',
   },
 
+  // Credits endpoints
+  credits: {
+    balance: '/v1/credits/balance',
+  },
+
   // Generation endpoints
   generation: {
     flatlay: '/v1/flatlay/generate',

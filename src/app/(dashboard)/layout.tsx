@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { useAuthStore } from "@/contexts/authStore";
 import { processOAuthCallback } from "@/utils/oauthHelper";
-import { USER_QUERY_KEY } from "@/hooks/useUser";
+import { USER_QUERY_KEY, CREDITS_QUERY_KEY } from "@/hooks/useUser";
 
 /* ============================================
    Dashboard Layout
@@ -50,9 +50,10 @@ export default function DashboardLayout({
           console.log('✅ OAuth tokens processed successfully');
           loginWithOAuth(result.accessToken, result.user);
 
-          console.log('✅ Invalidating user query for fresh credits');
-          // Invalidate user query to fetch fresh user data (including credits) from API
+          console.log('✅ Invalidating user and credits queries for fresh data');
+          // Invalidate both user and credits queries to fetch fresh data from API
           await queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
+          await queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
 
           // Clean URL and let the component re-render with auth
           window.history.replaceState(null, "", window.location.pathname);

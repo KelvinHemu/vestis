@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { backgroundChangeService } from '../services/backgroundChangeService';
 import { InsufficientCreditsError } from '../types/errors';
 import { useFeatureGeneration } from '../contexts/generationStore';
-import { USER_QUERY_KEY } from './useUser';
+import { CREDITS_QUERY_KEY } from './useUser';
 import type { GenerateBackgroundChangeRequest, BackgroundChangeJobStatus } from '../types/backgroundChange';
 
 interface UseBackgroundChangeResult {
@@ -54,8 +54,8 @@ export function useBackgroundChange(): UseBackgroundChangeResult {
       // If we get an immediate image URL, use it
       if (response.imageUrl) {
         completeGeneration(response.imageUrl);
-        // Invalidate user query to refresh credits
-        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
+        // Invalidate credits query to refresh balance after generation
+        queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
         return;
       }
 
@@ -76,8 +76,8 @@ export function useBackgroundChange(): UseBackgroundChangeResult {
         if (finalStatus.status === 'completed' && finalStatus.imageUrl) {
           completeGeneration(finalStatus.imageUrl);
           setJobStatus(finalStatus);
-          // Invalidate user query to refresh credits
-          queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
+          // Invalidate credits query to refresh balance after generation
+          queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
         } else if (finalStatus.status === 'failed') {
           failGeneration(finalStatus.error || 'Generation failed');
           setJobStatus(finalStatus);

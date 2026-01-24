@@ -4,21 +4,27 @@ import React, { useEffect, useState } from 'react';
 import { CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useQueryClient } from '@tanstack/react-query';
+import { CREDITS_QUERY_KEY } from '@/hooks/useUser';
 
 export default function PaymentSuccessPage() {
     const searchParams = useSearchParams();
     const orderId = searchParams.get('order_id');
     const sessionId = searchParams.get('session_id');
     const [isLoading, setIsLoading] = useState(true);
+    const queryClient = useQueryClient();
 
     useEffect(() => {
+        // Invalidate credits query to refresh balance after successful payment
+        queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
+        
         // Simulate a brief loading state for webhook processing
         const timer = setTimeout(() => {
             setIsLoading(false);
         }, 1500);
 
         return () => clearTimeout(timer);
-    }, []);
+    }, [queryClient]);
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center p-6">

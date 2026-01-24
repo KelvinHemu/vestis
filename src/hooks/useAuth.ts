@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/contexts/authStore';
 import authService from '@/services/authService';
 import type { LoginCredentials, SignupCredentials } from '@/types/auth';
-import { USER_QUERY_KEY } from './useUser';
+import { USER_QUERY_KEY, CREDITS_QUERY_KEY } from './useUser';
 import { AuthEvents } from '@/utils/analytics';
 
 /* ============================================
@@ -55,9 +55,10 @@ export function useLogin(): UseLoginReturn {
     setResendSuccess(false);
     try {
       await authLogin(credentials);
-      console.log('Login succeeded, invalidating user query for fresh credits');
-      // Invalidate user query to fetch fresh user data (including credits) from API
+      console.log('Login succeeded, invalidating user and credits queries for fresh data');
+      // Invalidate both user and credits queries to fetch fresh data from API
       await queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
+      await queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
 
       // Track successful login
       AuthEvents.login('email');

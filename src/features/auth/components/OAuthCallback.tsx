@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/contexts/authStore';
 import { processOAuthCallback } from '@/utils/oauthHelper';
-import { USER_QUERY_KEY } from '@/hooks/useUser';
+import { USER_QUERY_KEY, CREDITS_QUERY_KEY } from '@/hooks/useUser';
 import { AuthEvents } from '@/utils/analytics';
 
 /* ============================================
@@ -56,10 +56,11 @@ export function OAuthCallback() {
         // Update auth store with user data and token
         loginWithOAuth(result.accessToken, result.user);
 
-        console.log('✅ Auth store updated, invalidating user query for fresh credits');
+        console.log('✅ Auth store updated, invalidating user and credits queries for fresh data');
 
-        // Invalidate user query to fetch fresh user data (including credits) from API
+        // Invalidate both user and credits queries to fetch fresh data from API
         await queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
+        await queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
 
         // Track successful Google OAuth login
         AuthEvents.login('google');

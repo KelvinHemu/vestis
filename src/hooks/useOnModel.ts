@@ -7,6 +7,7 @@ import type {
   GenerateOnModelResponse,
 } from '../types/onModel';
 import { InsufficientCreditsError } from '../types/errors';
+import { CREDITS_QUERY_KEY } from './useUser';
 
 // Query keys
 export const ONMODEL_KEYS = {
@@ -61,6 +62,8 @@ export function useOnModelGenerate() {
     onSuccess: () => {
       // Invalidate history cache to include new generation
       queryClient.invalidateQueries({ queryKey: ONMODEL_KEYS.history() });
+      // Invalidate credits query to refresh balance after generation
+      queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
     },
   });
 }

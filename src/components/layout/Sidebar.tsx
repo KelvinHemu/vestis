@@ -5,7 +5,7 @@ import NextImage from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Home, User, Grid, Zap, Plus, CreditCard, Users, Image } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useUser } from '@/hooks/useUser';
+import { useUser, useCredits } from '@/hooks/useUser';
 
 /* ============================================
    Menu Configuration
@@ -30,6 +30,8 @@ export function Sidebar() {
   const pathname = usePathname();
   // Use TanStack Query for reactive user data with automatic caching
   const { data: user } = useUser();
+  // Fetch credits from dedicated endpoint for real-time accuracy
+  const { credits } = useCredits();
 
 
   return (
@@ -104,7 +106,7 @@ export function Sidebar() {
           title="Buy credits"
         >
           <Zap className="w-3 h-3 fill-gray-900 dark:fill-white text-gray-900 dark:text-white mb-0.5" />
-          <span className="text-xs font-bold text-gray-900 dark:text-white leading-none">{user?.credits ?? 0}</span>
+          <span className="text-xs font-bold text-gray-900 dark:text-white leading-none">{credits}</span>
         </Link>
       </div>
     </aside>

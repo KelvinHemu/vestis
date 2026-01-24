@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useAuthStore } from '@/contexts/authStore';
 import userService from '@/services/userService';
 import authService from '@/services/authService';
+import creditsService from '@/services/creditsService';
 import type { User } from '@/types/user';
 import { logger } from '@/utils/logger';
 
@@ -12,6 +13,12 @@ import { logger } from '@/utils/logger';
  * Exported for use in invalidation across the app
  */
 export const USER_QUERY_KEY = ['user'] as const;
+
+/**
+ * Query key for credits balance
+ * Separate from user query for independent refresh after generations
+ */
+export const CREDITS_QUERY_KEY = ['credits'] as const;
 
 /**
  * Hook for fetching current user data with TanStack Query
@@ -102,22 +109,78 @@ export function useUser() {
 }
 
 /**
- * Hook for getting just the user's credits
- * Derives from useUser query to avoid duplicate fetches
+ * Hook for fetching user's credits balance from dedicated endpoint
+ * Uses separate query key for independent refresh after generations
+ * 
+ * This fetches directly from /v1/credits/balance which is lightweight
+ * and updates immediately after credit-consuming operations.
+ * Falls back to user endpoint if credits endpoint fails.
  */
 export function useCredits() {
-    const { data: user, isLoading, error } = useUser();
+    const { token, isAuthenticated } = useAuthStore();
+
+    const query = useQuery<{ credits: number; expires_at?: string }, Error>({
+        queryKey: CREDITS_QUERY_KEY,
+        queryFn: async () => {
+            if (!token) {
+                return { credits: 0 };
+            }
+
+            try {
+                // Try dedicated credits endpoint first
+                const response = await creditsService.getBalance();
+                logger.info(`✅ Credits fetched from balance endpoint: ${response.credits}`);
+                return response;
+            } catch (error: any) {
+                // If credits endpoint fails (404, etc.), fall back to user endpoint
+                logger.warn('📊 Credits endpoint failed, falling back to user endpoint');
+                
+                // Don't re-throw auth errors
+                if (error?.status === 401) {
+                    throw error;
+                }
+
+                // Fetch from user endpoint as fallback
+                const userResponse = await userService.getCurrentUser(token);
+                logger.info(`✅ Credits fetched from user endpoint: ${userResponse.user?.credits}`);
+                return { 
+                    credits: userResponse.user?.credits ?? 0,
+                    expires_at: userResponse.user?.credits_expires_at,
+                };
+            }
+        },
+        // Only fetch when authenticated with a token
+        enabled: isAuthenticated && !!token,
+        // Keep credits fresh - short stale time for real-time accuracy
+        staleTime: 10 * 1000, // 10 seconds - shorter than user query
+        // Cache for 5 minutes
+        gcTime: 5 * 60 * 1000,
+        // Always refetch on mount to ensure fresh credits
+        refetchOnMount: 'always',
+        // Refetch when window regains focus (user might have used credits in another tab)
+        refetchOnWindowFocus: true,
+        // Retry on failure but not for auth errors
+        retry: (failureCount, error: any) => {
+            if (error?.status === 401 || error?.message?.includes('Authentication failed')) {
+                return false;
+            }
+            return failureCount < 2;
+        },
+    });
 
     return {
-        credits: user?.credits ?? 0,
-        isLoading,
-        error,
+        credits: query.data?.credits ?? 0,
+        expiresAt: query.data?.expires_at,
+        isLoading: query.isLoading,
+        isFetching: query.isFetching,
+        error: query.error,
+        refetch: query.refetch,
     };
 }
 
 /**
  * Hook to invalidate user cache
- * Call this after any operation that changes credits (generation, payment, etc.)
+ * Call this after any operation that changes user data
  */
 export function useInvalidateUser() {
     const queryClient = useQueryClient();
@@ -128,9 +191,32 @@ export function useInvalidateUser() {
 }
 
 /**
+ * Hook to invalidate credits cache
+ * Call this after any operation that changes credits (generation, payment, etc.)
+ * This is lighter weight than invalidating the full user query
+ */
+export function useInvalidateCredits() {
+    const queryClient = useQueryClient();
+
+    return () => {
+        logger.info('🔄 Invalidating credits cache...');
+        queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
+    };
+}
+
+/**
  * Utility to invalidate user query from outside React components
  * Use sparingly - prefer useInvalidateUser hook when possible
  */
 export function invalidateUserQuery(queryClient: ReturnType<typeof useQueryClient>) {
     queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
+}
+
+/**
+ * Utility to invalidate credits query from outside React components
+ * Use sparingly - prefer useInvalidateCredits hook when possible
+ */
+export function invalidateCreditsQuery(queryClient: ReturnType<typeof useQueryClient>) {
+    logger.info('🔄 Invalidating credits cache (external)...');
+    queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
 }

@@ -11,7 +11,7 @@ import { InsufficientCreditsDialog } from '@/components/ui/InsufficientCreditsDi
 import { FullscreenImageViewer } from '@/components/ui/FullscreenImageViewer';
 import { chatService } from '@/services/chatService';
 import { InsufficientCreditsError } from '@/types/errors';
-import { USER_QUERY_KEY } from '@/hooks/useUser';
+import { CREDITS_QUERY_KEY } from '@/hooks/useUser';
 
 interface UploadedImage {
   id: string;
@@ -90,8 +90,8 @@ export const CreatePage: React.FC = () => {
 
         setGeneratedImage(response.imageUrl);
         setIsEditMode(true); // Enable edit mode after first generation
-        // Invalidate user query to refresh credits
-        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
+        // Invalidate credits query to refresh balance after generation
+        queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
         console.log('✅ Generation completed:', response);
       } else {
         throw new Error(response.message || 'Generation failed - no image URL returned');
