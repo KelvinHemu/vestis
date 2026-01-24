@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Home, User, Grid, Zap, Plus, CreditCard, Users } from 'lucide-react';
+import { Home, User, Grid, Zap, Plus, CreditCard, Users, Image } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/hooks/useUser';
 
@@ -15,9 +15,11 @@ const menuItems = [
   { icon: Home, label: 'Home', path: '/dashboard', badge: null },
   { icon: Plus, label: 'Create', path: '/create', badge: null },
   { icon: Users, label: 'Models', path: '/models', badge: null },
+  { icon: Image, label: 'Backgrounds', path: '/backgrounds', badge: null },
   { icon: Grid, label: 'Projects', path: '/projects', badge: null },
   { icon: CreditCard, label: 'Payment', path: '/payment', badge: null },
 ];
+
 
 /* ============================================
    Sidebar Component
