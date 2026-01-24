@@ -26,6 +26,9 @@ export { default as customModelService } from './customModelService';
 // Payment Services
 export { default as paymentService } from './paymentService';
 
+// Shop Services
+export { default as shopService } from './shopService';
+
 
 
 
