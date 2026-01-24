@@ -122,12 +122,23 @@ export const GenerationHistory: React.FC = () => {
                     <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
                 </div>
             ) : generations.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-100">
-                    <ImageIcon className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900">No generations yet</h3>
-                    <p className="text-gray-500 mt-2">Start creating images to see them here.</p>
+                <div className="flex flex-col items-center justify-center h-[70vh] text-center">
+                    <img
+                        src="https://res.cloudinary.com/ds4lpuk8p/image/upload/v1769263250/ChatGPT_Image_Jan_24_2026_04_51_50_PM_yc9yiw.png"
+                        alt="No generations"
+                        className="max-w-md w-full opacity-90"
+                        draggable={false}
+                    />
+                    <h3 className="mt-6 text-lg font-medium text-gray-900">
+                        No generations yet
+                    </h3>
+                    <p className="text-gray-500 mt-1">
+                        Start creating images to see them here.
+                    </p>
                 </div>
-            ) : (
+            )
+
+            : (
                 <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                         {generations.map((gen) => (
