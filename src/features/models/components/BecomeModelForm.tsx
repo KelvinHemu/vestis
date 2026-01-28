@@ -18,7 +18,6 @@ import { modelRegistrationSchema, type ModelRegistrationData, type ModelFormData
 import modelRegistrationService from '@/services/modelRegistrationService';
 import LocationSelector from '@/components/shared/locationInput';
 import { cn } from '@/lib/utils';
-import { Form } from '@/components/ui/form'; // Assuming Form is imported from here
 
 interface BecomeModelFormProps {
   onSuccess?: () => void;
@@ -550,7 +549,7 @@ export function BecomeModelForm({ onSuccess, onCancel }: BecomeModelFormProps) {
 
         <div className="flex-1 overflow-y-auto">
           <div className="w-full max-w-md mx-auto p-6 md:p-12 h-full flex flex-col">
-            <Form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
+            <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
               <div className="flex-1 py-4">
                 {currentStep === 1 && renderStep1()}
                 {currentStep === 2 && renderStep2()}
@@ -586,7 +585,7 @@ export function BecomeModelForm({ onSuccess, onCancel }: BecomeModelFormProps) {
                   {currentStep === 3 ? (isSubmitting ? 'Submitting...' : 'Submit Board') : 'Continue'}
                 </Button>
               </div>
-            </Form>
+            </form>
           </div>
         </div>
       </div>

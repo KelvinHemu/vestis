@@ -49,9 +49,9 @@ export default function ShopSettingsPage() {
         name: shop.name,
         description: shop.description || "",
         theme_color: shop.theme_color,
-        email: shop.email || "",
-        phone: shop.phone || "",
-        whatsapp: shop.whatsapp || "",
+        contact_email: shop.email || "",
+        contact_phone: shop.phone || "",
+        contact_whatsapp: shop.whatsapp || "",
         is_active: shop.is_active,
       });
       setSlugInput(shop.slug);
@@ -378,8 +378,8 @@ export default function ShopSettingsPage() {
                 <Input
                   id="email"
                   type="email"
-                  value={formData.email || ""}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  value={formData.contact_email || ""}
+                  onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
                   className="h-11"
                 />
               </div>
@@ -388,8 +388,8 @@ export default function ShopSettingsPage() {
                 <Label htmlFor="phone" className="text-sm font-medium">Phone</Label>
                 <Input
                   id="phone"
-                  value={formData.phone || ""}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  value={formData.contact_phone || ""}
+                  onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
                   className="h-11"
                 />
               </div>
@@ -400,8 +400,8 @@ export default function ShopSettingsPage() {
               <Input
                 id="whatsapp"
                 placeholder="+255712345678"
-                value={formData.whatsapp || ""}
-                onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                value={formData.contact_whatsapp || ""}
+                onChange={(e) => setFormData({ ...formData, contact_whatsapp: e.target.value })}
                 className="h-11"
               />
               <p className="text-xs text-muted-foreground">
