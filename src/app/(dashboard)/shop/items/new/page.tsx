@@ -4,7 +4,9 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { shopService } from "@/services/shopService";
+import { generationService } from "@/services/generationService";
 import type { CreateShopItemRequest } from "@/types/shop";
+import type { Generation } from "@/types/generation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,6 +14,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -37,7 +46,9 @@ import {
   Cloud,
   CloudOff,
   RotateCcw,
-  Trash2
+  Trash2,
+  FolderOpen,
+  Check
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -97,11 +108,24 @@ export default function NewShopItemPage() {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isInitializedRef = useRef(false);
 
+  // Project picker states
+  const [showProjectPicker, setShowProjectPicker] = useState(false);
+  const [selectedGenerations, setSelectedGenerations] = useState<Set<number>>(new Set());
+
   // Check if user has a shop
   const { data: shop, isLoading: shopLoading } = useQuery({
     queryKey: ["my-shop"],
     queryFn: () => shopService.getMyShop(),
   });
+
+  // Fetch user's generations for the project picker
+  const { data: generationsData, isLoading: generationsLoading } = useQuery({
+    queryKey: ["generations", { page: 1, page_size: 50 }],
+    queryFn: () => generationService.list(1, 50),
+    enabled: showProjectPicker,
+  });
+
+  const generations = generationsData?.generations || [];
 
   const [formData, setFormData] = useState<CreateShopItemRequest>({
     name: "",
@@ -379,6 +403,38 @@ export default function NewShopItemPage() {
     setFormData({ ...formData, images });
   };
 
+  // Toggle generation selection
+  const toggleGenerationSelection = (generation: Generation) => {
+    const newSelected = new Set(selectedGenerations);
+    if (newSelected.has(generation.id)) {
+      newSelected.delete(generation.id);
+    } else {
+      newSelected.add(generation.id);
+    }
+    setSelectedGenerations(newSelected);
+  };
+
+  // Add selected generations as images
+  const addGenerationsAsImages = async () => {
+    const selectedImages = generations
+      .filter((g) => selectedGenerations.has(g.id))
+      .map((g) => g.image_url);
+    
+    const totalImages = [...formData.images, ...selectedImages];
+    if (totalImages.length > 10) {
+      toast.warning("Maximum 10 images allowed. Some images were not added.");
+    }
+    
+    setFormData({
+      ...formData,
+      images: totalImages.slice(0, 10),
+    });
+    
+    toast.success(`${Math.min(selectedImages.length, 10 - formData.images.length)} image(s) added from projects`);
+    setShowProjectPicker(false);
+    setSelectedGenerations(new Set());
+  };
+
   if (shopLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -552,6 +608,21 @@ export default function NewShopItemPage() {
                       )}
                     </div>
                   </div>
+
+                  {/* From Projects Button */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full mt-3"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowProjectPicker(true);
+                    }}
+                    disabled={formData.images.length >= 10}
+                  >
+                    <FolderOpen className="h-4 w-4 mr-2" />
+                    Add from Projects
+                  </Button>
 
                   {/* Image Grid */}
                   {formData.images.length > 0 && (
@@ -945,6 +1016,130 @@ export default function NewShopItemPage() {
           {/* Desktop Bottom Spacer */}
           <div className="hidden sm:block h-8" />
         </form>
+
+        {/* Project Image Picker Dialog */}
+        <Dialog open={showProjectPicker} onOpenChange={setShowProjectPicker}>
+          <DialogContent className="sm:max-w-4xl w-[95vw] h-[85vh] max-h-[85vh] overflow-hidden flex flex-col p-0">
+            <DialogHeader className="px-6 pt-6 pb-4 border-b">
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                <FolderOpen className="h-5 w-5" />
+                Add from Projects
+              </DialogTitle>
+              <DialogDescription>
+                Select images from your AI-generated projects to add to this item
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="flex-1 overflow-y-auto px-6 py-4 min-h-0">
+              {generationsLoading ? (
+                <div className="flex items-center justify-center py-16">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : generations.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <ImagePlus className="h-16 w-16 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No projects yet</h3>
+                  <p className="text-muted-foreground max-w-sm">
+                    Create some AI-generated images first, then you can add them to your shop items.
+                  </p>
+                  <Button
+                    variant="outline"
+                    className="mt-4"
+                    onClick={() => {
+                      setShowProjectPicker(false);
+                      router.push("/create");
+                    }}
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Create Images
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {generations.map((generation) => {
+                    const isSelected = selectedGenerations.has(generation.id);
+                    const isAlreadyAdded = formData.images.includes(generation.image_url);
+                    
+                    return (
+                      <button
+                        key={generation.id}
+                        type="button"
+                        disabled={isAlreadyAdded}
+                        onClick={() => toggleGenerationSelection(generation)}
+                        className={cn(
+                          "group relative aspect-square rounded-xl overflow-hidden border-2 transition-all",
+                          isSelected && "border-primary ring-2 ring-primary/20",
+                          !isSelected && !isAlreadyAdded && "border-transparent hover:border-muted-foreground/30",
+                          isAlreadyAdded && "opacity-50 cursor-not-allowed border-muted"
+                        )}
+                      >
+                        <Image
+                          src={generation.image_url}
+                          alt={`${generation.feature_type} generation`}
+                          fill
+                          className="object-cover"
+                        />
+                        
+                        {/* Selection overlay */}
+                        {isSelected && (
+                          <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                            <div className="p-2 bg-primary rounded-full">
+                              <Check className="h-4 w-4 text-primary-foreground" />
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Already added badge */}
+                        {isAlreadyAdded && (
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                            <Badge variant="secondary" className="text-xs">
+                              Already added
+                            </Badge>
+                          </div>
+                        )}
+                        
+                        {/* Feature type badge */}
+                        <Badge 
+                          variant="secondary" 
+                          className="absolute bottom-2 left-2 text-xs capitalize bg-black/60 text-white border-0"
+                        >
+                          {generation.feature_type.replace('_', ' ')}
+                        </Badge>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            
+            {/* Footer with actions */}
+            {generations.length > 0 && (
+              <div className="flex items-center justify-between px-6 py-4 border-t bg-muted/30">
+                <p className="text-sm text-muted-foreground">
+                  {selectedGenerations.size} image{selectedGenerations.size !== 1 ? 's' : ''} selected
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowProjectPicker(false);
+                      setSelectedGenerations(new Set());
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={addGenerationsAsImages}
+                    disabled={selectedGenerations.size === 0}
+                    className="bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
+                  >
+                    Add {selectedGenerations.size > 0 ? `(${selectedGenerations.size})` : ''} Images
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
