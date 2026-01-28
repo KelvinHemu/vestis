@@ -226,20 +226,21 @@ export default function PublicItemPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5]">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-[#F5F5F5]/95 backdrop-blur border-b border-gray-200">
+      <header className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-gray-100">
         <div className="container max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <Button variant="ghost" size="sm" asChild>
-            <Link href={`/shop/${slug}`} className="gap-2">
+            <Link href={`/shop/${slug}`} className="gap-2 text-gray-900 hover:text-gray-700">
               <ArrowLeft className="h-4 w-4" />
-              Back to {shop?.name || "Shop"}
+              Back to {shop?.name || "Vestis"}
             </Link>
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={handleShare}
+            className="text-gray-600 hover:text-gray-900"
           >
             {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
           </Button>
@@ -247,9 +248,9 @@ export default function PublicItemPage() {
       </header>
 
       <main className="container max-w-6xl mx-auto px-4 py-8 md:py-12">
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start justify-center">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-start justify-center">
           {/* Left: Main Image */}
-          <div className="relative w-full lg:w-[420px] aspect-[4/5] bg-[#E8E8E8] rounded-sm overflow-hidden flex-shrink-0">
+          <div className="relative w-full lg:w-[480px] aspect-[3/4] bg-gray-50 overflow-hidden flex-shrink-0">
             {images.length > 0 ? (
               <Image
                 src={images[currentImageIndex]}
@@ -260,23 +261,23 @@ export default function PublicItemPage() {
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-6xl text-muted-foreground">👔</span>
+                <span className="text-6xl text-gray-300">👔</span>
               </div>
             )}
           </div>
 
           {/* Center: Vertical Thumbnails */}
           {hasMultipleImages && (
-            <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-y-auto lg:max-h-[520px] pb-2 lg:pb-0 flex-shrink-0">
+            <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto lg:max-h-[500px] pb-2 lg:pb-0 flex-shrink-0 order-3 lg:order-2">
               {images.map((img: string, idx: number) => (
                 <button
                   key={idx}
                   onClick={() => setCurrentImageIndex(idx)}
                   className={cn(
-                    "relative w-16 h-20 lg:w-[72px] lg:h-[90px] flex-shrink-0 rounded-sm overflow-hidden border-2 transition-all",
+                    "relative w-[60px] h-[75px] flex-shrink-0 overflow-hidden border-2 transition-all bg-gray-50",
                     idx === currentImageIndex 
-                      ? "border-gray-800 shadow-md" 
-                      : "border-transparent hover:border-gray-300"
+                      ? "border-gray-900" 
+                      : "border-gray-200 hover:border-gray-400"
                   )}
                 >
                   <Image src={img} alt={`${item.name} ${idx + 1}`} fill className="object-cover" />
@@ -285,10 +286,10 @@ export default function PublicItemPage() {
             </div>
           )}
 
-          {/* Right: Product Details Card */}
-          <div className="w-full lg:w-[340px] bg-white rounded-lg p-6 shadow-sm flex-shrink-0">
-            {/* Refresh/Share Icon */}
-            <div className="flex justify-end mb-4">
+          {/* Right: Product Details */}
+          <div className="w-full lg:w-[320px] flex-shrink-0 order-2 lg:order-3">
+            {/* Refresh Icon */}
+            <div className="flex justify-end mb-6">
               <button 
                 onClick={handleShare}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -298,28 +299,28 @@ export default function PublicItemPage() {
             </div>
 
             {/* Title & Price */}
-            <div className="mb-4">
-              <h1 className="text-lg font-bold tracking-wide uppercase text-gray-900">
+            <div className="mb-6">
+              <h1 className="text-xl font-bold tracking-wide uppercase text-gray-900">
                 {item.name}
               </h1>
               {item.price > 0 && (
-                <p className="text-lg font-semibold mt-1 text-gray-900">
+                <p className="text-xl font-semibold mt-2 text-gray-900">
                   {formatPrice(item.price, item.currency)}
                 </p>
               )}
-              <p className="text-sm text-gray-500 mt-1">MRP incl. of all taxes</p>
+              <p className="text-sm text-gray-400 mt-1">MRP incl. of all taxes</p>
             </div>
 
             {/* Description */}
             {item.description && (
-              <p className="text-sm font-medium text-gray-800 mb-6 leading-relaxed">
+              <p className="text-base font-medium text-gray-900 mb-8 leading-relaxed">
                 {item.description}
               </p>
             )}
 
             {/* Availability */}
             {!item.is_available && (
-              <div className="mb-4">
+              <div className="mb-6">
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
                   Currently Unavailable
                 </span>
@@ -328,18 +329,18 @@ export default function PublicItemPage() {
 
             {/* Colors */}
             {item.colors && item.colors.length > 0 && (
-              <div className="mb-5">
-                <h3 className="text-sm text-gray-600 mb-3">Color</h3>
+              <div className="mb-6">
+                <h3 className="text-sm text-gray-500 mb-3 tracking-wide">Color</h3>
                 <div className="flex flex-wrap gap-2">
                   {item.colors.map((color) => (
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color === selectedColor ? null : color)}
                       className={cn(
-                        "w-10 h-10 rounded-sm border-2 transition-all",
+                        "w-11 h-11 transition-all",
                         selectedColor === color 
-                          ? "border-gray-800 ring-1 ring-gray-800 ring-offset-1" 
-                          : "border-gray-200 hover:border-gray-400"
+                          ? "ring-2 ring-gray-900 ring-offset-2" 
+                          : "hover:ring-2 hover:ring-gray-300 hover:ring-offset-1"
                       )}
                       style={{ backgroundColor: getColorHex(color) }}
                       title={color}
@@ -351,39 +352,39 @@ export default function PublicItemPage() {
 
             {/* Sizes */}
             {item.sizes && item.sizes.length > 0 && (
-              <div className="mb-5">
-                <h3 className="text-sm text-gray-600 mb-3">Size</h3>
+              <div className="mb-8">
+                <h3 className="text-sm text-gray-500 mb-3 tracking-wide">Size</h3>
                 <div className="flex flex-wrap gap-2">
                   {item.sizes.map((size) => (
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size === selectedSize ? null : size)}
                       className={cn(
-                        "min-w-[40px] h-10 px-3 rounded-sm border text-sm font-medium transition-all",
+                        "min-w-[44px] h-11 px-4 border text-sm font-medium transition-all",
                         selectedSize === size 
                           ? "bg-gray-900 text-white border-gray-900" 
-                          : "bg-white text-gray-700 border-gray-300 hover:border-gray-500"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-gray-900"
                       )}
                     >
                       {size}
                     </button>
                   ))}
                 </div>
-                <div className="flex gap-3 mt-3 text-xs text-gray-500">
-                  <button className="hover:text-gray-700 hover:underline">FIND YOUR SIZE</button>
+                <div className="flex gap-4 mt-4 text-xs text-gray-400 tracking-wide">
+                  <button className="hover:text-gray-700 hover:underline uppercase">Find Your Size</button>
                   <span>|</span>
-                  <button className="hover:text-gray-700 hover:underline">MEASUREMENT GUIDE</button>
+                  <button className="hover:text-gray-700 hover:underline uppercase">Measurement Guide</button>
                 </div>
               </div>
             )}
 
-            {/* Buy and Try On Buttons */}
+            {/* Buy and Try On Buttons - Outside the card */}
             {item.is_available && (
-              <div className="grid grid-cols-2 gap-3 mt-6">
+              <div className="flex gap-3 pt-4">
                 {/* Buy Button */}
                 <Button
                   asChild
-                  className="bg-gray-900 hover:bg-gray-800 text-white h-11 text-sm font-medium rounded-sm"
+                  className="flex-1 bg-gray-900 hover:bg-gray-800 text-white h-12 text-sm font-semibold rounded-none"
                   size="lg"
                 >
                   <a
@@ -411,7 +412,7 @@ export default function PublicItemPage() {
                 {/* Try On Button */}
                 <Button
                   variant="outline"
-                  className="h-11 text-sm font-medium border border-gray-900 text-gray-900 hover:bg-gray-100 rounded-sm"
+                  className="flex-1 h-12 text-sm font-semibold border-2 border-gray-900 text-gray-900 hover:bg-gray-50 rounded-none"
                   size="lg"
                   onClick={() => setShowTryOnModal(true)}
                 >
@@ -424,8 +425,8 @@ export default function PublicItemPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 mt-12 bg-[#F5F5F5]">
-        <div className="container max-w-6xl mx-auto px-4 py-6 text-center text-sm text-gray-500">
+      <footer className="border-t border-gray-100 mt-16 bg-white">
+        <div className="container max-w-6xl mx-auto px-4 py-8 text-center text-sm text-gray-400">
           <p>© {new Date().getFullYear()} {shop?.name}. Powered by Vestis</p>
         </div>
       </footer>
