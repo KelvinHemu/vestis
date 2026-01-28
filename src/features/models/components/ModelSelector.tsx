@@ -121,8 +121,8 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
     <div className="flex flex-col h-full">
       {/* Scrollable Container */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2 scrollbar-hide" style={{ maxHeight: 'calc(100vh - 12rem)' }}>
-        {/* Header Section - Will scroll */}
-        <div className="space-y-4 pb-4">
+        {/* Header Section - Hidden on mobile since Steps shows the name */}
+        <div className="hidden md:block space-y-4 pb-4">
           <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Select Your Model</h2>
           <p className="text-gray-600 dark:text-gray-400">Choose a model that best represents your brand and target audience.</p>
         </div>

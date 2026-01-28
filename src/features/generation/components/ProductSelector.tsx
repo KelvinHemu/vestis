@@ -76,7 +76,7 @@ export function ProductSelector({
             { value: 'bottom', label: 'Bottom' },
             { value: 'fullbody', label: 'Full Body' }
           ]}
-          className="w-48"
+          className="w-full sm:w-48"
         />
       </div>
 

@@ -7,10 +7,14 @@ interface UploadHeaderProps {
 
 export function UploadHeader({ title, onClearAll, showClearButton = false }: UploadHeaderProps) {
   return (
-    <div className="flex items-center justify-between gap-4 mb-6 relative">
+    <div className="hidden md:flex items-center justify-between gap-2 mb-4 md:mb-6 md:relative">
+      {/* Hidden on mobile, shown on desktop */}
       <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Upload Images</h3>
+      
+      {/* Title - centered on desktop */}
       <h2 className="text-lg font-semibold text-gray-900 dark:text-white whitespace-nowrap absolute left-1/2 transform -translate-x-1/2 bg-gray-100 dark:bg-gray-800 px-4 py-1.5 rounded-full">{title}</h2>
-      {showClearButton && onClearAll && (
+      
+      {showClearButton && onClearAll ? (
         <button
           onClick={onClearAll}
           className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors whitespace-nowrap"
@@ -20,6 +24,8 @@ export function UploadHeader({ title, onClearAll, showClearButton = false }: Upl
           </svg>
           Clear All
         </button>
+      ) : (
+        <div /> // Spacer for desktop layout
       )}
     </div>
   );

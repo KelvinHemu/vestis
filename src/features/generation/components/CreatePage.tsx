@@ -289,7 +289,7 @@ export const CreatePage: React.FC = () => {
       )}
 
       {/* Fixed FloatingAskBar at bottom - responsive positioning */}
-      <div className="fixed bottom-0 left-20 right-0 px-3 py-3 sm:px-6 sm:py-4 bg-gradient-to-t from-gray-100 dark:from-gray-950 via-gray-100/95 dark:via-gray-950/95 to-transparent pointer-events-none z-20">
+      <div className="fixed bottom-0 left-0 md:left-20 right-0 px-3 py-3 sm:px-6 sm:py-4 bg-gradient-to-t from-gray-100 dark:from-gray-950 via-gray-100/95 dark:via-gray-950/95 to-transparent pointer-events-none z-20">
         <div className="w-full max-w-3xl mx-auto pointer-events-auto">
           <FloatingAskBar
             onFilesSelected={handleFilesSelected}

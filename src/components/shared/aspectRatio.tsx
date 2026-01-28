@@ -42,15 +42,15 @@ const AspectRatio: React.FC<AspectRatioProps> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className={`space-y-2.5 ${className}`}>
-      <Label htmlFor="aspect-ratio" className="text-sm font-semibold text-gray-900 dark:text-white">
+    <div className={`space-y-1.5 md:space-y-2.5 ${className}`}>
+      <Label htmlFor="aspect-ratio" className="text-xs md:text-sm font-semibold text-gray-900 dark:text-white">
         {label}
       </Label>
       <div className="relative">
         <Select value={value} onValueChange={onValueChange} onOpenChange={setIsOpen}>
           <SelectTrigger 
             id="aspect-ratio" 
-            className="w-full h-11 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 focus:border-gray-400 dark:focus:border-gray-500 focus:ring-0 focus:ring-offset-0 transition-colors rounded-xl [&>svg]:hidden text-gray-900 dark:text-white"
+            className="w-full h-9 md:h-11 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 focus:border-gray-400 dark:focus:border-gray-500 focus:ring-0 focus:ring-offset-0 transition-colors rounded-xl [&>svg]:hidden text-gray-900 dark:text-white text-sm"
           >
             <SelectValue placeholder="Select aspect ratio" />
           </SelectTrigger>

@@ -19,7 +19,7 @@ export function ProductPreviewCard({
     <div className="border border-gray-200 dark:border-gray-700 rounded-2xl p-3 sm:p-4 bg-white dark:bg-gray-800">
       <div className="flex gap-2 sm:gap-3 items-start">
         {/* Image Preview */}
-        <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center flex-shrink-0">
+        <div className="w-32 h-44 sm:w-40 sm:h-56 lg:w-56 lg:h-72 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-200">
           {frontImage ? (
             <img 
               src={frontImage} 
@@ -27,7 +27,7 @@ export function ProductPreviewCard({
               className="w-full h-full object-contain rounded-xl"
             />
           ) : (
-            <div className="w-18 h-18 bg-gray-200 dark:bg-gray-600 rounded-lg"></div>
+            <div className="w-28 h-36 bg-gray-200 dark:bg-gray-600 rounded-lg"></div>
           )}
         </div>
 

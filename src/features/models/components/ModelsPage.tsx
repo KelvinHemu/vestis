@@ -65,37 +65,36 @@ export function ModelsPage() {
   // Render Component
   // ============================================================================
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-black p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Gender Selection */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex gap-2">
-            <button
-              onClick={() => setActiveCategory('female')}
-              className={`py-2 px-4 rounded-lg text-sm font-medium transition-all ${activeCategory === 'female'
-                ? 'bg-black dark:bg-white text-white dark:text-black'
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
-                }`}
-            >
-              Female Models
-            </button>
-            <button
-              onClick={() => setActiveCategory('male')}
-              className={`py-2 px-4 rounded-lg text-sm font-medium transition-all ${activeCategory === 'male'
-                ? 'bg-black dark:bg-white text-white dark:text-black'
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
-                }`}
-            >
-              Male Models
-            </button>
-          </div>
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          <button
+            onClick={() => setActiveCategory('female')}
+            className={`py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm font-medium transition-all ${activeCategory === 'female'
+              ? 'bg-black dark:bg-white text-white dark:text-black'
+              : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+              }`}
+          >
+            Female Models
+          </button>
+          <button
+            onClick={() => setActiveCategory('male')}
+            className={`py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm font-medium transition-all ${activeCategory === 'male'
+              ? 'bg-black dark:bg-white text-white dark:text-black'
+              : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+              }`}
+          >
+            Male Models
+          </button>
 
           <Button
             onClick={() => router.push('/add-model')}
             variant="outline"
-            className="flex items-center gap-2 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+            size="sm"
+            className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Add Model
           </Button>
         </div>

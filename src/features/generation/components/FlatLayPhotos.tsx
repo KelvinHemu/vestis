@@ -222,9 +222,8 @@ export function FlatLayPhotos() {
   const steps = [
     'Select Products',
     'Select Models',
-    // 'Customize Models',
-    // 'Select Poses',
     'Select Background',
+    'Quality',
     'Preview & Generate'
   ];
 
@@ -431,6 +430,27 @@ export function FlatLayPhotos() {
       case 3:
         return (
           <div className="space-y-6">
+            {/* Quality Settings - Hidden on desktop since shown in sidebar */}
+            <div className="hidden md:block space-y-4 pb-4">
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Quality Settings</h2>
+              <p className="text-gray-600 dark:text-gray-400">Choose the aspect ratio and resolution for your image</p>
+            </div>
+            
+            <div className="space-y-4">
+              <AspectRatio
+                value={aspectRatio}
+                onValueChange={setAspectRatio}
+              />
+              <Resolution
+                value={resolution}
+                onValueChange={setResolution}
+              />
+            </div>
+          </div>
+        );
+      case 4:
+        return (
+          <div className="space-y-6">
 
             <div className="flex flex-col items-center justify-center min-h-[400px] w-full gap-3 sm:gap-4 md:gap-6">
               {isGenerating ? (
@@ -485,7 +505,7 @@ export function FlatLayPhotos() {
                   </button>
 
                   <div
-                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[140px] xs:max-w-[160px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[300px] xl:max-w-[340px] mb-20"
+                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[280px] xs:max-w-[320px] sm:max-w-[360px] md:max-w-[400px] lg:max-w-[440px] xl:max-w-[480px] mb-20"
                     style={{ aspectRatio: getAspectRatioValue(aspectRatio) }}
                     onDoubleClick={() => setIsFullscreenOpen(true)}
                   >
@@ -541,7 +561,9 @@ export function FlatLayPhotos() {
           return hasSelectedModel;
         case 2: // Background selection
           return hasSelectedBackground;
-        case 3: // Preview & Generate step
+        case 3: // Quality step - always can proceed
+          return true;
+        case 4: // Preview & Generate step
           // Can generate if not already generating and all items selected
           return !isGenerating && hasUploadedAnyProduct && hasSelectedModel && hasSelectedBackground && !generatedImageUrl;
         default:
@@ -583,8 +605,8 @@ export function FlatLayPhotos() {
             setMaxUnlockedStep(nextStep);
           }
         }
-      } else if (currentStep === 3) {
-        // Step 3 (Preview & Generate) - Generate Image action
+      } else if (currentStep === 4) {
+        // Step 4 (Preview & Generate) - Generate Image action
         await handleGenerateImage();
       } else {
         // For other steps, just move forward
@@ -607,21 +629,21 @@ export function FlatLayPhotos() {
           />
         </div>
 
-        {/* Spacer to push content to bottom */}
-        <div className="flex-1"></div>
+        {/* Spacer to push content to bottom - hidden on mobile */}
+        <div className="hidden md:block md:flex-1"></div>
 
         {/* Selected Items and Button at the bottom */}
-        <div className="space-y-4 md:space-y-6">
-          {/* Aspect Ratio Selector */}
-          <div>
+        <div className="space-y-3 md:space-y-6">
+          {/* Aspect Ratio Selector - Only show on desktop sidebar */}
+          <div className="hidden md:block">
             <AspectRatio
               value={aspectRatio}
               onValueChange={setAspectRatio}
             />
           </div>
 
-          {/* Resolution Selector */}
-          <div>
+          {/* Resolution Selector - Only show on desktop sidebar */}
+          <div className="hidden md:block">
             <Resolution
               value={resolution}
               onValueChange={setResolution}
@@ -629,7 +651,7 @@ export function FlatLayPhotos() {
           </div>
 
           {/* Show Download and Regenerate buttons after image is generated */}
-          {currentStep === 3 && generatedImageUrl && (
+          {currentStep === 4 && generatedImageUrl && (
             <div className="flex gap-2">
               <button
                 onClick={async () => {
@@ -652,7 +674,7 @@ export function FlatLayPhotos() {
                     alert('Failed to download image');
                   }
                 }}
-                className="flex-1 bg-black dark:bg-white text-white dark:text-black py-3 rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+                className="flex-1 bg-black dark:bg-white text-white dark:text-black py-2.5 md:py-3 rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors text-sm md:text-base"
               >
                 Download
               </button>
@@ -663,16 +685,16 @@ export function FlatLayPhotos() {
                   await handleGenerateImage();
                 }}
                 disabled={isGenerating}
-                className="px-3 py-3 bg-black dark:bg-white text-white dark:text-black rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-2.5 md:px-3 py-2.5 md:py-3 bg-black dark:bg-white text-white dark:text-black rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Regenerate Image"
               >
-                <RotateCw className={`w-5 h-5 ${isGenerating ? 'animate-spin' : ''}`} />
+                <RotateCw className={`w-4 h-4 md:w-5 md:h-5 ${isGenerating ? 'animate-spin' : ''}`} />
               </button>
             </div>
           )}
 
           {/* Show action button - hide only after image is generated */}
-          {!(currentStep === 3 && generatedImageUrl) && (
+          {!(currentStep === 4 && generatedImageUrl) && (
             <FlatLayActionButton
               generationError={generationError}
               isGenerating={isGenerating}
@@ -731,7 +753,7 @@ export function FlatLayPhotos() {
       {/* Content Area with Left and Right Sections */}
       <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 dark:border-gray-700 overflow-hidden">
         {/* Left Component - full width on phone, flex-1 on tablet+ */}
-        <div className="flex-1 bg-white dark:bg-[#1A1A1A] md:border-r-2 border-gray-300 dark:border-gray-700 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
+        <div className="flex-1 bg-white dark:bg-[#1A1A1A] md:border-r-2 border-gray-300 dark:border-gray-700 m-0 overflow-y-auto relative min-h-0 pb-20 md:pb-0">
           <div className="border-b-2 border-gray-300 dark:border-gray-700">
             <Steps
               steps={steps}
@@ -740,12 +762,12 @@ export function FlatLayPhotos() {
               onStepChange={setCurrentStep}
             />
           </div>
-          <div className="p-8">
+          <div className="p-3 sm:p-4 md:p-8">
             {renderStepContent()}
           </div>
 
-          {/* Floating Input Bar - Only visible on step 3 (Preview & Generate) */}
-          {currentStep === 3 && (
+          {/* Floating Input Bar - Only visible on step 4 (Preview & Generate) */}
+          {currentStep === 4 && (
             <FloatingPromptInput
               value={additionalInfo}
               onChange={setAdditionalInfo}
@@ -756,7 +778,7 @@ export function FlatLayPhotos() {
         </div>
 
         {/* Right Component - fixed bottom bar on phone, sidebar on tablet+ */}
-        <div className="fixed bottom-0 left-0 right-0 md:static md:w-80 lg:w-96 bg-white dark:bg-[#1A1A1A] p-4 sm:p-6 m-0 md:overflow-y-auto flex flex-col border-t-2 md:border-t-0 border-gray-300 dark:border-gray-700 shrink-0 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none">
+        <div className="fixed bottom-4 left-3 right-3 md:static md:w-80 lg:w-96 bg-transparent md:bg-white md:dark:bg-[#1A1A1A] p-0 md:p-6 m-0 md:overflow-y-auto flex flex-col md:border-t-0 border-gray-300 dark:border-gray-700 shrink-0 z-50 md:max-h-none overflow-y-auto">
           {renderRightPanel()}
         </div>
       </div>

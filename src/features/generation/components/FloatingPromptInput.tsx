@@ -23,9 +23,9 @@ export function FloatingPromptInput({
     }
   };
   return (
-    <div className="fixed bottom-20 md:bottom-4 left-0 md:left-[80px] right-0 md:right-80 lg:right-96 p-4 bg-gradient-to-t from-white dark:from-gray-900 via-white dark:via-gray-900 to-transparent pointer-events-none z-[60]">
+    <div className="hidden md:block fixed md:bottom-4 left-0 md:left-[80px] right-0 md:right-80 lg:right-96 px-3 py-2 md:p-4 bg-gradient-to-t from-white dark:from-gray-900 via-white dark:via-gray-900 to-transparent pointer-events-none z-[40]">
       <div className="max-w-3xl mx-auto pointer-events-auto">
-        <div className="bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-300 dark:border-gray-600 flex items-center gap-3 px-4 py-2.5">
+        <div className="bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-300 dark:border-gray-600 flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5">
           <input
             type="text"
             value={value}
@@ -37,7 +37,7 @@ export function FloatingPromptInput({
               }
             }}
             placeholder={disabled ? "Generating..." : placeholder}
-            className={`flex-1 bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-base ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
+            className={`flex-1 bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm sm:text-base min-w-0 ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
             maxLength={maxLength}
             disabled={disabled}
           />
