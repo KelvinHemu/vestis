@@ -161,38 +161,60 @@ export default function ShopSettingsPage() {
   }
 
   return (
-    <div className="container max-w-3xl py-8">
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/shop">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold">Shop Settings</h1>
-          <p className="text-muted-foreground">Manage your shop details and branding</p>
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b">
+        <div className="w-full px-6 sm:px-8 lg:px-12 py-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="icon" className="rounded-full" asChild>
+                <Link href="/shop">
+                  <ArrowLeft className="h-5 w-5" />
+                </Link>
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold">Shop Settings</h1>
+                <p className="text-sm text-muted-foreground">Manage your shop details and branding</p>
+              </div>
+            </div>
+            <Button type="submit" form="shop-settings-form" disabled={updateMutation.isPending}
+              style={{ backgroundColor: '#000000', color: 'white' }}
+              className="font-medium px-6 hover:opacity-90"
+            >
+              {updateMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
+          </div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="max-w-4xl mx-auto py-8 px-6 sm:px-8">
+        <form id="shop-settings-form" onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
+        <Card className="border-0 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg">Basic Information</CardTitle>
             <CardDescription>Your shop's public details</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="name">Shop Name</Label>
+              <Label htmlFor="name" className="text-sm font-medium">Shop Name</Label>
               <Input
                 id="name"
                 value={formData.name || ""}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="h-11"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="slug">Shop URL</Label>
+              <Label htmlFor="slug" className="text-sm font-medium">Shop URL</Label>
               <div className="flex gap-2">
                 <div className="flex-1 flex">
                   <span className="inline-flex items-center px-3 text-sm text-muted-foreground bg-muted border border-r-0 rounded-l-md">
@@ -206,7 +228,7 @@ export default function ShopSettingsPage() {
                       setSlugAvailable(null);
                     }}
                     onBlur={checkSlugAvailability}
-                    className="rounded-l-none"
+                    className="rounded-l-none h-11"
                   />
                 </div>
                 {isCheckingSlug && <Loader2 className="h-5 w-5 animate-spin self-center" />}
@@ -219,18 +241,19 @@ export default function ShopSettingsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className="text-sm font-medium">Description</Label>
               <Textarea
                 id="description"
                 value={formData.description || ""}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                rows={3}
+                rows={4}
+                className="resize-none"
               />
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
               <div className="space-y-0.5">
-                <Label>Shop Active</Label>
+                <Label className="text-sm font-medium">Shop Active</Label>
                 <p className="text-sm text-muted-foreground">
                   When disabled, your shop won't be visible to customers
                 </p>
@@ -244,23 +267,23 @@ export default function ShopSettingsPage() {
         </Card>
 
         {/* Branding */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Branding</CardTitle>
+        <Card className="border-0 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg">Branding</CardTitle>
             <CardDescription>Customize your shop's appearance</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Logo */}
-            <div className="space-y-2">
-              <Label>Shop Logo</Label>
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Shop Logo</Label>
               <div className="flex items-center gap-4">
                 <div 
-                  className="w-20 h-20 rounded-lg border-2 border-dashed flex items-center justify-center overflow-hidden"
+                  className="w-20 h-20 rounded-xl border-2 border-dashed flex items-center justify-center overflow-hidden bg-muted/50"
                   style={shop.logo_image ? { backgroundImage: `url(${shop.logo_image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                 >
                   {!shop.logo_image && <Store className="h-8 w-8 text-muted-foreground" />}
                 </div>
-                <div>
+                <div className="space-y-2">
                   <input
                     type="file"
                     accept="image/*"
@@ -271,7 +294,6 @@ export default function ShopSettingsPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
                     onClick={() => document.getElementById('logo-upload')?.click()}
                     disabled={uploadLogoMutation.isPending}
                   >
@@ -282,60 +304,60 @@ export default function ShopSettingsPage() {
                     )}
                     Upload Logo
                   </Button>
-                  <p className="text-xs text-muted-foreground mt-1">Recommended: 200x200px</p>
+                  <p className="text-xs text-muted-foreground">Recommended: 200x200px</p>
                 </div>
               </div>
             </div>
 
             {/* Banner */}
-            <div className="space-y-2">
-              <Label>Shop Banner</Label>
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Shop Banner</Label>
               <div 
-                className="h-32 rounded-lg border-2 border-dashed flex items-center justify-center overflow-hidden"
-                style={shop.banner_image ? { backgroundImage: `url(${shop.banner_image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { backgroundColor: shop.theme_color }}
+                className="h-36 rounded-xl border-2 border-dashed flex items-center justify-center overflow-hidden"
+                style={shop.banner_image ? { backgroundImage: `url(${shop.banner_image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { backgroundColor: shop.theme_color || '#f5f5f5' }}
               >
-                {!shop.banner_image && <p className="text-muted-foreground">No banner uploaded</p>}
+                {!shop.banner_image && <p className="text-muted-foreground text-sm">No banner uploaded</p>}
               </div>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleBannerUpload}
-                className="hidden"
-                id="banner-upload"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => document.getElementById('banner-upload')?.click()}
-                disabled={uploadBannerMutation.isPending}
-              >
-                {uploadBannerMutation.isPending ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Upload className="mr-2 h-4 w-4" />
-                )}
-                Upload Banner
-              </Button>
-
-              <p className="text-xs text-muted-foreground">Recommended: 1200x300px</p>
+              <div className="flex items-center gap-3">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBannerUpload}
+                  className="hidden"
+                  id="banner-upload"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById('banner-upload')?.click()}
+                  disabled={uploadBannerMutation.isPending}
+                >
+                  {uploadBannerMutation.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Upload className="mr-2 h-4 w-4" />
+                  )}
+                  Upload Banner
+                </Button>
+                <p className="text-xs text-muted-foreground">Recommended: 1200x300px</p>
+              </div>
             </div>
 
             {/* Theme Color */}
-            <div className="space-y-2">
-              <Label htmlFor="theme_color">Theme Color</Label>
-              <div className="flex gap-2 items-center">
+            <div className="space-y-3">
+              <Label htmlFor="theme_color" className="text-sm font-medium">Theme Color</Label>
+              <div className="flex gap-3 items-center">
                 <input
                   type="color"
                   id="theme_color"
                   value={formData.theme_color || "#000000"}
                   onChange={(e) => setFormData({ ...formData, theme_color: e.target.value })}
-                  className="w-12 h-10 rounded border cursor-pointer"
+                  className="w-12 h-11 rounded-lg border cursor-pointer"
                 />
                 <Input
                   value={formData.theme_color || "#000000"}
                   onChange={(e) => setFormData({ ...formData, theme_color: e.target.value })}
-                  className="w-28"
+                  className="w-32 h-11"
                   maxLength={7}
                 />
               </div>
@@ -344,38 +366,43 @@ export default function ShopSettingsPage() {
         </Card>
 
         {/* Contact Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Contact Information</CardTitle>
+        <Card className="border-0 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg">Contact Information</CardTitle>
             <CardDescription>How customers can reach you</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email || ""}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
+          <CardContent className="space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email || ""}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="h-11"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-sm font-medium">Phone</Label>
+                <Input
+                  id="phone"
+                  value={formData.phone || ""}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="h-11"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                value={formData.phone || ""}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="whatsapp">WhatsApp</Label>
+              <Label htmlFor="whatsapp" className="text-sm font-medium">WhatsApp</Label>
               <Input
                 id="whatsapp"
                 placeholder="+255712345678"
                 value={formData.whatsapp || ""}
                 onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                className="h-11"
               />
               <p className="text-xs text-muted-foreground">
                 Include country code. Used for &quot;Inquire via WhatsApp&quot; button.
@@ -384,50 +411,54 @@ export default function ShopSettingsPage() {
           </CardContent>
         </Card>
 
-        {/* Save Button */}
-        <div className="flex justify-between">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button type="button" variant="destructive">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Shop
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete your shop
-                  and all items in it.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => deleteMutation.mutate()}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                >
-                  {deleteMutation.isPending ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : null}
-                  Delete Shop
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
-          <Button type="submit" disabled={updateMutation.isPending}>
-            {updateMutation.isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              "Save Changes"
-            )}
-          </Button>
-        </div>
-      </form>
+        {/* Danger Zone */}
+        <Card className="border-0 shadow-lg border-destructive/20">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg text-destructive">Danger Zone</CardTitle>
+            <CardDescription>Irreversible actions for your shop</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between p-4 bg-destructive/5 rounded-lg">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">Delete Shop</p>
+                <p className="text-sm text-muted-foreground">
+                  Permanently delete your shop and all items
+                </p>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button type="button" variant="destructive" size="sm">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Shop
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete your shop
+                      and all items in it.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => deleteMutation.mutate()}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {deleteMutation.isPending ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : null}
+                      Delete Shop
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </CardContent>
+        </Card>
+        </form>
+      </div>
     </div>
   );
 }

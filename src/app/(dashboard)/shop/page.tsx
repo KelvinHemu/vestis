@@ -1,60 +1,42 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { shopService } from "@/services/shopService";
-import type { Shop, CreateShopRequest } from "@/types/shop";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Store, Settings, Package, Share2, Plus, ExternalLink, Copy, Check } from "lucide-react";
+import { Loader2, Store, Settings, Package, Share2, Plus, ExternalLink, Copy, Check, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 
+import CardDecorator from "./components/CardDecorator";
+import { features } from "./components/features";
+import ShopForm, { type ShopFormValues } from "./components/ShopForm";
+import HowItWorks from "./components/HowItWorks";
+import { useMyShop, useCreateShop } from "@/hooks/useShop";
+
 export default function ShopPage() {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
+  const [step, setStep] = useState(1); // 1 = intro, 2 = form, 3 = how it works
 
-  // Fetch user's shop
-  const { data: shop, isLoading, error } = useQuery({
-    queryKey: ["my-shop"],
-    queryFn: () => shopService.getMyShop(),
-  });
-
-  // Create shop form state
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [formData, setFormData] = useState<CreateShopRequest>({
-    name: "",
-    description: "",
-    contact_email: "",
-    contact_whatsapp: "",
-  });
+  // Fetch user's shop with caching
+  const { data: shop, isLoading } = useMyShop();
 
   // Create shop mutation
-  const createShopMutation = useMutation({
-    mutationFn: (data: CreateShopRequest) => shopService.createShop(data),
-    onSuccess: (newShop) => {
-      queryClient.setQueryData(["my-shop"], newShop);
-      toast.success("Shop created successfully!");
-      setShowCreateForm(false);
-    },
-    onError: (error: Error) => {
-      toast.error(error.message);
-    },
-  });
+  const createShopMutation = useCreateShop();
 
-  const handleCreateShop = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name.trim()) {
-      toast.error("Shop name is required");
-      return;
-    }
-    createShopMutation.mutate(formData);
+  const onSubmit = (data: ShopFormValues) => {
+    createShopMutation.mutate({
+      name: data.name,
+      description: data.description || "",
+      contact_email: data.contact_email || "",
+      contact_whatsapp: data.contact_whatsapp || "",
+    }, {
+      onSuccess: () => {
+        setStep(3); // Go to "How It Works" after successful creation
+      }
+    });
   };
 
   const shopUrl = shop ? `${typeof window !== 'undefined' ? window.location.origin : ''}/shop/${shop.slug}` : '';
@@ -74,180 +56,166 @@ export default function ShopPage() {
     );
   }
 
-  // No shop yet - show create form
+  // No shop yet - show create flow
   if (!shop) {
-    return (
-      <div className="container max-w-2xl py-8">
-        <div className="text-center mb-8">
-          <Store className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-          <h1 className="text-3xl font-bold mb-2">Create Your Digital Shop</h1>
-          <p className="text-muted-foreground">
-            Set up your shop to showcase and share your clothing items with customers
-          </p>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Shop Details</CardTitle>
-            <CardDescription>
-              Enter your shop information. You can always update this later.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleCreateShop} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Shop Name *</Label>
-                <Input
-                  id="name"
-                  placeholder="My Fashion Store"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
+    // Step 1: Introduction
+    if (step === 1) {
+      return (
+        <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
+          <div className="mx-auto max-w-5xl px-6 w-full">
+            {/* Hero Section - Two Column Layout */}
+            <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
+              {/* Image on Left */}
+              <div className="flex-shrink-0 order-2 md:order-1">
+                <img
+                  src="https://res.cloudinary.com/ds4lpuk8p/image/upload/v1769525927/shop_upbm1a.png"
+                  alt="Open your shop"
+                  className="w-[280px] md:w-[320px] lg:w-[380px]"
+                  draggable={false}
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Tell customers about your shop..."
-                  value={formData.description || ""}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Contact Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="contact@yourshop.com"
-                  value={formData.contact_email || ""}
-                  onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="whatsapp">WhatsApp Number</Label>
-                <Input
-                  id="whatsapp"
-                  placeholder="+255712345678"
-                  value={formData.contact_whatsapp || ""}
-                  onChange={(e) => setFormData({ ...formData, contact_whatsapp: e.target.value })}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Include country code. Customers can contact you via WhatsApp.
+              {/* Text Content on Right */}
+              <div className="flex-1 text-center md:text-left order-1 md:order-2">
+                <h2 className="text-balance text-3xl font-semibold md:text-4xl lg:text-5xl">
+                  Open Your Digital Shop
+                </h2>
+                <p className="mt-3 text-muted-foreground">
+                  Start Selling with Easy Online. Create your own storefront and start selling today.
                 </p>
+                
+                {/* CTA */}
+                <div className="mt-6 md:mt-8">
+                  <Button 
+                    size="lg" 
+                    onClick={() => setStep(2)} 
+                    className="h-12 px-8 text-lg rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
+                  >
+                    Get Started
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </div>
               </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
-              <Button type="submit" className="w-full" disabled={createShopMutation.isPending}>
-                {createShopMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating Shop...
-                  </>
-                ) : (
-                  <>
-                    <Store className="mr-2 h-4 w-4" />
-                    Create Shop
-                  </>
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    // Step 2: Form
+    if (step === 2) {
+      return (
+        <ShopForm
+          onSubmit={onSubmit}
+          onBack={() => setStep(1)}
+          isPending={createShopMutation.isPending}
+        />
+      );
+    }
+
+    // Step 3: How It Works (after shop creation)
+    if (step === 3 && createShopMutation.data) {
+      return (
+        <HowItWorks
+          shopName={createShopMutation.data.name}
+          onContinue={() => router.refresh()}
+        />
+      );
+    }
+
+    // Fallback to intro
+    return null;
   }
 
   // Shop exists - show dashboard
   return (
-    <div className="container py-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold">{shop.name}</h1>
-            {shop.is_active ? (
-              <Badge variant="default" className="bg-green-500">Active</Badge>
-            ) : (
-              <Badge variant="secondary">Inactive</Badge>
-            )}
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+      {/* Glassy Header */}
+      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-3">
+                <h1 className="text-xl sm:text-2xl font-semibold">{shop.name}</h1>
+                {shop.is_active ? (
+                  <Badge className="bg-green-500/90 hover:bg-green-500 text-white border-0">Active</Badge>
+                ) : (
+                  <Badge variant="secondary">Inactive</Badge>
+                )}
+              </div>
+              <p className="text-muted-foreground text-sm">{shop.description || "No description"}</p>
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+              <Button variant="outline" size="sm" asChild className="h-9">
+                <Link href={`/shop/${shop.slug}`} target="_blank">
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  View Shop
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" onClick={copyShopLink} className="h-9">
+                {copied ? (
+                  <Check className="mr-2 h-4 w-4" />
+                ) : (
+                  <Copy className="mr-2 h-4 w-4" />
+                )}
+                {copied ? "Copied!" : "Copy Link"}
+              </Button>
+            </div>
           </div>
-          <p className="text-muted-foreground mt-1">{shop.description || "No description"}</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link href={`/shop/${shop.slug}`} target="_blank">
-              <ExternalLink className="mr-2 h-4 w-4" />
-              View Shop
-            </Link>
-          </Button>
-          <Button variant="outline" onClick={copyShopLink}>
-            {copied ? (
-              <Check className="mr-2 h-4 w-4" />
-            ) : (
-              <Copy className="mr-2 h-4 w-4" />
-            )}
-            {copied ? "Copied!" : "Copy Link"}
-          </Button>
         </div>
       </div>
 
-      {/* Shop URL Card */}
-      <Card className="mb-8">
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <Share2 className="h-8 w-8 text-primary" />
-            <div className="flex-1">
-              <p className="text-sm text-muted-foreground mb-1">Your Shop Link</p>
-              <code className="text-sm bg-muted px-3 py-1.5 rounded-md block overflow-x-auto">
-                {shopUrl}
-              </code>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Main Content */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => router.push("/shop/items")}>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Package className="h-6 w-6 text-primary" />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <Card 
+          className="hover:border-primary/50 hover:shadow-sm transition-all cursor-pointer group" 
+          onClick={() => router.push("/shop/items")}
+        >
+          <CardContent className="p-4 sm:p-5">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2.5 sm:p-3 bg-primary/10 rounded-lg group-hover:bg-primary/15 transition-colors">
+                <Package className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
-              <div>
-                <h3 className="font-semibold">Manage Items</h3>
-                <p className="text-sm text-muted-foreground">Add, edit, or remove products</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => router.push("/shop/items/new")}>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-500/10 rounded-lg">
-                <Plus className="h-6 w-6 text-green-500" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Add New Item</h3>
-                <p className="text-sm text-muted-foreground">Add a product to your shop</p>
+              <div className="min-w-0">
+                <h3 className="font-semibold text-sm sm:text-base">Manage Items</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">Add, edit, or remove products</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => router.push("/shop/settings")}>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-orange-500/10 rounded-lg">
-                <Settings className="h-6 w-6 text-orange-500" />
+        <Card 
+          className="hover:border-green-500/50 hover:shadow-sm transition-all cursor-pointer group" 
+          onClick={() => router.push("/shop/items/new")}
+        >
+          <CardContent className="p-4 sm:p-5">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2.5 sm:p-3 rounded-lg transition-colors">
+                <Plus className="h-5 w-5 sm:h-6 sm:w-6 text-black dark:text-white" />
               </div>
-              <div>
-                <h3 className="font-semibold">Shop Settings</h3>
-                <p className="text-sm text-muted-foreground">Update shop details & branding</p>
+              <div className="min-w-0">
+                <h3 className="font-semibold text-sm sm:text-base">Add New Item</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">Add a product to your shop</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="hover:border-orange-500/50 hover:shadow-sm transition-all cursor-pointer group" 
+          onClick={() => router.push("/shop/settings")}
+        >
+          <CardContent className="p-4 sm:p-5">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2.5 sm:p-3 rounded-lg transition-colors">
+                <Settings className="h-5 w-5 sm:h-6 sm:w-6 text-black dark:text-white" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-semibold text-sm sm:text-base">Shop Settings</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">Update shop details & branding</p>
               </div>
             </div>
           </CardContent>
@@ -256,40 +224,41 @@ export default function ShopPage() {
 
       {/* Shop Preview */}
       <Card>
-        <CardHeader>
-          <CardTitle>Shop Preview</CardTitle>
-          <CardDescription>This is how your shop appears to customers</CardDescription>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">Shop Preview</CardTitle>
+          <CardDescription className="text-sm">This is how your shop appears to customers</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="border rounded-lg overflow-hidden">
+        <CardContent className="pt-0">
+          <div className="border rounded-xl overflow-hidden bg-muted/30">
             {/* Banner */}
             <div
-              className="h-32 bg-gradient-to-r from-gray-700 to-gray-900"
+              className="h-24 sm:h-32 bg-gradient-to-r from-slate-700 to-slate-900"
               style={shop.banner_image ? { backgroundImage: `url(${shop.banner_image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { backgroundColor: shop.theme_color }}
             />
 
             {/* Shop Info */}
-            <div className="p-6 -mt-12 relative">
-              <div className="flex items-end gap-4">
+            <div className="p-4 sm:p-6 -mt-10 sm:-mt-12 relative">
+              <div className="flex items-end gap-3 sm:gap-4">
                 {/* Logo */}
                 <div
-                  className="w-20 h-20 rounded-lg bg-white border-4 border-white shadow-lg flex items-center justify-center"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-background border-4 border-background shadow-lg flex items-center justify-center flex-shrink-0"
                   style={shop.logo_image ? { backgroundImage: `url(${shop.logo_image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                 >
-                  {!shop.logo_image && <Store className="h-8 w-8 text-muted-foreground" />}
+                  {!shop.logo_image && <Store className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />}
                 </div>
-                <div className="pb-1">
-                  <h2 className="text-xl font-bold">{shop.name}</h2>
-                  <p className="text-sm text-muted-foreground">@{shop.slug}</p>
+                <div className="pb-1 min-w-0">
+                  <h2 className="text-lg sm:text-xl font-bold truncate">{shop.name}</h2>
+                  <p className="text-xs sm:text-sm text-muted-foreground">@{shop.slug}</p>
                 </div>
               </div>
               {shop.description && (
-                <p className="mt-4 text-muted-foreground">{shop.description}</p>
+                <p className="mt-3 sm:mt-4 text-sm text-muted-foreground line-clamp-2">{shop.description}</p>
               )}
             </div>
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

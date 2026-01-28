@@ -12,11 +12,10 @@ import { useUser, useCredits } from '@/hooks/useUser';
    Define sidebar navigation items here
    ============================================ */
 const menuItems = [
-  { icon: Home, label: 'Home', path: '/dashboard', badge: null },
+  { icon: Store, label: 'Shop', path: '/shop', badge: null },
   { icon: Plus, label: 'Create', path: '/create', badge: null },
   { icon: Users, label: 'Models', path: '/models', badge: null },
   { icon: Image, label: 'Backgrounds', path: '/backgrounds', badge: null },
-  { icon: Store, label: 'Shop', path: '/shop', badge: null },
   { icon: Grid, label: 'Projects', path: '/projects', badge: null },
   { icon: CreditCard, label: 'Payment', path: '/payment', badge: null },
 ];
