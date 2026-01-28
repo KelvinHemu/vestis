@@ -13,11 +13,53 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Loader2, ArrowLeft, MessageCircle, Mail, ChevronLeft, ChevronRight, Share2, Check, ShoppingBag, Sparkles, Upload, X, Camera } from "lucide-react";
+import { Loader2, ArrowLeft, MessageCircle, Mail, ChevronLeft, ChevronRight, Share2, Check, ShoppingBag, Sparkles, Upload, X, Camera, Menu, Bell, ShoppingCart, User, RotateCcw } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
+// Color name to hex mapping for common colors
+const colorToHex: Record<string, string> = {
+  red: "#EF4444",
+  blue: "#3B82F6",
+  green: "#22C55E",
+  yellow: "#EAB308",
+  purple: "#A855F7",
+  pink: "#EC4899",
+  orange: "#F97316",
+  black: "#1F2937",
+  white: "#FFFFFF",
+  gray: "#9CA3AF",
+  grey: "#9CA3AF",
+  navy: "#1E3A5A",
+  brown: "#92400E",
+  beige: "#D4C4A8",
+  cream: "#FFFDD0",
+  mint: "#98FF98",
+  teal: "#14B8A6",
+  coral: "#FF7F7F",
+  lavender: "#C4B5FD",
+  maroon: "#7F1D1D",
+  olive: "#84CC16",
+  tan: "#D2B48C",
+  turquoise: "#40E0D0",
+  gold: "#FFD700",
+  silver: "#C0C0C0",
+  cyan: "#06B6D4",
+  magenta: "#D946EF",
+  indigo: "#6366F1",
+  violet: "#8B5CF6",
+  charcoal: "#374151",
+  burgundy: "#800020",
+  khaki: "#C3B091",
+  // Add more as needed
+};
+
+const getColorHex = (colorName: string): string => {
+  const normalized = colorName.toLowerCase().trim();
+  return colorToHex[normalized] || "#9CA3AF"; // Default to gray if not found
+};
 
 export default function PublicItemPage() {
   const params = useParams();
@@ -184,10 +226,10 @@ export default function PublicItemPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#F5F5F5]">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b">
-        <div className="container max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-10 bg-[#F5F5F5]/95 backdrop-blur border-b border-gray-200">
+        <div className="container max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <Button variant="ghost" size="sm" asChild>
             <Link href={`/shop/${slug}`} className="gap-2">
               <ArrowLeft className="h-4 w-4" />
@@ -204,152 +246,144 @@ export default function PublicItemPage() {
         </div>
       </header>
 
-      <main className="container max-w-5xl mx-auto px-4 py-6">
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Image Gallery */}
-          <div className="space-y-4">
-            <div className="relative aspect-[3/4] rounded-lg overflow-hidden bg-muted">
-              {images.length > 0 ? (
-                <>
-                  <Image
-                    src={images[currentImageIndex]}
-                    alt={item.name}
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                  {hasMultipleImages && (
-                    <>
-                      <button
-                        onClick={prevImage}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-background/80 rounded-full shadow hover:bg-background"
-                      >
-                        <ChevronLeft className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={nextImage}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-background/80 rounded-full shadow hover:bg-background"
-                      >
-                        <ChevronRight className="h-5 w-5" />
-                      </button>
-                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-                        {images.map((_: string, idx: number) => (
-                          <button
-                            key={idx}
-                            onClick={() => setCurrentImageIndex(idx)}
-                            className={`w-2 h-2 rounded-full transition-colors ${
-                              idx === currentImageIndex ? "bg-primary" : "bg-white/60"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </>
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-6xl text-muted-foreground">👔</span>
-                </div>
-              )}
-            </div>
-
-            {/* Thumbnail strip */}
-            {hasMultipleImages && (
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {images.map((img: string, idx: number) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentImageIndex(idx)}
-                    className={`relative w-16 h-20 flex-shrink-0 rounded-md overflow-hidden border-2 transition-colors ${
-                      idx === currentImageIndex ? "border-primary" : "border-transparent"
-                    }`}
-                  >
-                    <Image src={img} alt={`${item.name} ${idx + 1}`} fill className="object-cover" />
-                  </button>
-                ))}
+      <main className="container max-w-6xl mx-auto px-4 py-8 md:py-12">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start justify-center">
+          {/* Left: Main Image */}
+          <div className="relative w-full lg:w-[420px] aspect-[4/5] bg-[#E8E8E8] rounded-sm overflow-hidden flex-shrink-0">
+            {images.length > 0 ? (
+              <Image
+                src={images[currentImageIndex]}
+                alt={item.name}
+                fill
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-6xl text-muted-foreground">👔</span>
               </div>
             )}
           </div>
 
-          {/* Product Info */}
-          <div className="space-y-6">
-            {/* Category */}
-            {item.category && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground">
-                {item.category}
-              </span>
-            )}
+          {/* Center: Vertical Thumbnails */}
+          {hasMultipleImages && (
+            <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-y-auto lg:max-h-[520px] pb-2 lg:pb-0 flex-shrink-0">
+              {images.map((img: string, idx: number) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentImageIndex(idx)}
+                  className={cn(
+                    "relative w-16 h-20 lg:w-[72px] lg:h-[90px] flex-shrink-0 rounded-sm overflow-hidden border-2 transition-all",
+                    idx === currentImageIndex 
+                      ? "border-gray-800 shadow-md" 
+                      : "border-transparent hover:border-gray-300"
+                  )}
+                >
+                  <Image src={img} alt={`${item.name} ${idx + 1}`} fill className="object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Right: Product Details Card */}
+          <div className="w-full lg:w-[340px] bg-white rounded-lg p-6 shadow-sm flex-shrink-0">
+            {/* Refresh/Share Icon */}
+            <div className="flex justify-end mb-4">
+              <button 
+                onClick={handleShare}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <RotateCcw className="h-4 w-4 text-gray-400" />
+              </button>
+            </div>
 
             {/* Title & Price */}
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold">{item.name}</h1>
+            <div className="mb-4">
+              <h1 className="text-lg font-bold tracking-wide uppercase text-gray-900">
+                {item.name}
+              </h1>
               {item.price > 0 && (
-                <p className="text-2xl font-semibold mt-2">
+                <p className="text-lg font-semibold mt-1 text-gray-900">
                   {formatPrice(item.price, item.currency)}
                 </p>
               )}
+              <p className="text-sm text-gray-500 mt-1">MRP incl. of all taxes</p>
             </div>
-
-            {/* Availability */}
-            {!item.is_available && (
-              <span className="inline-flex items-center px-4 py-1 rounded-full text-base font-medium bg-destructive text-destructive-foreground">
-                Currently Unavailable
-              </span>
-            )}
 
             {/* Description */}
             {item.description && (
-              <div>
-                <h3 className="font-medium mb-2">Description</h3>
-                <p className="text-muted-foreground whitespace-pre-wrap">{item.description}</p>
-              </div>
+              <p className="text-sm font-medium text-gray-800 mb-6 leading-relaxed">
+                {item.description}
+              </p>
             )}
 
-            {/* Sizes */}
-            {item.sizes && item.sizes.length > 0 && (
-              <div>
-                <h3 className="font-medium mb-2">Select Size</h3>
-                <div className="flex flex-wrap gap-2">
-                  {item.sizes.map((size) => (
-                    <Button
-                      key={size}
-                      variant={selectedSize === size ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedSize(size === selectedSize ? null : size)}
-                    >
-                      {size}
-                    </Button>
-                  ))}
-                </div>
+            {/* Availability */}
+            {!item.is_available && (
+              <div className="mb-4">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
+                  Currently Unavailable
+                </span>
               </div>
             )}
 
             {/* Colors */}
             {item.colors && item.colors.length > 0 && (
-              <div>
-                <h3 className="font-medium mb-2">Select Color</h3>
+              <div className="mb-5">
+                <h3 className="text-sm text-gray-600 mb-3">Color</h3>
                 <div className="flex flex-wrap gap-2">
                   {item.colors.map((color) => (
-                    <Button
+                    <button
                       key={color}
-                      variant={selectedColor === color ? "default" : "outline"}
-                      size="sm"
                       onClick={() => setSelectedColor(color === selectedColor ? null : color)}
-                    >
-                      {color}
-                    </Button>
+                      className={cn(
+                        "w-10 h-10 rounded-sm border-2 transition-all",
+                        selectedColor === color 
+                          ? "border-gray-800 ring-1 ring-gray-800 ring-offset-1" 
+                          : "border-gray-200 hover:border-gray-400"
+                      )}
+                      style={{ backgroundColor: getColorHex(color) }}
+                      title={color}
+                    />
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Sizes */}
+            {item.sizes && item.sizes.length > 0 && (
+              <div className="mb-5">
+                <h3 className="text-sm text-gray-600 mb-3">Size</h3>
+                <div className="flex flex-wrap gap-2">
+                  {item.sizes.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size === selectedSize ? null : size)}
+                      className={cn(
+                        "min-w-[40px] h-10 px-3 rounded-sm border text-sm font-medium transition-all",
+                        selectedSize === size 
+                          ? "bg-gray-900 text-white border-gray-900" 
+                          : "bg-white text-gray-700 border-gray-300 hover:border-gray-500"
+                      )}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex gap-3 mt-3 text-xs text-gray-500">
+                  <button className="hover:text-gray-700 hover:underline">FIND YOUR SIZE</button>
+                  <span>|</span>
+                  <button className="hover:text-gray-700 hover:underline">MEASUREMENT GUIDE</button>
                 </div>
               </div>
             )}
 
             {/* Buy and Try On Buttons */}
             {item.is_available && (
-              <div className="grid grid-cols-2 gap-3 pt-4">
+              <div className="grid grid-cols-2 gap-3 mt-6">
                 {/* Buy Button */}
                 <Button
                   asChild
-                  className="bg-black hover:bg-black/90 text-white h-12 text-base font-medium"
+                  className="bg-gray-900 hover:bg-gray-800 text-white h-11 text-sm font-medium rounded-sm"
                   size="lg"
                 >
                   <a
@@ -377,7 +411,7 @@ export default function PublicItemPage() {
                 {/* Try On Button */}
                 <Button
                   variant="outline"
-                  className="h-12 text-base font-medium border-2 hover:bg-muted"
+                  className="h-11 text-sm font-medium border border-gray-900 text-gray-900 hover:bg-gray-100 rounded-sm"
                   size="lg"
                   onClick={() => setShowTryOnModal(true)}
                 >
@@ -390,8 +424,8 @@ export default function PublicItemPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t mt-12">
-        <div className="container max-w-5xl mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
+      <footer className="border-t border-gray-200 mt-12 bg-[#F5F5F5]">
+        <div className="container max-w-6xl mx-auto px-4 py-6 text-center text-sm text-gray-500">
           <p>© {new Date().getFullYear()} {shop?.name}. Powered by Vestis</p>
         </div>
       </footer>
