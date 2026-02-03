@@ -5,8 +5,24 @@ import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/contexts/authStore';
 import { processOAuthCallback } from '@/utils/oauthHelper';
-import { USER_QUERY_KEY, CREDITS_QUERY_KEY } from '@/hooks/useUser';
+import { USER_QUERY_KEY } from '@/hooks/useUser';
 import { AuthEvents } from '@/utils/analytics';
+
+// Storage key for OAuth redirect
+const OAUTH_REDIRECT_KEY = 'oauth_redirect';
+
+// Safe redirect paths that are allowed after authentication
+const SAFE_REDIRECT_PREFIXES = ['/shop/', '/dashboard', '/profile'];
+
+/**
+ * Check if a redirect path is safe (internal and allowed)
+ */
+function isSafeRedirect(path: string): boolean {
+  if (!path || typeof path !== 'string') return false;
+  if (!path.startsWith('/')) return false;
+  if (path.includes('://')) return false;
+  return SAFE_REDIRECT_PREFIXES.some(prefix => path.startsWith(prefix));
+}
 
 /* ============================================
    OAuth Callback Component
@@ -56,11 +72,10 @@ export function OAuthCallback() {
         // Update auth store with user data and token
         loginWithOAuth(result.accessToken, result.user);
 
-        console.log('✅ Auth store updated, invalidating user and credits queries for fresh data');
+        console.log('✅ Auth store updated, invalidating user query for fresh credits');
 
-        // Invalidate both user and credits queries to fetch fresh data from API
+        // Invalidate user query to fetch fresh user data (including credits) from API
         await queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
-        await queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
 
         // Track successful Google OAuth login
         AuthEvents.login('google');
@@ -69,10 +84,18 @@ export function OAuthCallback() {
         // This prevents race conditions where redirect happens before persist
         await new Promise(resolve => setTimeout(resolve, 100));
 
-        console.log('🚀 Redirecting to dashboard...');
+        // Check for stored redirect URL (from shop/try-on flow)
+        const storedRedirect = sessionStorage.getItem(OAUTH_REDIRECT_KEY);
+        sessionStorage.removeItem(OAUTH_REDIRECT_KEY); // Clean up
+        
+        const destination = storedRedirect && isSafeRedirect(storedRedirect) 
+          ? storedRedirect 
+          : '/dashboard';
 
-        // Redirect to dashboard
-        router.replace('/dashboard');
+        console.log('🚀 Redirecting to:', destination);
+
+        // Redirect to stored destination or dashboard
+        router.replace(destination);
       } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : 'Authentication failed. Please try again.';
         console.error('❌ OAuth callback error:', err);

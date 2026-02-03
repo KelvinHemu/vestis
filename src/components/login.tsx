@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Eye, EyeOff, RefreshCw, CheckCircle2 } from 'lucide-react'
 import { Logo } from '@/components/logo'
 import { Button } from '@/components/ui/button'
@@ -10,10 +11,14 @@ import { ErrorMessage } from '@/components/ui/ErrorMessage'
 import { useLogin } from '@/hooks/useAuth'
 import Link from 'next/link'
 
+// Storage key for OAuth redirect
+const OAUTH_REDIRECT_KEY = 'oauth_redirect';
+
 export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
+    const searchParams = useSearchParams()
 
     const {
         login,
@@ -28,6 +33,16 @@ export default function LoginPage() {
 
     // Build Google OAuth URL
     const googleAuthUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/v1/auth/google`
+
+    // Handle Google OAuth click - store redirect URL before navigating
+    const handleGoogleAuth = () => {
+        const redirectTo = searchParams.get('redirect')
+        if (redirectTo) {
+            // Store redirect URL for after OAuth completes
+            sessionStorage.setItem(OAUTH_REDIRECT_KEY, redirectTo)
+        }
+        window.location.href = googleAuthUrl
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -56,7 +71,7 @@ export default function LoginPage() {
                             type="button"
                             variant="outline"
                             className="w-full"
-                            onClick={() => window.location.href = googleAuthUrl}>
+                            onClick={handleGoogleAuth}>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="0.98em"
@@ -208,7 +223,7 @@ export default function LoginPage() {
                             asChild
                             variant="link"
                             className="px-2">
-                            <Link href="/signup">Create account</Link>
+                            <Link href={searchParams.get('redirect') ? `/signup?redirect=${encodeURIComponent(searchParams.get('redirect')!)}` : '/signup'}>Create account</Link>
                         </Button>
                     </p>
                 </div>

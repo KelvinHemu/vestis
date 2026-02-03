@@ -7,7 +7,6 @@ import type {
   GenerateBackgroundChangeResponse,
 } from '../types/backgroundChange';
 import { InsufficientCreditsError } from '../types/errors';
-import { CREDITS_QUERY_KEY } from './useUser';
 
 // Query keys
 export const BACKGROUND_CHANGE_KEYS = {
@@ -62,8 +61,6 @@ export function useBackgroundChangeGenerate() {
     onSuccess: () => {
       // Invalidate history cache to include new generation
       queryClient.invalidateQueries({ queryKey: BACKGROUND_CHANGE_KEYS.history() });
-      // Invalidate credits query to refresh balance after generation
-      queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
     },
   });
 }

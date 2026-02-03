@@ -6,7 +6,23 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { useAuthStore } from "@/contexts/authStore";
 import { processOAuthCallback } from "@/utils/oauthHelper";
-import { USER_QUERY_KEY, CREDITS_QUERY_KEY } from "@/hooks/useUser";
+import { USER_QUERY_KEY } from "@/hooks/useUser";
+
+// Storage key for OAuth redirect (same as in login.tsx)
+const OAUTH_REDIRECT_KEY = 'oauth_redirect';
+
+// Safe redirect paths that are allowed after authentication
+const SAFE_REDIRECT_PREFIXES = ['/shop/', '/dashboard', '/profile'];
+
+/**
+ * Check if a redirect path is safe (internal and allowed)
+ */
+function isSafeRedirect(path: string): boolean {
+  if (!path || typeof path !== 'string') return false;
+  if (!path.startsWith('/')) return false;
+  if (path.includes('://')) return false;
+  return SAFE_REDIRECT_PREFIXES.some(prefix => path.startsWith(prefix));
+}
 
 /* ============================================
    Dashboard Layout
@@ -50,18 +66,27 @@ export default function DashboardLayout({
           console.log('✅ OAuth tokens processed successfully');
           loginWithOAuth(result.accessToken, result.user);
 
-          console.log('✅ Invalidating user and credits queries for fresh data');
-          // Invalidate both user and credits queries to fetch fresh data from API
+          console.log('✅ Invalidating user query for fresh credits');
+          // Invalidate user query to fetch fresh user data (including credits) from API
           await queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
-          await queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
 
-          // Clean URL and let the component re-render with auth
+          // Check for stored redirect URL (from shop/try-on flow)
+          const storedRedirect = sessionStorage.getItem(OAUTH_REDIRECT_KEY);
+          sessionStorage.removeItem(OAUTH_REDIRECT_KEY); // Clean up
+
+          // Clean URL hash
           window.history.replaceState(null, "", window.location.pathname);
 
           // Small delay to ensure state is saved
-          setTimeout(() => {
+          await new Promise(resolve => setTimeout(resolve, 100));
+
+          // Redirect to stored destination or stay on dashboard
+          if (storedRedirect && isSafeRedirect(storedRedirect)) {
+            console.log('🚀 Redirecting to stored destination:', storedRedirect);
+            router.replace(storedRedirect);
+          } else {
             setIsProcessingOAuth(false);
-          }, 100);
+          }
         } else {
           console.error('❌ Failed to process OAuth tokens');
           setIsProcessingOAuth(false);
@@ -114,8 +139,8 @@ export default function DashboardLayout({
       {/* Sidebar Navigation */}
       <Sidebar />
 
-      {/* Main Content Area - offset by sidebar width on desktop, top padding for mobile header */}
-      <main className="flex-1 md:ml-20 min-h-screen pt-14 md:pt-0">
+      {/* Main Content Area - offset by sidebar width */}
+      <main className="flex-1 ml-20 min-h-screen">
         {children}
       </main>
     </div>

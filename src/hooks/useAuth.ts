@@ -1,13 +1,29 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/contexts/authStore';
 import authService from '@/services/authService';
 import type { LoginCredentials, SignupCredentials } from '@/types/auth';
-import { USER_QUERY_KEY, CREDITS_QUERY_KEY } from './useUser';
+import { USER_QUERY_KEY } from './useUser';
 import { AuthEvents } from '@/utils/analytics';
+
+// Safe redirect paths that are allowed after authentication
+const SAFE_REDIRECT_PREFIXES = ['/shop/', '/dashboard', '/profile'];
+
+/**
+ * Check if a redirect path is safe (internal and allowed)
+ */
+function isSafeRedirect(path: string): boolean {
+  if (!path || typeof path !== 'string') return false;
+  // Must start with / (relative path)
+  if (!path.startsWith('/')) return false;
+  // Must not contain protocol (prevent open redirect)
+  if (path.includes('://')) return false;
+  // Check against allowed prefixes
+  return SAFE_REDIRECT_PREFIXES.some(prefix => path.startsWith(prefix));
+}
 
 /* ============================================
    Authentication Hooks
@@ -40,6 +56,7 @@ export function useLogin(): UseLoginReturn {
     pendingVerificationEmail,
   } = useAuthStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const [resendLoading, setResendLoading] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
@@ -55,16 +72,19 @@ export function useLogin(): UseLoginReturn {
     setResendSuccess(false);
     try {
       await authLogin(credentials);
-      console.log('Login succeeded, invalidating user and credits queries for fresh data');
-      // Invalidate both user and credits queries to fetch fresh data from API
+      console.log('Login succeeded, invalidating user query for fresh credits');
+      // Invalidate user query to fetch fresh user data (including credits) from API
       await queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
-      await queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
 
       // Track successful login
       AuthEvents.login('email');
 
-      console.log('Login succeeded, navigating to dashboard');
-      router.replace('/dashboard');
+      // Check for redirect parameter
+      const redirectTo = searchParams.get('redirect');
+      const destination = redirectTo && isSafeRedirect(redirectTo) ? redirectTo : '/dashboard';
+      
+      console.log('Login succeeded, navigating to:', destination);
+      router.replace(destination);
     } catch {
       console.log('Login failed, error set in store');
       // Error is already set in the store by authLogin

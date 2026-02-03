@@ -7,7 +7,7 @@ import type {
   GenerateFlatLayResponse,
 } from '../types/flatlay';
 import { InsufficientCreditsError } from '../types/errors';
-import { CREDITS_QUERY_KEY } from './useUser';
+import { USER_QUERY_KEY } from './useUser';
 
 // Query keys
 export const MANNEQUIN_KEYS = {
@@ -62,8 +62,8 @@ export function useMannequinGenerate() {
     onSuccess: () => {
       // Invalidate history cache to include new generation
       queryClient.invalidateQueries({ queryKey: MANNEQUIN_KEYS.history() });
-      // Invalidate credits query to refresh balance after generation
-      queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
+      // Invalidate user query to refresh credits
+      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
     },
   });
 }

@@ -7,7 +7,7 @@ import type {
   GenerateFlatLayResponse,
 } from '../types/flatlay';
 import { InsufficientCreditsError } from '../types/errors';
-import { CREDITS_QUERY_KEY } from './useUser';
+import { USER_QUERY_KEY } from './useUser';
 
 // Query keys
 export const FLATLAY_KEYS = {
@@ -62,8 +62,8 @@ export function useFlatLayGenerate() {
     onSuccess: () => {
       // Invalidate history cache to include new generation
       queryClient.invalidateQueries({ queryKey: FLATLAY_KEYS.history() });
-      // Invalidate credits query to refresh balance after generation
-      queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
+      // Invalidate user query to refresh credits
+      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
     },
   });
 }

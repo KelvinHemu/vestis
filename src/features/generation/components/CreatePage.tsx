@@ -11,7 +11,7 @@ import { InsufficientCreditsDialog } from '@/components/ui/InsufficientCreditsDi
 import { FullscreenImageViewer } from '@/components/ui/FullscreenImageViewer';
 import { chatService } from '@/services/chatService';
 import { InsufficientCreditsError } from '@/types/errors';
-import { CREDITS_QUERY_KEY } from '@/hooks/useUser';
+import { USER_QUERY_KEY } from '@/hooks/useUser';
 
 interface UploadedImage {
   id: string;
@@ -90,8 +90,8 @@ export const CreatePage: React.FC = () => {
 
         setGeneratedImage(response.imageUrl);
         setIsEditMode(true); // Enable edit mode after first generation
-        // Invalidate credits query to refresh balance after generation
-        queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY });
+        // Invalidate user query to refresh credits
+        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
         console.log('✅ Generation completed:', response);
       } else {
         throw new Error(response.message || 'Generation failed - no image URL returned');
@@ -289,7 +289,7 @@ export const CreatePage: React.FC = () => {
       )}
 
       {/* Fixed FloatingAskBar at bottom - responsive positioning */}
-      <div className="fixed bottom-0 left-0 md:left-20 right-0 px-3 py-3 sm:px-6 sm:py-4 bg-gradient-to-t from-gray-100 dark:from-gray-950 via-gray-100/95 dark:via-gray-950/95 to-transparent pointer-events-none z-20">
+      <div className="fixed bottom-0 left-20 right-0 px-3 py-3 sm:px-6 sm:py-4 bg-gradient-to-t from-gray-100 dark:from-gray-950 via-gray-100/95 dark:via-gray-950/95 to-transparent pointer-events-none z-20">
         <div className="w-full max-w-3xl mx-auto pointer-events-auto">
           <FloatingAskBar
             onFilesSelected={handleFilesSelected}
