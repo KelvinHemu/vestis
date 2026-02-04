@@ -95,6 +95,19 @@ const CATEGORIES = [
   "Other",
 ];
 
+// Common catalog suggestions
+const CATALOG_SUGGESTIONS = [
+  "New Collection",
+  "Summer Collection",
+  "Winter Collection",
+  "Spring Collection",
+  "Fall Collection",
+  "New Arrivals",
+  "Best Sellers",
+  "Sale",
+  "Limited Edition",
+];
+
 export default function NewShopItemPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -133,6 +146,7 @@ export default function NewShopItemPage() {
     price: 0,
     currency: "TZS",
     category: "",
+    catalog: "",
     images: [],
     sizes: [],
     colors: [],
@@ -639,6 +653,7 @@ export default function NewShopItemPage() {
                             src={image} 
                             alt={`Product ${index + 1}`} 
                             fill 
+                            sizes="(max-width: 640px) 33vw, 150px"
                             className="object-cover"
                             unoptimized={image.startsWith('data:')}
                           />
@@ -762,6 +777,38 @@ export default function NewShopItemPage() {
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Collection/Catalog</Label>
+                    <div className="space-y-3">
+                      <Input
+                        value={formData.catalog || ""}
+                        onChange={(e) => setFormData({ ...formData, catalog: e.target.value })}
+                        placeholder="e.g., Summer Collection 2026"
+                        className="h-11"
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        {CATALOG_SUGGESTIONS.map((suggestion) => (
+                          <button
+                            key={suggestion}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, catalog: suggestion })}
+                            className={cn(
+                              "text-xs px-3 py-1.5 rounded-full border transition-all",
+                              formData.catalog === suggestion
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-muted/50 hover:bg-muted border-transparent"
+                            )}
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Group items into collections for better organization (optional)
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -1077,6 +1124,7 @@ export default function NewShopItemPage() {
                           src={generation.image_url}
                           alt={`${generation.feature_type} generation`}
                           fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                           className="object-cover"
                         />
                         

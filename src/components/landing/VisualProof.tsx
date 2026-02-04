@@ -64,6 +64,7 @@ export function VisualProof() {
                                 src="/sample/flatlay-1.jpg"
                                 alt="Flat lay clothing photo"
                                 fill
+                                sizes="(max-width: 768px) 100vw, 50vw"
                                 className="object-cover"
                             />
                         </div>
@@ -84,6 +85,7 @@ export function VisualProof() {
                                 src="/sample/model-1.jpg"
                                 alt="On-model try-on result"
                                 fill
+                                sizes="(max-width: 768px) 100vw, 50vw"
                                 className="object-cover"
                             />
                         </div>

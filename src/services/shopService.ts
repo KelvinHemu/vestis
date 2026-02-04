@@ -14,6 +14,9 @@ import type {
   CreateItemFromGenerationRequest,
   UpdateShopItemRequest,
   ShopItemFilters,
+  CatalogsResponse,
+  PublicCatalogsResponse,
+  CatalogGroup,
 } from '@/types/shop';
 
 class ShopService {
@@ -184,6 +187,7 @@ class ShopService {
     if (filters?.page) params.append('page', filters.page.toString());
     if (filters?.page_size) params.append('page_size', filters.page_size.toString());
     if (filters?.category) params.append('category', filters.category);
+    if (filters?.catalog) params.append('catalog', filters.catalog);
 
     const response = await fetch(`${API_BASE_URL}/v1/shops/my-shop/items?${params}`, {
       method: 'GET',
@@ -193,6 +197,23 @@ class ShopService {
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
       throw new Error(error.error || 'Failed to fetch items');
+    }
+
+    return response.json();
+  }
+
+  /**
+   * List catalogs in user's shop (protected)
+   */
+  async listMyCatalogs(): Promise<CatalogsResponse> {
+    const response = await fetch(`${API_BASE_URL}/v1/shops/my-shop/catalogs`, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error || 'Failed to fetch catalogs');
     }
 
     return response.json();
@@ -347,6 +368,7 @@ class ShopService {
     if (filters?.page) params.append('page', filters.page.toString());
     if (filters?.page_size) params.append('page_size', filters.page_size.toString());
     if (filters?.category) params.append('category', filters.category);
+    if (filters?.catalog) params.append('catalog', filters.catalog);
 
     const response = await fetch(`${API_BASE_URL}/v1/shop/${slug}/items?${params}`, {
       method: 'GET',
@@ -358,6 +380,25 @@ class ShopService {
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
       throw new Error(error.error || 'Failed to fetch shop items');
+    }
+
+    return response.json();
+  }
+
+  /**
+   * List catalogs in a public shop
+   */
+  async getPublicShopCatalogs(slug: string): Promise<PublicCatalogsResponse> {
+    const response = await fetch(`${API_BASE_URL}/v1/shop/${slug}/catalogs`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error || 'Failed to fetch shop catalogs');
     }
 
     return response.json();
@@ -465,4 +506,140 @@ export function generateEmailLink(email: string, subject: string, body: string):
   const encodedSubject = encodeURIComponent(subject);
   const encodedBody = encodeURIComponent(body);
   return `mailto:${email}?subject=${encodedSubject}&body=${encodedBody}`;
+}
+
+// ============================================
+// Auto-Catalog Utility Functions
+// ============================================
+
+/**
+ * Check if an item was created within the last N days
+ */
+export function isWithinDays(dateString: string, days: number): boolean {
+  const itemDate = new Date(dateString);
+  const now = new Date();
+  const diffTime = now.getTime() - itemDate.getTime();
+  const diffDays = diffTime / (1000 * 60 * 60 * 24);
+  return diffDays <= days;
+}
+
+/**
+ * Check if an item was created this week (within last 7 days)
+ */
+export function isThisWeek(dateString: string): boolean {
+  return isWithinDays(dateString, 7);
+}
+
+/**
+ * Check if an item is part of "New Collection" (within last 30 days)
+ */
+export function isNewCollection(dateString: string): boolean {
+  return isWithinDays(dateString, 30);
+}
+
+/**
+ * Group items into exclusive catalog groups based on creation date and user-defined catalogs.
+ * Each item appears in only ONE group with the following priority:
+ * 1. "This Week" (items from last 7 days without a user catalog)
+ * 2. "New Collection" (items from last 30 days but NOT in this week, without a user catalog)
+ * 3. User-defined catalogs
+ * 4. Remaining items (older than 30 days without a catalog)
+ */
+export function groupItemsExclusive(items: ShopItem[]): {
+  thisWeek: CatalogGroup | null;
+  newCollection: CatalogGroup | null;
+  userCatalogs: CatalogGroup[];
+  remaining: ShopItem[];
+} {
+  const thisWeekItems: ShopItem[] = [];
+  const newCollectionItems: ShopItem[] = [];
+  const userCatalogMap = new Map<string, ShopItem[]>();
+  const remainingItems: ShopItem[] = [];
+
+  items.forEach(item => {
+    // If item has a user-defined catalog, it goes there exclusively
+    if (item.catalog) {
+      const existing = userCatalogMap.get(item.catalog) || [];
+      existing.push(item);
+      userCatalogMap.set(item.catalog, existing);
+    } else if (isThisWeek(item.created_at)) {
+      // No user catalog + created this week
+      thisWeekItems.push(item);
+    } else if (isNewCollection(item.created_at)) {
+      // No user catalog + created in last 30 days (but not this week)
+      newCollectionItems.push(item);
+    } else {
+      // Older items without a catalog
+      remainingItems.push(item);
+    }
+  });
+
+  const userCatalogs = Array.from(userCatalogMap.entries()).map(([catalog, catalogItems]) => ({
+    name: catalog,
+    displayName: catalog,
+    items: catalogItems,
+    isAuto: false,
+  }));
+
+  return {
+    thisWeek: thisWeekItems.length > 0 ? {
+      name: 'this-week',
+      displayName: 'New This Week',
+      items: thisWeekItems,
+      isAuto: true,
+    } : null,
+    newCollection: newCollectionItems.length > 0 ? {
+      name: 'new-collection',
+      displayName: 'New Collection',
+      items: newCollectionItems,
+      isAuto: true,
+    } : null,
+    userCatalogs,
+    remaining: remainingItems,
+  };
+}
+
+/**
+ * Group items by their auto-catalogs based on creation date
+ * @deprecated Use groupItemsExclusive instead to avoid duplicates
+ */
+export function groupItemsByAutoCatalog(items: ShopItem[]): CatalogGroup[] {
+  const { thisWeek, newCollection } = groupItemsExclusive(items);
+  const groups: CatalogGroup[] = [];
+  
+  if (newCollection) groups.push(newCollection);
+  if (thisWeek) groups.push(thisWeek);
+  
+  return groups;
+}
+
+/**
+ * Group items by their assigned catalog (from backend)
+ * @deprecated Use groupItemsExclusive instead to avoid duplicates
+ */
+export function groupItemsByCatalog(items: ShopItem[]): CatalogGroup[] {
+  const { userCatalogs } = groupItemsExclusive(items);
+  return userCatalogs;
+}
+
+/**
+ * Get all catalog groups (both auto-generated and user-defined)
+ * Auto catalogs appear first, followed by user-defined catalogs
+ */
+export function getAllCatalogGroups(items: ShopItem[]): CatalogGroup[] {
+  const { thisWeek, newCollection, userCatalogs } = groupItemsExclusive(items);
+  const groups: CatalogGroup[] = [];
+  
+  if (newCollection) groups.push(newCollection);
+  if (thisWeek) groups.push(thisWeek);
+  groups.push(...userCatalogs);
+  
+  return groups;
+}
+
+/**
+ * Get items that don't belong to any catalog
+ */
+export function getUncategorizedItems(items: ShopItem[]): ShopItem[] {
+  return items.filter(item => !item.catalog);
 }

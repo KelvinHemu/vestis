@@ -416,6 +416,7 @@ export default function TryOnStudioPage() {
                           src={images[selectedImage]}
                           alt={item.name}
                           fill
+                          sizes="(max-width: 1024px) 100vw, 50vw"
                           className="object-cover"
                         />
                       ) : (
@@ -439,7 +440,7 @@ export default function TryOnStudioPage() {
                                 : "border-transparent opacity-60 hover:opacity-100"
                             )}
                           >
-                            <Image src={img} alt="" fill className="object-cover" />
+                            <Image src={img} alt="" fill sizes="56px" className="object-cover" />
                           </button>
                         ))}
                       </div>
@@ -558,6 +559,7 @@ export default function TryOnStudioPage() {
                           src={userPhotoPreview}
                           alt="Your photo"
                           fill
+                          sizes="(max-width: 640px) 100vw, 384px"
                           className="object-cover"
                         />
                         
@@ -652,6 +654,7 @@ export default function TryOnStudioPage() {
                       src={tryOnResult.image_url}
                       alt={`You wearing ${item.name}`}
                       fill
+                      sizes="(max-width: 640px) 100vw, 448px"
                       className="object-cover"
                     />
                   </div>
@@ -694,6 +697,7 @@ export default function TryOnStudioPage() {
                           src={images[0]}
                           alt={item.name}
                           fill
+                          sizes="(max-width: 1024px) 100vw, 50vw"
                           className="object-cover"
                         />
                       )}

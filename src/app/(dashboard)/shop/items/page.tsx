@@ -155,6 +155,7 @@ export default function ShopItemsPage() {
                       src={item.images[0]}
                       alt={item.name}
                       fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                       className="object-cover"
                       unoptimized={item.images[0].startsWith('data:')}
                     />
@@ -195,11 +196,18 @@ export default function ShopItemsPage() {
                   <p className="text-lg font-bold mt-1">
                     {item.currency} {item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
-                  {item.category && (
-                    <Badge variant="outline" className="mt-3">
-                      {item.category}
-                    </Badge>
-                  )}
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {item.catalog && (
+                      <Badge variant="default" className="bg-primary/10 text-primary hover:bg-primary/20">
+                        {item.catalog}
+                      </Badge>
+                    )}
+                    {item.category && (
+                      <Badge variant="outline">
+                        {item.category}
+                      </Badge>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))}

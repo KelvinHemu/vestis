@@ -30,6 +30,7 @@ export interface ShopItem {
   price: number;
   currency: string;
   category?: string;
+  catalog?: string; // Collection/grouping name (e.g., "Summer Collection", "New Arrivals")
   images: string[];
   sizes?: string[];
   colors?: string[];
@@ -71,6 +72,7 @@ export interface CreateShopItemRequest {
   price: number;
   currency?: string;
   category?: string;
+  catalog?: string; // Collection/grouping name
   images: string[];
   sizes?: string[];
   colors?: string[];
@@ -83,6 +85,7 @@ export interface CreateItemFromGenerationRequest {
   price: number;
   currency?: string;
   category?: string;
+  catalog?: string; // Collection/grouping name
   sizes?: string[];
   colors?: string[];
 }
@@ -93,6 +96,7 @@ export interface UpdateShopItemRequest {
   price?: number;
   currency?: string;
   category?: string;
+  catalog?: string | null; // Collection/grouping name (null to remove from catalog)
   images?: string[];
   sizes?: string[];
   colors?: string[];
@@ -143,5 +147,26 @@ export interface ShopItemFilters {
   page?: number;
   page_size?: number;
   category?: string;
+  catalog?: string; // Filter by catalog/collection
   available_only?: boolean;
+}
+
+// Catalog response types
+export interface CatalogsResponse {
+  catalogs: string[];
+}
+
+export interface PublicCatalogsResponse {
+  catalogs: string[];
+  shop: Shop;
+}
+
+// Auto-catalog types for date-based grouping
+export type AutoCatalogType = 'new-collection' | 'this-week' | 'all';
+
+export interface CatalogGroup {
+  name: string;
+  displayName: string;
+  items: ShopItem[];
+  isAuto?: boolean; // Whether this is an auto-generated catalog based on date
 }

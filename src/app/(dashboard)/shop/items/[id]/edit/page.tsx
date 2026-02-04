@@ -78,6 +78,19 @@ const CATEGORIES = [
   "Other",
 ];
 
+// Common catalog suggestions
+const CATALOG_SUGGESTIONS = [
+  "New Collection",
+  "Summer Collection",
+  "Winter Collection",
+  "Spring Collection",
+  "Fall Collection",
+  "New Arrivals",
+  "Best Sellers",
+  "Sale",
+  "Limited Edition",
+];
+
 export default function EditShopItemPage() {
   const router = useRouter();
   const params = useParams();
@@ -93,7 +106,7 @@ export default function EditShopItemPage() {
     enabled: !isNaN(itemId),
   });
 
-  const [formData, setFormData] = useState<UpdateShopItemRequest>({});
+  const [formData, setFormData] = useState<UpdateShopItemRequest>({ is_available: true });
   const [newColor, setNewColor] = useState("");
 
   useEffect(() => {
@@ -104,6 +117,7 @@ export default function EditShopItemPage() {
         price: item.price,
         currency: item.currency,
         category: item.category || "",
+        catalog: item.catalog || "",
         images: item.images,
         sizes: item.sizes || [],
         colors: item.colors || [],
@@ -316,7 +330,7 @@ export default function EditShopItemPage() {
                     <div className="grid grid-cols-3 gap-3 mb-4">
                       {formData.images?.map((image, index) => (
                         <div key={index} className={cn("group relative aspect-square rounded-xl overflow-hidden border-2 transition-all", index === 0 ? "border-primary ring-2 ring-primary/20" : "border-transparent hover:border-muted-foreground/30")}>
-                          <Image src={image} alt={`Product ${index + 1}`} fill className="object-cover" unoptimized={image.startsWith('data:')} />
+                          <Image src={image} alt={`Product ${index + 1}`} fill sizes="(max-width: 640px) 33vw, 150px" className="object-cover" unoptimized={image.startsWith('data:')} />
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center">
                             <button type="button" onClick={(e) => { e.stopPropagation(); removeImage(index); }} className="opacity-0 group-hover:opacity-100 p-2 bg-red-500 rounded-full hover:bg-red-600 transition-all transform scale-75 group-hover:scale-100">
                               <X className="h-4 w-4 text-white" />
@@ -382,6 +396,37 @@ export default function EditShopItemPage() {
                       <SelectTrigger className="h-11"><SelectValue placeholder="Select a category" /></SelectTrigger>
                       <SelectContent>{CATEGORIES.map((cat) => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent>
                     </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Collection/Catalog</Label>
+                    <div className="space-y-3">
+                      <Input
+                        value={formData.catalog || ""}
+                        onChange={(e) => setFormData({ ...formData, catalog: e.target.value })}
+                        placeholder="e.g., Summer Collection 2026"
+                        className="h-11"
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        {CATALOG_SUGGESTIONS.map((suggestion) => (
+                          <button
+                            key={suggestion}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, catalog: suggestion })}
+                            className={cn(
+                              "text-xs px-3 py-1.5 rounded-full border transition-all",
+                              formData.catalog === suggestion
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-muted/50 hover:bg-muted border-transparent"
+                            )}
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Group items into collections for better organization (optional)
+                    </p>
                   </div>
                 </CardContent>
               </Card>

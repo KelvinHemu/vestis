@@ -3,6 +3,36 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================
+   Beatrice Deck Trial Font
+   ============================================ */
+@font-face {
+  font-family: 'Beatrice Deck Trial';
+  src: url('/fonts/BeatriceDeckTrial-Regular.woff2') format('woff2'),
+       url('/fonts/BeatriceDeckTrial-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Beatrice Deck Trial';
+  src: url('/fonts/BeatriceDeckTrial-Medium.woff2') format('woff2'),
+       url('/fonts/BeatriceDeckTrial-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Beatrice Deck Trial';
+  src: url('/fonts/BeatriceDeckTrial-Bold.woff2') format('woff2'),
+       url('/fonts/BeatriceDeckTrial-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================
    CSS Custom Properties (Design Tokens)
    Light and dark theme support
    ============================================ */

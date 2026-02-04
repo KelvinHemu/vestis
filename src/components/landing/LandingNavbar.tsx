@@ -61,6 +61,7 @@ export function LandingNavbar() {
                   src="/Vestis.svg"
                   alt="Vestis"
                   fill
+                  sizes="32px"
                   className="object-contain"
                 />
               </div>

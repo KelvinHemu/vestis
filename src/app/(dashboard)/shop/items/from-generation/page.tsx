@@ -168,6 +168,7 @@ export default function AddFromGenerationPage() {
                   src={generation.image_url}
                   alt={`Generation ${generation.id}`}
                   fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-cover"
                 />
                 {selectedGeneration?.id === generation.id && (
@@ -210,6 +211,7 @@ export default function AddFromGenerationPage() {
                     src={selectedGeneration.image_url}
                     alt="Selected generation"
                     fill
+                    sizes="128px"
                     className="object-cover"
                   />
                 </div>

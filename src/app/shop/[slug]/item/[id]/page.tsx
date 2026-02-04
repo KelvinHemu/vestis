@@ -186,6 +186,7 @@ export default function PublicItemPage() {
                 src={images[currentImageIndex]}
                 alt={item.name}
                 fill
+                sizes="(max-width: 1024px) 100vw, 480px"
                 className="object-cover"
                 priority
               />
@@ -210,7 +211,7 @@ export default function PublicItemPage() {
                       : "border-gray-200 hover:border-gray-400"
                   )}
                 >
-                  <Image src={img} alt={`${item.name} ${idx + 1}`} fill className="object-cover" />
+                  <Image src={img} alt={`${item.name} ${idx + 1}`} fill sizes="60px" className="object-cover" />
                 </button>
               ))}
             </div>
