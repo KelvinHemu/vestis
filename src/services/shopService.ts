@@ -29,6 +29,23 @@ class ShopService {
     };
   }
 
+  /**
+   * Map raw API shop response to the Shop interface.
+   * The backend uses contact_whatsapp, contact_email, contact_phone, logo_url, banner_url
+   * but the frontend Shop interface uses whatsapp, email, phone, logo_image, banner_image.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private mapShopResponse(raw: any): Shop {
+    return {
+      ...raw,
+      whatsapp: raw.whatsapp || raw.contact_whatsapp || '',
+      email: raw.email || raw.contact_email || '',
+      phone: raw.phone || raw.contact_phone || '',
+      logo_image: raw.logo_image || raw.logo_url || '',
+      banner_image: raw.banner_image || raw.banner_url || '',
+    };
+  }
+
   // ============================================
   // Shop Management (Protected)
   // ============================================
@@ -49,7 +66,7 @@ class ShopService {
     }
 
     const result: ShopResponse = await response.json();
-    return result.shop;
+    return this.mapShopResponse(result.shop);
   }
 
   /**
@@ -71,7 +88,7 @@ class ShopService {
     }
 
     const result: ShopResponse = await response.json();
-    return result.shop;
+    return this.mapShopResponse(result.shop);
   }
 
   /**
@@ -90,7 +107,7 @@ class ShopService {
     }
 
     const result: ShopResponse = await response.json();
-    return result.shop;
+    return this.mapShopResponse(result.shop);
   }
 
   /**
@@ -130,7 +147,7 @@ class ShopService {
     }
 
     const result: ShopResponse = await response.json();
-    return result.shop;
+    return this.mapShopResponse(result.shop);
   }
 
   /**
@@ -155,7 +172,7 @@ class ShopService {
     }
 
     const result: ShopResponse = await response.json();
-    return result.shop;
+    return this.mapShopResponse(result.shop);
   }
 
   /**
@@ -357,7 +374,7 @@ class ShopService {
     }
 
     const result: ShopResponse = await response.json();
-    return result.shop;
+    return this.mapShopResponse(result.shop);
   }
 
   /**
@@ -382,7 +399,8 @@ class ShopService {
       throw new Error(error.error || 'Failed to fetch shop items');
     }
 
-    return response.json();
+    const result = await response.json();
+    return { ...result, shop: this.mapShopResponse(result.shop) };
   }
 
   /**
@@ -401,7 +419,8 @@ class ShopService {
       throw new Error(error.error || 'Failed to fetch shop catalogs');
     }
 
-    return response.json();
+    const result = await response.json();
+    return { ...result, shop: this.mapShopResponse(result.shop) };
   }
 
   /**
@@ -420,7 +439,8 @@ class ShopService {
       throw new Error(error.error || 'Item not found');
     }
 
-    return response.json();
+    const result = await response.json();
+    return { ...result, shop: this.mapShopResponse(result.shop) };
   }
 
   // ============================================

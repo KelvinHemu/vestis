@@ -570,7 +570,7 @@ export default function NewShopItemPage() {
                 <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 pb-4">
                   <div className="flex items-center gap-2">
                     <div className="p-2">
-                      <ImagePlus className="h-5 w-5 text-primary" />
+                      <ImagePlus className="h-5 w-5 text-black dark:text-white" />
                     </div>
                     <div>
                       <CardTitle className="text-lg">Product Images</CardTitle>
@@ -691,10 +691,7 @@ export default function NewShopItemPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="p-2">
-                        <Eye className={cn(
-                          "h-5 w-5",
-                          formData.is_available ? "text-green-600 dark:text-green-400" : "text-muted-foreground"
-                        )} />
+                        <Eye className="h-5 w-5 text-black dark:text-white" />
                       </div>
                       <div>
                         <Label className="text-base font-medium">Availability</Label>
@@ -719,7 +716,7 @@ export default function NewShopItemPage() {
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2">
                     <div className="p-2">
-                      <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      <Info className="h-5 w-5 text-black dark:text-white" />
                     </div>
                     <CardTitle className="text-lg">Basic Information</CardTitle>
                   </div>
@@ -818,7 +815,7 @@ export default function NewShopItemPage() {
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2">
                     <div className="p-2">
-                      <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
+                      <DollarSign className="h-5 w-5 text-black dark:text-white" />
                     </div>
                     <CardTitle className="text-lg">Pricing</CardTitle>
                   </div>
@@ -870,7 +867,7 @@ export default function NewShopItemPage() {
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2">
                     <div className="p-2">
-                      <Ruler className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                      <Ruler className="h-5 w-5 text-black dark:text-white" />
                     </div>
                     <div>
                       <CardTitle className="text-lg">Sizes</CardTitle>
@@ -908,7 +905,7 @@ export default function NewShopItemPage() {
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2">
                     <div className="p-2">
-                      <Palette className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+                      <Palette className="h-5 w-5 text-black dark:text-white" />
                     </div>
                     <div>
                       <CardTitle className="text-lg">Colors</CardTitle>
