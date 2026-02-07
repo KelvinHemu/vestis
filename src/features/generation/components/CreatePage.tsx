@@ -212,8 +212,8 @@ export const CreatePage: React.FC = () => {
         </div>
       ) : generatedImage ? (
         <div className="flex flex-col items-center justify-center h-full md:min-h-[calc(100vh-12rem)] px-4 py-6 sm:p-8 gap-4 sm:gap-6">
-          {/* Action buttons row - responsive layout */}
-          <div className="flex items-center justify-between w-full max-w-md sm:max-w-none sm:justify-center gap-2 sm:gap-4">
+          {/* Action buttons row - matched to image width */}
+          <div className="flex items-center justify-between w-full max-w-[85vw] sm:max-w-[380px] md:max-w-[420px]">
             {/* Start Over button */}
             <button
               onClick={handleStartOver}
@@ -222,8 +222,8 @@ export const CreatePage: React.FC = () => {
               Start Over
             </button>
 
-            {/* Download and Share buttons - inline on mobile, fixed on desktop */}
-            <div className="flex gap-2 sm:fixed sm:top-8 sm:right-8 sm:z-10">
+            {/* Download and Share buttons */}
+            <div className="flex gap-2">
               <button
                 onClick={handleDownload}
                 className="p-2 sm:p-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full transition-all shadow-sm"
@@ -243,7 +243,7 @@ export const CreatePage: React.FC = () => {
           </div>
 
           <div
-            className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px]"
+            className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer w-full max-w-[85vw] sm:max-w-[380px] md:max-w-[420px]"
             style={{ aspectRatio: '3/4' }}
             onDoubleClick={handleImageDoubleClick}
           >

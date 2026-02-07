@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { MainContent } from '@/components/layout/MainContent';
 import { Steps } from './Steps';
 import { ProductSelector } from './ProductSelector';
@@ -17,13 +17,19 @@ import { chatService } from '@/services/chatService';
 import { InsufficientCreditsError } from '@/types/errors';
 import { useInvalidateGenerations } from '@/hooks/useGenerations';
 import { useInvalidateFlatLay } from '@/hooks/useFlatLay';
+import { useModels } from '@/hooks/useModels';
+import { useCustomModels } from '@/hooks/useCustomModels';
+import { useCustomBackgroundsList } from '@/hooks/useCustomBackgrounds';
+import { getBackgrounds } from '@/services/backgroundService';
 import { useFlatLayStore } from '@/contexts/featureStores';
 import { useFeatureGeneration } from '@/contexts/generationStore';
 import type { ProductImage } from '@/types/flatlay';
-import { RotateCw } from 'lucide-react';
+import type { Background } from '@/types/background';
+import { RotateCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import AspectRatio from '@/components/shared/aspectRatio';
 import Resolution from '@/components/shared/resolution';
 import { FeatureEvents } from '@/utils/analytics';
+import modelService from '@/services/modelService';
 
 // Helper function to convert aspect ratio string to CSS aspect-ratio value
 const getAspectRatioValue = (ratio: string): string => {
@@ -100,6 +106,53 @@ export function FlatLayPhotos() {
   // Cache invalidation hooks
   const invalidateGenerations = useInvalidateGenerations();
   const invalidateFlatLay = useInvalidateFlatLay();
+
+  // Fetch models and backgrounds for preview
+  const { data: modelsData } = useModels();
+  const { data: customModelsData } = useCustomModels();
+  const { data: customBackgroundsData } = useCustomBackgroundsList();
+  const [systemBackgrounds, setSystemBackgrounds] = useState<Background[]>([]);
+
+  // Fetch system backgrounds
+  useEffect(() => {
+    getBackgrounds().then(res => setSystemBackgrounds(res.backgrounds));
+  }, []);
+
+  // Find selected model image
+  const selectedModelImage = useMemo(() => {
+    if (!selectedModel) return null;
+    
+    // Check if it's a custom model
+    if (selectedModel.startsWith('custom_')) {
+      const customId = parseInt(selectedModel.replace('custom_', ''));
+      const customModel = customModelsData?.models?.find(m => m.id === customId);
+      return customModel?.image_url || null;
+    }
+    
+    // Platform model
+    const platformModel = modelsData?.models?.find(m => m.id.toString() === selectedModel);
+    if (platformModel) {
+      return modelService.getMainImage(platformModel) || null;
+    }
+    return null;
+  }, [selectedModel, modelsData, customModelsData]);
+
+  // Find selected background image
+  const selectedBackgroundImage = useMemo(() => {
+    if (!selectedBackground) return null;
+    
+    // Check if it's a custom background
+    if (typeof selectedBackground === 'string' && selectedBackground.startsWith('custom-')) {
+      const customId = parseInt(selectedBackground.replace('custom-', ''));
+      const customBg = customBackgroundsData?.find(bg => bg.id === customId);
+      return customBg?.url || null;
+    }
+    
+    // System background (by ID)
+    const bgId = typeof selectedBackground === 'string' ? parseInt(selectedBackground) : selectedBackground;
+    const systemBg = systemBackgrounds.find(bg => bg.id === bgId);
+    return systemBg?.url || null;
+  }, [selectedBackground, customBackgroundsData, systemBackgrounds]);
 
   // When generation completes in background, update the persisted state
   useEffect(() => {
@@ -223,7 +276,6 @@ export function FlatLayPhotos() {
     'Select Products',
     'Select Models',
     'Select Background',
-    'Quality',
     'Preview & Generate'
   ];
 
@@ -430,27 +482,6 @@ export function FlatLayPhotos() {
       case 3:
         return (
           <div className="space-y-6">
-            {/* Quality Settings - Hidden on desktop since shown in sidebar */}
-            <div className="hidden md:block space-y-4 pb-4">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Quality Settings</h2>
-              <p className="text-gray-600 dark:text-gray-400">Choose the aspect ratio and resolution for your image</p>
-            </div>
-            
-            <div className="space-y-4">
-              <AspectRatio
-                value={aspectRatio}
-                onValueChange={setAspectRatio}
-              />
-              <Resolution
-                value={resolution}
-                onValueChange={setResolution}
-              />
-            </div>
-          </div>
-        );
-      case 4:
-        return (
-          <div className="space-y-6">
 
             <div className="flex flex-col items-center justify-center min-h-[400px] w-full gap-3 sm:gap-4 md:gap-6">
               {isGenerating ? (
@@ -505,7 +536,7 @@ export function FlatLayPhotos() {
                   </button>
 
                   <div
-                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[280px] xs:max-w-[320px] sm:max-w-[360px] md:max-w-[400px] lg:max-w-[440px] xl:max-w-[480px] mb-20"
+                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[92%] sm:max-w-[360px] md:max-w-[400px] lg:max-w-[440px] xl:max-w-[480px] mb-20"
                     style={{ aspectRatio: getAspectRatioValue(aspectRatio) }}
                     onDoubleClick={() => setIsFullscreenOpen(true)}
                   >
@@ -525,8 +556,66 @@ export function FlatLayPhotos() {
                   </div>
                 </>
               ) : (
-                <div className="text-center">
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">Review your selections and generate your flatlay photos</p>
+                <div className="w-full px-4 md:hidden">
+                  {(() => {
+                    // Collect all product images
+                    const allProductImages = [
+                      ...Object.entries(topImages).map(([key, url]) => ({ key: `top-${key}`, url })),
+                      ...Object.entries(bottomImages).map(([key, url]) => ({ key: `bottom-${key}`, url }))
+                    ];
+
+                    // If only one product image, show it with model in first row
+                    if (allProductImages.length === 1) {
+                      return (
+                        <>
+                          <div className="grid grid-cols-2 gap-3 mb-3">
+                            <div className="aspect-[3/4] rounded-xl overflow-hidden">
+                              <img src={allProductImages[0].url} alt="Product" className="w-full h-full object-cover" />
+                            </div>
+                            {selectedModelImage && (
+                              <div className="aspect-[3/4] rounded-xl overflow-hidden">
+                                <img src={selectedModelImage} alt="Model" className="w-full h-full object-cover" />
+                              </div>
+                            )}
+                          </div>
+                          {selectedBackgroundImage && (
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="aspect-[3/4] rounded-xl overflow-hidden">
+                                <img src={selectedBackgroundImage} alt="Background" className="w-full h-full object-cover" />
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      );
+                    }
+
+                    // Multiple product images or no products
+                    return (
+                      <>
+                        {allProductImages.length > 0 && (
+                          <div className="grid grid-cols-2 gap-3 mb-3">
+                            {allProductImages.map(({ key, url }) => (
+                              <div key={key} className="aspect-[3/4] rounded-xl overflow-hidden">
+                                <img src={url} alt="Product" className="w-full h-full object-cover" />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        <div className="grid grid-cols-2 gap-3">
+                          {selectedModelImage && (
+                            <div className="aspect-[3/4] rounded-xl overflow-hidden">
+                              <img src={selectedModelImage} alt="Model" className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                          {selectedBackgroundImage && (
+                            <div className="aspect-[3/4] rounded-xl overflow-hidden">
+                              <img src={selectedBackgroundImage} alt="Background" className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               )}
             </div>
@@ -561,9 +650,7 @@ export function FlatLayPhotos() {
           return hasSelectedModel;
         case 2: // Background selection
           return hasSelectedBackground;
-        case 3: // Quality step - always can proceed
-          return true;
-        case 4: // Preview & Generate step
+        case 3: // Preview & Generate step
           // Can generate if not already generating and all items selected
           return !isGenerating && hasUploadedAnyProduct && hasSelectedModel && hasSelectedBackground && !generatedImageUrl;
         default:
@@ -605,12 +692,12 @@ export function FlatLayPhotos() {
             setMaxUnlockedStep(nextStep);
           }
         }
-      } else if (currentStep === 4) {
-        // Step 4 (Preview & Generate) - Generate Image action
+      } else if (currentStep === 3) {
+        // Step 3 (Preview & Generate) - Generate Image action
         await handleGenerateImage();
       } else {
         // For other steps, just move forward
-        const nextStep = currentStep + 1;
+        let nextStep = currentStep + 1;
         setCurrentStep(nextStep);
         if (nextStep > maxUnlockedStep) {
           setMaxUnlockedStep(nextStep);
@@ -651,7 +738,7 @@ export function FlatLayPhotos() {
           </div>
 
           {/* Show Download and Regenerate buttons after image is generated */}
-          {currentStep === 4 && generatedImageUrl && (
+          {currentStep === 3 && generatedImageUrl && (
             <div className="flex gap-2">
               <button
                 onClick={async () => {
@@ -694,7 +781,7 @@ export function FlatLayPhotos() {
           )}
 
           {/* Show action button - hide only after image is generated */}
-          {!(currentStep === 4 && generatedImageUrl) && (
+          {!(currentStep === 3 && generatedImageUrl) && (
             <FlatLayActionButton
               generationError={generationError}
               isGenerating={isGenerating}
@@ -753,8 +840,9 @@ export function FlatLayPhotos() {
       {/* Content Area with Left and Right Sections */}
       <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 dark:border-gray-700 overflow-hidden">
         {/* Left Component - full width on phone, flex-1 on tablet+ */}
-        <div className="flex-1 bg-white dark:bg-[#1A1A1A] md:border-r-2 border-gray-300 dark:border-gray-700 m-0 overflow-y-auto relative min-h-0 pb-20 md:pb-0">
-          <div className="border-b-2 border-gray-300 dark:border-gray-700">
+        <div className="flex-1 bg-white dark:bg-[#1A1A1A] md:border-r-2 border-gray-300 dark:border-gray-700 m-0 relative min-h-0 pb-20 md:pb-0 flex flex-col">
+          {/* Desktop Steps */}
+          <div className="hidden md:block border-b-2 border-gray-300 dark:border-gray-700">
             <Steps
               steps={steps}
               currentStep={currentStep}
@@ -762,12 +850,57 @@ export function FlatLayPhotos() {
               onStepChange={setCurrentStep}
             />
           </div>
-          <div className="p-3 sm:p-4 md:p-8">
+
+          {/* Mobile Navigation - Top bar with back/next */}
+          <div className="md:hidden bg-white dark:bg-[#1A1A1A] border-b border-gray-200 dark:border-gray-700 px-3 py-2.5 shrink-0">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => {
+                  if (currentStep > 0) {
+                    setCurrentStep(currentStep - 1);
+                  }
+                }}
+                disabled={currentStep === 0}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-200 dark:hover:bg-gray-700"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Back
+              </button>
+              
+              <div className="flex flex-col items-center">
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                  {steps[currentStep]}
+                </span>
+                <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                  Step {currentStep + 1} of {steps.length}
+                </span>
+              </div>
+              
+              <button
+                onClick={() => {
+                  if (currentStep < steps.length - 1) {
+                    const nextStep = currentStep + 1;
+                    if (nextStep <= maxUnlockedStep || currentStep + 1 <= maxUnlockedStep) {
+                      setCurrentStep(nextStep);
+                      if (nextStep > maxUnlockedStep) setMaxUnlockedStep(nextStep);
+                    }
+                  }
+                }}
+                disabled={currentStep >= steps.length - 1}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-200 dark:hover:bg-gray-700"
+              >
+                Next
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-8">
             {renderStepContent()}
           </div>
 
-          {/* Floating Input Bar - Only visible on step 4 (Preview & Generate) */}
-          {currentStep === 4 && (
+          {/* Floating Input Bar - Only visible on step 3 (Preview & Generate) */}
+          {currentStep === 3 && !generatedImageUrl && (
             <FloatingPromptInput
               value={additionalInfo}
               onChange={setAdditionalInfo}

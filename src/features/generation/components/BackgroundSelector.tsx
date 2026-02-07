@@ -268,7 +268,7 @@ export function BackgroundSelector({
               <p>No backgrounds available in this category.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 pt-4 pl-0 sm:pl-4 pb-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 pt-4 px-1 sm:px-4 pb-4">
               {filteredBackgrounds.map((background) => {
                 console.log('Rendering background:', background.name, 'Image URL:', background.url);
                 return (

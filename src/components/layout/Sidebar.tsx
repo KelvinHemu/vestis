@@ -110,14 +110,14 @@ export function Sidebar() {
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 z-[60] md:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
       {/* Mobile Slide-out Menu */}
       <div className={cn(
-        "fixed top-14 right-0 bottom-0 w-64 bg-white dark:bg-[#1A1A1A] border-l border-gray-200 dark:border-gray-700 z-50 transform transition-transform duration-300 ease-in-out md:hidden",
+        "fixed top-14 right-0 bottom-0 w-64 bg-white dark:bg-[#1A1A1A] border-l border-gray-200 dark:border-gray-700 z-[70] transform transition-transform duration-300 ease-in-out md:hidden",
         isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
       )}>
         <nav className="flex flex-col p-4 space-y-2">

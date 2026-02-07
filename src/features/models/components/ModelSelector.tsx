@@ -207,7 +207,7 @@ export function ModelSelector({ onModelSelect, selectedModel }: ModelSelectorPro
           {/* Models Grid - Platform + Custom Models Mixed */}
           {/* ================================================================ */}
           {!isLoading && !error && (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 md:gap-6 pt-4 pb-8 pl-0 sm:pl-2">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 md:gap-6 pt-4 pb-8 px-1 sm:px-2">
               {/* Custom Models First (business's own models) */}
               {customModels.map((model: CustomModel) => {
                 const modelIdStr = `custom_${model.id}`;

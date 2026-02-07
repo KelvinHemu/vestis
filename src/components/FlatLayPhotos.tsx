@@ -20,7 +20,7 @@ import { useInvalidateFlatLay } from '../hooks/useFlatLay';
 import { useFlatLayStore } from '../contexts/featureStores';
 import { useFeatureGeneration } from '../contexts/generationStore';
 import type { ProductImage } from '../types/flatlay';
-import { RotateCw } from 'lucide-react';
+import { RotateCw, Settings, X } from 'lucide-react';
 import AspectRatio from './shared/aspectRatio';
 import Resolution from './shared/resolution';
 
@@ -85,6 +85,7 @@ export function FlatLayPhotos() {
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [insufficientCredits, setInsufficientCredits] = useState<{ available: number; required: number } | null>(null);
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Sync generation store error with local error state
   useEffect(() => {
@@ -430,7 +431,7 @@ export function FlatLayPhotos() {
                   </button>
                   
                   <div 
-                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[140px] xs:max-w-[160px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[300px] xl:max-w-[340px] mb-20" 
+                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer w-full sm:max-w-[300px] md:max-w-[360px] lg:max-w-[400px] xl:max-w-[440px] mb-20 mx-auto" 
                     style={{ aspectRatio: getAspectRatioValue(aspectRatio) }}
                     onDoubleClick={() => setIsFullscreenOpen(true)}
                   >
@@ -557,20 +558,30 @@ export function FlatLayPhotos() {
         
         {/* Selected Items and Button at the bottom */}
         <div className="space-y-4 md:space-y-6">
-          {/* Aspect Ratio Selector */}
-          <div>
+          {/* Aspect Ratio & Resolution - desktop only */}
+          <div className="hidden md:block">
             <AspectRatio
               value={aspectRatio}
               onValueChange={setAspectRatio}
             />
           </div>
-          
-          {/* Resolution Selector */}
-          <div>
+          <div className="hidden md:block">
             <Resolution
               value={resolution}
               onValueChange={setResolution}
             />
+          </div>
+
+          {/* Settings button - mobile only */}
+          <div className="md:hidden flex items-center justify-between">
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition-colors"
+            >
+              <Settings className="w-4 h-4" />
+              Settings
+              <span className="text-xs text-gray-500">({aspectRatio} · {resolution})</span>
+            </button>
           </div>
 
           {/* Show Download and Regenerate buttons after image is generated */}
@@ -633,6 +644,44 @@ export function FlatLayPhotos() {
     <MainContent
       showBackButton={false}
     >
+      {/* Mobile Settings Sheet */}
+      {isSettingsOpen && (
+        <div className="fixed inset-0 z-[100] md:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setIsSettingsOpen(false)}
+          />
+          {/* Sheet */}
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl p-6 pb-10 animate-in slide-in-from-bottom duration-300 shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Quality Settings</h3>
+              <button
+                onClick={() => setIsSettingsOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="space-y-5">
+              <AspectRatio
+                value={aspectRatio}
+                onValueChange={setAspectRatio}
+              />
+              <Resolution
+                value={resolution}
+                onValueChange={setResolution}
+              />
+            </div>
+            <button
+              onClick={() => setIsSettingsOpen(false)}
+              className="w-full mt-6 py-3 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-colors"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
       {/* Insufficient Credits Dialog */}
       <InsufficientCreditsDialog
         isOpen={!!insufficientCredits}
@@ -671,7 +720,7 @@ export function FlatLayPhotos() {
       <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 overflow-hidden">
         {/* Left Component - full width on phone, flex-1 on tablet+ */}
         <div className="flex-1 bg-white md:border-r-2 border-gray-300 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
-          <div className="border-b-2 border-gray-300">
+          <div className="hidden md:block border-b-2 border-gray-300">
             <Steps 
               steps={steps} 
               currentStep={currentStep}
@@ -679,7 +728,7 @@ export function FlatLayPhotos() {
               onStepChange={setCurrentStep}
             />
           </div>
-          <div className="p-8">
+          <div className={currentStep === 3 ? "p-2 sm:p-4 md:p-8" : "p-8"}>
             {renderStepContent()}
           </div>
           

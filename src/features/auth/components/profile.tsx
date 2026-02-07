@@ -4,13 +4,16 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { Card, CardContent } from '@/components/ui/card';
-import { User as UserIcon, Zap, CheckCircle, Clock, XCircle, FileEdit, MapPin, Calendar, Ruler, Moon, Sun, Monitor } from 'lucide-react';
+import { User as UserIcon, Zap, CheckCircle, Clock, XCircle, FileEdit, MapPin, Calendar, Ruler, Moon, Sun, Monitor, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '@/contexts/authStore';
 import userService from '@/services/userService';
 import modelRegistrationService from '@/services/modelRegistrationService';
 import type { User } from '@/types/user';
 import type { SelfRegisteredModel, RegistrationStatus } from '@/types/model';
 import { calculateAge } from '@/types/model';
+import { useFlatLayStore } from '@/contexts/featureStores';
+import AspectRatio from '@/components/shared/aspectRatio';
+import Resolution from '@/components/shared/resolution';
 
 // Status configuration for badges
 const statusConfig: Record<RegistrationStatus, {
@@ -44,12 +47,14 @@ export function Profile() {
   const { token, logout } = useAuthStore();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { aspectRatio, resolution, setAspectRatio, setResolution } = useFlatLayStore();
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [modelProfile, setModelProfile] = useState<SelfRegisteredModel | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isQualityExpanded, setIsQualityExpanded] = useState(false);
 
   // Avoid hydration mismatch for theme
   useEffect(() => {
@@ -393,6 +398,43 @@ export function Profile() {
                   >
                     <Monitor className="w-4 h-4" />
                   </button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Quality Settings Card - Collapsible */}
+          <Card className="mt-3 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
+            <CardContent className="p-4">
+              <button
+                onClick={() => setIsQualityExpanded(!isQualityExpanded)}
+                className="w-full flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <SlidersHorizontal className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">Generation Quality</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {isQualityExpanded ? 'Aspect ratio and resolution' : `${aspectRatio} · ${resolution}`}
+                    </p>
+                  </div>
+                </div>
+                <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isQualityExpanded ? 'rotate-180' : ''}`} />
+              </button>
+              <div className={`grid transition-all duration-200 ease-in-out ${isQualityExpanded ? 'grid-rows-[1fr] opacity-100 mt-4' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
+                <div className="overflow-hidden">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <AspectRatio
+                      value={aspectRatio}
+                      onValueChange={setAspectRatio}
+                    />
+                    <Resolution
+                      value={resolution}
+                      onValueChange={setResolution}
+                    />
+                  </div>
                 </div>
               </div>
             </CardContent>
