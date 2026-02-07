@@ -792,19 +792,32 @@ export function FlatLayPhotos() {
                     const response = await fetch(generatedImageUrl);
                     const blob = await response.blob();
                     const url = window.URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = 'flatlay-image.png';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(url);
+
+                    // iOS Safari doesn't support the download attribute or programmatic link clicks.
+                    // Open in new tab so the user can long-press → Save Image.
+                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+                    if (isIOS) {
+                      window.open(url, '_blank');
+                      // Delay revoke so the new tab has time to load the blob
+                      setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+                    } else {
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = 'flatlay-image.png';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+                    }
 
                     // Track download event
                     FeatureEvents.downloadImage('flatlay');
                   } catch (err) {
                     console.error('Failed to download image:', err);
-                    alert('Failed to download image');
+                    // Fallback: open the original URL directly
+                    window.open(generatedImageUrl, '_blank');
                   }
                 }}
                 className="flex-1 bg-black dark:bg-white text-white dark:text-black py-2.5 md:py-3 rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors text-sm md:text-base"
@@ -865,19 +878,28 @@ export function FlatLayPhotos() {
               const response = await fetch(generatedImageUrl);
               const blob = await response.blob();
               const url = window.URL.createObjectURL(blob);
-              const link = document.createElement('a');
-              link.href = url;
-              link.download = 'flatlay-image.png';
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              window.URL.revokeObjectURL(url);
+
+              const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+              if (isIOS) {
+                window.open(url, '_blank');
+                setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+              } else {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'flatlay-image.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+              }
 
               // Track download event
               FeatureEvents.downloadImage('flatlay');
             } catch (err) {
               console.error('Failed to download image:', err);
-              alert('Failed to download image');
+              window.open(generatedImageUrl, '_blank');
             }
           }}
         />

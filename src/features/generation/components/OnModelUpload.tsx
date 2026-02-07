@@ -25,7 +25,7 @@ export function OnModelUpload({ photos, onFileUpload, onClear, onSelectSample, s
   const hasAnyPhotos = Object.keys(photos).length > 0;
 
   return (
-    <div className="space-y-6 md:pt-0 pt-[8vh]">
+    <div className="space-y-6 md:pt-0 pt-[4vh]">
       <UploadHeader
         title="On-Model Photos"
         onClearAll={onClear}
