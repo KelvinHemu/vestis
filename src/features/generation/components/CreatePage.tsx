@@ -281,7 +281,7 @@ export const CreatePage: React.FC = () => {
         <div className="container mx-auto px-4 py-6 sm:p-4 md:p-8 md:pb-32">
           <div className="max-w-7xl mx-auto">
             {/* Feature Cards Grid - Single column on mobile, 2 on tablet, 4 on desktop */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-4 md:gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-4 md:gap-5">
               {features.map((feature) => (
                 <FeatureCard key={feature.id} feature={feature} />
               ))}

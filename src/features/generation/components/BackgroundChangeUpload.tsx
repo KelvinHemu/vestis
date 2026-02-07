@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Upload } from 'lucide-react';
 import { UploadHeader } from './UploadHeader';
 import { BackgroundChangeSampleGallery } from './BackgroundChangeSampleGallery';
 
@@ -32,7 +32,77 @@ export function BackgroundChangeUpload({ photos, onFileUpload, onClear, onSelect
         showClearButton={hasAnyPhotos}
       />
 
-      <div className="flex flex-wrap gap-4">
+      {/* Mobile: single centered larger input */}
+      <div className="flex flex-col items-center md:hidden pt-[4vh]">
+        <div className="relative w-[85vw] max-w-[360px] pb-4">
+          <input
+            type="file"
+            id="photo-mobile-0"
+            accept="image/*"
+            onChange={(e) => {
+              onFileUpload(0, e.target.files?.[0] || null);
+            }}
+            className="hidden"
+          />
+          <div
+            className={`block border-2 rounded-lg transition-colors relative overflow-hidden ${photos[0] ? 'border-white hover:border-gray-200' : 'border-dashed border-gray-300 bg-gray-50'}`}
+            style={{ aspectRatio: '3/4', width: '100%' }}
+          >
+            {photos[0] ? (
+              <div className="relative w-full h-full bg-white cursor-pointer group">
+                <label htmlFor="photo-mobile-0" className="block w-full h-full cursor-pointer">
+                  <img
+                    src={photos[0]}
+                    alt="Product Photo"
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onFileUpload(0, null);
+                      }}
+                      className="bg-gray-500 text-white rounded-full p-1.5 hover:bg-gray-600 transition-colors shadow-lg"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </label>
+              </div>
+            ) : (
+              <label htmlFor="photo-mobile-0" className="w-full h-full flex flex-col items-center justify-center cursor-pointer gap-2">
+                <Upload className="w-8 h-8 text-gray-400" />
+                <span className="text-sm text-gray-500">Upload Photo</span>
+              </label>
+            )}
+          </div>
+          {!photos[0] && (
+            <label
+              htmlFor="photo-mobile-0"
+              className="absolute bottom-0 left-1/2 -translate-x-1/2 cursor-pointer"
+            >
+              <div className="bg-white rounded-full p-2 shadow-lg border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-colors">
+                <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+            </label>
+          )}
+        </div>
+
+        {/* Sample Images Gallery - mobile */}
+        {onSelectSample && (
+          <BackgroundChangeSampleGallery
+            onSelectSample={onSelectSample}
+            selectedImage={selectedSample}
+          />
+        )}
+      </div>
+
+      {/* Desktop: original multi-input layout */}
+      <div className="hidden md:flex flex-wrap gap-4">
         {Array.from({ length: photoCount }).map((_, index) => {
           const hasImage = !!photos[index];
 
@@ -43,14 +113,12 @@ export function BackgroundChangeUpload({ photos, onFileUpload, onClear, onSelect
                 id={`photo-${index}`}
                 accept="image/*"
                 onChange={(e) => {
-                  console.log('File input changed!', e.target.files);
                   onFileUpload(index, e.target.files?.[0] || null);
                 }}
                 className="hidden"
               />
               <div
-                className={`block border-2 rounded-lg transition-colors relative overflow-hidden ${hasImage ? 'border-white hover:border-gray-200' : 'border-dashed border-gray-300 bg-gray-50'
-                  }`}
+                className={`block border-2 rounded-lg transition-colors relative overflow-hidden ${hasImage ? 'border-white hover:border-gray-200' : 'border-dashed border-gray-300 bg-gray-50'}`}
                 style={{ aspectRatio: '3/4', width: '100%' }}
               >
                 {hasImage ? (
@@ -69,7 +137,6 @@ export function BackgroundChangeUpload({ photos, onFileUpload, onClear, onSelect
                           console.log('Image dimensions:', e.currentTarget.naturalWidth, 'x', e.currentTarget.naturalHeight);
                         }}
                       />
-                      {/* Remove button overlay */}
                       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           type="button"
@@ -105,7 +172,7 @@ export function BackgroundChangeUpload({ photos, onFileUpload, onClear, onSelect
           );
         })}
 
-        {/* Add More Photos Button */}
+        {/* Add More Photos Button - desktop only */}
         {photoCount < 10 && (
           <div className="relative w-60 pb-4">
             <button
@@ -124,13 +191,15 @@ export function BackgroundChangeUpload({ photos, onFileUpload, onClear, onSelect
         )}
       </div>
 
-      {/* Sample Images Gallery */}
-      {onSelectSample && (
-        <BackgroundChangeSampleGallery
-          onSelectSample={onSelectSample}
-          selectedImage={selectedSample}
-        />
-      )}
+      {/* Sample Images Gallery - desktop only */}
+      <div className="hidden md:block">
+        {onSelectSample && (
+          <BackgroundChangeSampleGallery
+            onSelectSample={onSelectSample}
+            selectedImage={selectedSample}
+          />
+        )}
+      </div>
     </div>
   );
 }

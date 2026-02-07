@@ -69,13 +69,6 @@ export const features: Feature[] = [
     backgroundImage: 'https://res.cloudinary.com/ds4lpuk8p/image/upload/v1763503878/flatlay2_zxx6mq.jpg'
   },
   {
-    id: 3,
-    title: 'Mannequin Photos',
-    description: 'Convert mannequin shots to models.',
-    path: '/mannequin-photos',
-    backgroundImage: 'https://res.cloudinary.com/ds4lpuk8p/image/upload/v1763505343/manniquin_tuth1w.jpg'
-  },
-  {
     id: 4,
     title: 'Background-Change',
     description: 'Make product backgrounds pop.',

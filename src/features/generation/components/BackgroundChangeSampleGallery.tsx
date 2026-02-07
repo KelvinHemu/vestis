@@ -28,7 +28,7 @@ export function BackgroundChangeSampleGallery({
                         key={item.id}
                         onClick={() => onSelectSample(item.image)}
                         className={`
-              relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden
+              relative flex-shrink-0 w-20 h-20 sm:w-20 sm:h-20 rounded-lg overflow-hidden
               border-2 transition-all duration-200 bg-gray-50
               ${isSelected(item.image)
                                 ? 'border-blue-500 ring-2 ring-blue-200 shadow-md'

@@ -1,5 +1,6 @@
 import { RotateCw } from 'lucide-react';
 import { ImageFeedbackActions } from './ImageFeedbackActions';
+import type { Background } from '@/types/background';
 
 interface BackgroundChangePreviewProps {
   isGenerating: boolean;
@@ -11,6 +12,8 @@ interface BackgroundChangePreviewProps {
   onStartOver: () => void;
   aspectRatio: string;
   onImageDoubleClick?: () => void;
+  photos?: { [key: number]: string };
+  selectedBackground?: Background | null;
 }
 
 export function BackgroundChangePreview({
@@ -23,6 +26,8 @@ export function BackgroundChangePreview({
   onStartOver,
   aspectRatio,
   onImageDoubleClick,
+  photos = {},
+  selectedBackground,
 }: BackgroundChangePreviewProps) {
   return (
     <div className="space-y-6">
@@ -70,13 +75,13 @@ export function BackgroundChangePreview({
             {/* Start Over button */}
             <button
               onClick={onStartOver}
-              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors text-xs sm:text-sm"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-medium transition-colors text-xs sm:text-sm"
             >
               Start Over
             </button>
             
             <div 
-              className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 hover:ring-2 hover:ring-gray-400 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[140px] xs:max-w-[160px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[300px] xl:max-w-[340px] mb-20" 
+              className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[92%] sm:max-w-[360px] md:max-w-[400px] lg:max-w-[440px] xl:max-w-[480px] mb-20" 
               style={{ aspectRatio }}
               onDoubleClick={onImageDoubleClick}
             >
@@ -96,9 +101,35 @@ export function BackgroundChangePreview({
             </div>
           </>
         ) : (
-          <div className="text-center">
-            <p className="text-gray-600 mb-4">Review your selections and generate your photo with new background</p>
-          </div>
+          <>
+            {/* Mobile preview - image grid like FlatLay */}
+            <div className="w-full px-4 md:hidden">
+              {(() => {
+                const productPhotos = Object.entries(photos).map(([key, url]) => ({ key: `photo-${key}`, url }));
+                const backgroundImage = selectedBackground?.url || null;
+
+                return (
+                  <div className="grid grid-cols-2 gap-3">
+                    {productPhotos.map(({ key, url }) => (
+                      <div key={key} className="aspect-[3/4] rounded-xl overflow-hidden">
+                        <img src={url} alt="Product" className="w-full h-full object-cover" />
+                      </div>
+                    ))}
+                    {backgroundImage && (
+                      <div className="aspect-[3/4] rounded-xl overflow-hidden">
+                        <img src={backgroundImage} alt="Background" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Desktop fallback text */}
+            <div className="hidden md:block text-center">
+              <p className="text-gray-600 dark:text-gray-400 mb-4">Review your selections and generate your photo with new background</p>
+            </div>
+          </>
         )}
       </div>
     </div>

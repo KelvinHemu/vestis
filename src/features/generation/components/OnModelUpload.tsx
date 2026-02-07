@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Upload } from 'lucide-react';
 import { UploadHeader } from './UploadHeader';
 import { OnModelSampleGallery } from './OnModelSampleGallery';
 
@@ -86,7 +86,10 @@ export function OnModelUpload({ photos, onFileUpload, onClear, onSelectSample, s
                     </label>
                   </div>
                 ) : (
-                  <div className="w-full h-full bg-gray-50 dark:bg-gray-800 rounded-lg"></div>
+                  <label htmlFor={`photo-${index}`} className="w-full h-full bg-gray-50 dark:bg-gray-800 rounded-lg cursor-pointer flex flex-col items-center justify-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-750 transition-colors">
+                    <Upload className="w-12 h-12 md:w-10 md:h-10 text-gray-400 dark:text-gray-500" />
+                    <span className="text-sm md:text-xs text-gray-500 dark:text-gray-400 font-medium">Upload Photo</span>
+                  </label>
                 )}
               </div>
               {!hasImage && (

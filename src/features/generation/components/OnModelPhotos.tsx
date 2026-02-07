@@ -21,7 +21,7 @@ import type { Model } from '@/types/model';
 import type { Background } from '@/types/background';
 import modelService from '@/services/modelService';
 import { getBackgroundById } from '@/services/backgroundService';
-import { RotateCw } from 'lucide-react';
+import { RotateCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import AspectRatio from '@/components/shared/aspectRatio';
 import Resolution from '@/components/shared/resolution';
 import { FeatureEvents } from '@/utils/analytics';
@@ -388,7 +388,7 @@ export function OnModelPhotos() {
                   </button>
 
                   <div
-                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[140px] xs:max-w-[160px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[300px] xl:max-w-[340px] mb-20"
+                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[92%] sm:max-w-[360px] md:max-w-[400px] lg:max-w-[440px] xl:max-w-[480px] mb-20"
                     style={{ aspectRatio: getAspectRatioValue(aspectRatio) }}
                     onDoubleClick={() => setIsFullscreenOpen(true)}
                   >
@@ -408,9 +408,71 @@ export function OnModelPhotos() {
                   </div>
                 </>
               ) : (
-                <div className="text-center">
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">Review your selections and generate your on-model photos</p>
-                </div>
+                <>
+                  {/* Mobile preview - image grid like FlatLay */}
+                  <div className="w-full px-4 md:hidden">
+                    {(() => {
+                      const productPhotos = Object.entries(photos).map(([key, url]) => ({ key: `photo-${key}`, url }));
+                      const modelImage = selectedModel ? (modelService.getMainImage(selectedModel) || null) : null;
+                      const backgroundImage = selectedBackground?.url || null;
+
+                      if (productPhotos.length === 1) {
+                        return (
+                          <>
+                            <div className="grid grid-cols-2 gap-3 mb-3">
+                              <div className="aspect-[3/4] rounded-xl overflow-hidden">
+                                <img src={productPhotos[0].url} alt="Product" className="w-full h-full object-cover" />
+                              </div>
+                              {modelImage && (
+                                <div className="aspect-[3/4] rounded-xl overflow-hidden">
+                                  <img src={modelImage} alt="Model" className="w-full h-full object-cover" />
+                                </div>
+                              )}
+                            </div>
+                            {backgroundImage && (
+                              <div className="grid grid-cols-2 gap-3">
+                                <div className="aspect-[3/4] rounded-xl overflow-hidden">
+                                  <img src={backgroundImage} alt="Background" className="w-full h-full object-cover" />
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        );
+                      }
+
+                      return (
+                        <>
+                          {productPhotos.length > 0 && (
+                            <div className="grid grid-cols-2 gap-3 mb-3">
+                              {productPhotos.map(({ key, url }) => (
+                                <div key={key} className="aspect-[3/4] rounded-xl overflow-hidden">
+                                  <img src={url} alt="Product" className="w-full h-full object-cover" />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          <div className="grid grid-cols-2 gap-3">
+                            {modelImage && (
+                              <div className="aspect-[3/4] rounded-xl overflow-hidden">
+                                <img src={modelImage} alt="Model" className="w-full h-full object-cover" />
+                              </div>
+                            )}
+                            {backgroundImage && (
+                              <div className="aspect-[3/4] rounded-xl overflow-hidden">
+                                <img src={backgroundImage} alt="Background" className="w-full h-full object-cover" />
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Desktop fallback text */}
+                  <div className="hidden md:block text-center">
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">Review your selections and generate your on-model photos</p>
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -566,7 +628,8 @@ export function OnModelPhotos() {
       {/* Content Area with Left and Right Sections */}
       <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 dark:border-gray-700 overflow-hidden">
         {/* Left Component - full width on phone, flex-1 on tablet+ */}
-        <div className="flex-1 bg-white dark:bg-[#1A1A1A] md:border-r-2 border-gray-300 dark:border-gray-700 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
+        <div className="flex-1 bg-white dark:bg-[#1A1A1A] md:border-r-2 border-gray-300 dark:border-gray-700 m-0 flex flex-col relative min-h-0 pb-44 md:pb-0">
+          {/* Desktop Steps */}
           <div className="hidden md:block border-b-2 border-gray-300 dark:border-gray-700">
             <Steps
               steps={steps}
@@ -575,7 +638,51 @@ export function OnModelPhotos() {
               onStepChange={setCurrentStep}
             />
           </div>
-          <div className="p-4 pt-8 md:p-8 md:pt-8">
+
+          {/* Mobile Navigation - Top bar with back/next */}
+          <div className="md:hidden bg-white dark:bg-[#1A1A1A] border-b border-gray-200 dark:border-gray-700 px-3 py-2.5 shrink-0">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => {
+                  if (currentStep > 0) {
+                    setCurrentStep(currentStep - 1);
+                  }
+                }}
+                disabled={currentStep === 0}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-200 dark:hover:bg-gray-700"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Back
+              </button>
+              
+              <div className="flex flex-col items-center">
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                  {steps[currentStep]}
+                </span>
+                <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                  Step {currentStep + 1} of {steps.length}
+                </span>
+              </div>
+              
+              <button
+                onClick={() => {
+                  if (currentStep < steps.length - 1) {
+                    const nextStep = currentStep + 1;
+                    if (nextStep <= maxUnlockedStep) {
+                      setCurrentStep(nextStep);
+                    }
+                  }
+                }}
+                disabled={currentStep >= steps.length - 1}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-200 dark:hover:bg-gray-700"
+              >
+                Next
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-8">
             {renderStepContent()}
           </div>
 

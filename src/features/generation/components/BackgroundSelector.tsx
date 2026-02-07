@@ -145,7 +145,7 @@ export function BackgroundSelector({
 
           {/* Custom Backgrounds Grid */}
           {!isLoadingCustom && customBackgrounds && customBackgrounds.length > 0 && (
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3 px-2 sm:px-2">
               {customBackgrounds.map((background) => (
                 <button
                   key={`custom-${background.id}`}
@@ -268,7 +268,7 @@ export function BackgroundSelector({
               <p>No backgrounds available in this category.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 pt-4 px-1 sm:px-4 pb-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 pt-4 px-2 sm:px-2 pb-4">
               {filteredBackgrounds.map((background) => {
                 console.log('Rendering background:', background.name, 'Image URL:', background.url);
                 return (
