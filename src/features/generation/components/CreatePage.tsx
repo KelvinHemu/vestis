@@ -33,7 +33,7 @@ export const CreatePage: React.FC = () => {
   const [isInputFocused, setIsInputFocused] = useState(false);
 
   // Detect mobile keyboard visibility for proper input positioning
-  const { isKeyboardVisible, keyboardHeight } = useKeyboardVisible();
+  const { isKeyboardVisible, keyboardHeight, barRef } = useKeyboardVisible();
 
   // Combined: input is focused OR keyboard is actually visible
   const isTyping = isInputFocused || isKeyboardVisible;
@@ -312,17 +312,16 @@ export const CreatePage: React.FC = () => {
 
       {/* FloatingAskBar - fixed to bottom on mobile, fixed on desktop */}
       <div
+        ref={barRef}
         className={`
           fixed bottom-0 left-0 right-0 px-3 pt-3 sm:px-6 sm:pt-4
           bg-gradient-to-t from-gray-100 dark:from-gray-950 via-gray-100/95 dark:via-gray-950/95 to-transparent
           md:left-20 md:pointer-events-none z-30
-          transition-all duration-200 ease-out
           ${isTyping
             ? 'pb-[max(0.5rem,env(safe-area-inset-bottom))]'
             : 'pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-[max(1rem,env(safe-area-inset-bottom))]'
           }
         `}
-        style={isTyping && keyboardHeight > 0 ? { bottom: `${keyboardHeight}px` } : undefined}
       >
         <div className="w-full max-w-3xl mx-auto md:pointer-events-auto">
           <FloatingAskBar

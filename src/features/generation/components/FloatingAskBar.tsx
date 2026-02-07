@@ -113,7 +113,13 @@ export const FloatingAskBar: React.FC<FloatingAskBarProps> = ({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyPress={handleKeyPress}
-            onFocus={handleFocus}
+            onFocus={(e) => {
+              handleFocus();
+              // Prevent iOS from scrolling the page when focusing the input
+              e.target.addEventListener('scroll', (ev) => ev.preventDefault(), { once: true });
+              // Prevent any automatic scrollIntoView that iOS triggers
+              setTimeout(() => window.scrollTo(0, 0), 50);
+            }}
             onBlur={handleBlur}
             placeholder={editMode ? "Edit your image..." : "Create Anything"}
             disabled={isGenerating}
