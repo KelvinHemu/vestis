@@ -219,7 +219,7 @@ export const CreatePage: React.FC = () => {
       {/* Scrollable content area - hidden on mobile when keyboard is open */}
       <div
         className={`
-          flex-1 min-h-0 overflow-y-auto overscroll-contain
+          flex-1 min-h-0 overflow-y-auto overscroll-contain pb-20
           md:overflow-visible md:flex-none md:pb-28
           transition-all duration-200 ease-out
           ${isTyping ? 'max-h-0 opacity-0 overflow-hidden pointer-events-none md:max-h-none md:opacity-100 md:overflow-visible md:pointer-events-auto' : ''}
@@ -310,15 +310,15 @@ export const CreatePage: React.FC = () => {
       )}
       </div>
 
-      {/* FloatingAskBar - sticks above keyboard on mobile, fixed on desktop */}
+      {/* FloatingAskBar - fixed to bottom on mobile, fixed on desktop */}
       <div
         className={`
-          shrink-0 px-3 pt-3 sm:px-6 sm:pt-4
+          fixed bottom-0 left-0 right-0 px-3 pt-3 sm:px-6 sm:pt-4
           bg-gradient-to-t from-gray-100 dark:from-gray-950 via-gray-100/95 dark:via-gray-950/95 to-transparent
-          md:fixed md:bottom-0 md:left-20 md:right-0 md:pointer-events-none z-30
+          md:left-20 md:pointer-events-none z-30
           transition-all duration-200 ease-out
           ${isTyping
-            ? 'fixed bottom-0 left-0 right-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:left-20'
+            ? 'pb-[max(0.5rem,env(safe-area-inset-bottom))]'
             : 'pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-[max(1rem,env(safe-area-inset-bottom))]'
           }
         `}

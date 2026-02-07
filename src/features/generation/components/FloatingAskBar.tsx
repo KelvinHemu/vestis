@@ -117,7 +117,7 @@ export const FloatingAskBar: React.FC<FloatingAskBarProps> = ({
             onBlur={handleBlur}
             placeholder={editMode ? "Edit your image..." : "Create Anything"}
             disabled={isGenerating}
-            className="flex-1 min-w-0 bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm sm:text-base disabled:opacity-50"
+            className="flex-1 min-w-0 bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-base disabled:opacity-50"
           />
 
           {/* Send Button */}
