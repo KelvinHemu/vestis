@@ -139,8 +139,8 @@ export default function DashboardLayout({
       {/* Sidebar Navigation */}
       <Sidebar />
 
-      {/* Main Content Area - offset by sidebar width */}
-      <main className="flex-1 ml-20 min-h-screen">
+      {/* Main Content Area - offset by sidebar width on desktop, top header on mobile */}
+      <main className="flex-1 md:ml-20 min-h-screen pt-14 md:pt-0">
         {children}
       </main>
     </div>

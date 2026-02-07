@@ -9,7 +9,6 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
-
   // Configure remote image domains for next/image optimization
   images: {
     remotePatterns: [
