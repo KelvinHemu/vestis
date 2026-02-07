@@ -80,9 +80,10 @@ export function ProductSelector({
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 w-full">
-        {/* Product cards */}
-        {[
+      {/* Check if any card has an image - used for consistent sizing on mobile */}
+      {(() => {
+        const anyHasImage = Object.keys(imageUrls).length > 0;
+        const cards = [
           {
             id: 1,
             label: 'Front',
@@ -101,17 +102,25 @@ export function ProductSelector({
               bottom: '/images/flatlay/back-bottom.png'
             }
           }
-        ].map((item) => {
-          const hasImage = !!imageUrls[item.id];
-          return (
-            <div
-              key={item.id}
-              className={`rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm relative flex items-center justify-center w-full max-w-[550px] mx-auto md:mx-0 transition-colors duration-300 ${hasImage ? 'bg-white dark:bg-gray-900' : ''}`}
-              style={{
-                aspectRatio: '16/9',
-                backgroundColor: hasImage ? undefined : '#e5e7eb'
-              }}
-            >
+        ];
+        
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 w-full items-stretch">
+            {/* Product cards */}
+            {cards.map((item) => {
+              const hasImage = !!imageUrls[item.id];
+              return (
+                <div
+                  key={item.id}
+                  className={`rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm relative flex items-center justify-center w-full max-w-[550px] mx-auto md:mx-0 transition-colors duration-300 ${hasImage ? 'bg-white dark:bg-gray-900' : ''}`}
+                  style={{
+                    // On mobile: if any card has image, use min-height instead of fixed aspect ratio for flexibility
+                    // On desktop (side by side): always use aspect ratio
+                    aspectRatio: anyHasImage ? undefined : '16/9',
+                    minHeight: anyHasImage ? '200px' : undefined,
+                    backgroundColor: hasImage ? undefined : '#e5e7eb'
+                  }}
+                >
               {/* Background Image Layer - hidden when image is selected */}
               {!hasImage && (
                 <div
@@ -136,9 +145,11 @@ export function ProductSelector({
                 />
               </div>
             </div>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
+        );
+      })()}
 
       {/* Sample Clothing Gallery */}
       {onSelectGalleryClothing && (
