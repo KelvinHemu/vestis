@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Download, Share2 } from 'lucide-react';
 import { FeatureCard, features } from '@/components/shared/FeatureCard';
@@ -12,6 +12,7 @@ import { FullscreenImageViewer } from '@/components/ui/FullscreenImageViewer';
 import { chatService } from '@/services/chatService';
 import { InsufficientCreditsError } from '@/types/errors';
 import { USER_QUERY_KEY } from '@/hooks/useUser';
+import { useKeyboardVisible } from '@/hooks/useKeyboardVisible';
 
 interface UploadedImage {
   id: string;
@@ -29,6 +30,13 @@ export const CreatePage: React.FC = () => {
   const [showInsufficientCreditsDialog, setShowInsufficientCreditsDialog] = useState(false);
   const [creditsInfo, setCreditsInfo] = useState({ available: 0, required: 1 });
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
+
+  // Detect mobile keyboard visibility for proper input positioning
+  const { isKeyboardVisible, keyboardHeight } = useKeyboardVisible();
+
+  // Combined: input is focused OR keyboard is actually visible
+  const isTyping = isInputFocused || isKeyboardVisible;
 
   // Query client for invalidating user credits after generation
   const queryClient = useQueryClient();
@@ -136,6 +144,10 @@ export const CreatePage: React.FC = () => {
     }
   };
 
+  const handleInputFocusChange = useCallback((focused: boolean) => {
+    setIsInputFocused(focused);
+  }, []);
+
   const handleDownload = async () => {
     if (!generatedImage) return;
 
@@ -204,8 +216,15 @@ export const CreatePage: React.FC = () => {
         />
       )}
 
-      {/* Scrollable content area - contained on mobile, normal flow on desktop */}
-      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain md:overflow-visible md:flex-none md:pb-28">
+      {/* Scrollable content area - hidden on mobile when keyboard is open */}
+      <div
+        className={`
+          flex-1 min-h-0 overflow-y-auto overscroll-contain
+          md:overflow-visible md:flex-none md:pb-28
+          transition-all duration-200 ease-out
+          ${isTyping ? 'max-h-0 opacity-0 overflow-hidden pointer-events-none md:max-h-none md:opacity-100 md:overflow-visible md:pointer-events-auto' : ''}
+        `}
+      >
       {isGenerating ? (
         <div className="flex items-center justify-center h-full md:min-h-[calc(100vh-12rem)] p-4 sm:p-8">
           <LoadingSpinner />
@@ -291,14 +310,27 @@ export const CreatePage: React.FC = () => {
       )}
       </div>
 
-      {/* FloatingAskBar - in document flow on mobile, fixed on desktop */}
-      <div className="shrink-0 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 sm:px-6 sm:pt-4 sm:pb-[max(1rem,env(safe-area-inset-bottom))] bg-gradient-to-t from-gray-100 dark:from-gray-950 via-gray-100/95 dark:via-gray-950/95 to-transparent md:fixed md:bottom-0 md:left-20 md:right-0 md:pointer-events-none z-30">
+      {/* FloatingAskBar - sticks above keyboard on mobile, fixed on desktop */}
+      <div
+        className={`
+          shrink-0 px-3 pt-3 sm:px-6 sm:pt-4
+          bg-gradient-to-t from-gray-100 dark:from-gray-950 via-gray-100/95 dark:via-gray-950/95 to-transparent
+          md:fixed md:bottom-0 md:left-20 md:right-0 md:pointer-events-none z-30
+          transition-all duration-200 ease-out
+          ${isTyping
+            ? 'fixed bottom-0 left-0 right-0 pb-[env(safe-area-inset-bottom)] md:left-20'
+            : 'pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-[max(1rem,env(safe-area-inset-bottom))]'
+          }
+        `}
+        style={isTyping && keyboardHeight > 0 ? { bottom: `${keyboardHeight}px` } : undefined}
+      >
         <div className="w-full max-w-3xl mx-auto md:pointer-events-auto">
           <FloatingAskBar
             onFilesSelected={handleFilesSelected}
             onSubmit={handleChatSubmit}
             isGenerating={isGenerating}
             editMode={isEditMode}
+            onFocusChange={handleInputFocusChange}
           />
         </div>
       </div>

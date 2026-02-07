@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Paperclip, ArrowUp } from 'lucide-react';
 
 interface FloatingAskBarProps {
@@ -8,18 +8,30 @@ interface FloatingAskBarProps {
   onSubmit: (prompt: string, images: string[]) => Promise<void>;
   isGenerating?: boolean;
   editMode?: boolean;
+  onFocusChange?: (focused: boolean) => void;
 }
 
 export const FloatingAskBar: React.FC<FloatingAskBarProps> = ({ 
   onFilesSelected, 
   onSubmit,
   isGenerating = false,
-  editMode = false 
+  editMode = false,
+  onFocusChange,
 }) => {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFocus = useCallback(() => {
+    setIsFocused(true);
+    onFocusChange?.(true);
+  }, [onFocusChange]);
+
+  const handleBlur = useCallback(() => {
+    setIsFocused(false);
+    onFocusChange?.(false);
+  }, [onFocusChange]);
 
   const handleFileClick = () => {
     fileInputRef.current?.click();
@@ -101,8 +113,8 @@ export const FloatingAskBar: React.FC<FloatingAskBarProps> = ({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyPress={handleKeyPress}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             placeholder={editMode ? "Edit your image..." : "Create Anything"}
             disabled={isGenerating}
             className="flex-1 min-w-0 bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm sm:text-base disabled:opacity-50"
