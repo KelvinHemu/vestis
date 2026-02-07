@@ -318,7 +318,7 @@ export const CreatePage: React.FC = () => {
           md:fixed md:bottom-0 md:left-20 md:right-0 md:pointer-events-none z-30
           transition-all duration-200 ease-out
           ${isTyping
-            ? 'fixed bottom-0 left-0 right-0 pb-[env(safe-area-inset-bottom)] md:left-20'
+            ? 'fixed bottom-0 left-0 right-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:left-20'
             : 'pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-[max(1rem,env(safe-area-inset-bottom))]'
           }
         `}
