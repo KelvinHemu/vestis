@@ -101,38 +101,43 @@ export function ProductSelector({
               bottom: '/images/flatlay/back-bottom.png'
             }
           }
-        ].map((item) => (
-          <div
-            key={item.id}
-            className="rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm relative flex items-center justify-center w-full max-w-[550px] mx-auto md:mx-0"
-            style={{
-              aspectRatio: '16/9',
-              backgroundColor: '#e5e7eb'
-            }}
-          >
-            {/* Background Image Layer */}
+        ].map((item) => {
+          const hasImage = !!imageUrls[item.id];
+          return (
             <div
-              className="absolute inset-0 rounded-2xl dark:opacity-80"
+              key={item.id}
+              className={`rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm relative flex items-center justify-center w-full max-w-[550px] mx-auto md:mx-0 transition-colors duration-300 ${hasImage ? 'bg-white dark:bg-gray-900' : ''}`}
               style={{
-                backgroundImage: `url(${getBackgroundImage(item.bgImages)})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                opacity: 1
+                aspectRatio: '16/9',
+                backgroundColor: hasImage ? undefined : '#e5e7eb'
               }}
-            />
+            >
+              {/* Background Image Layer - hidden when image is selected */}
+              {!hasImage && (
+                <div
+                  className="absolute inset-0 rounded-2xl dark:opacity-80"
+                  style={{
+                    backgroundImage: `url(${getBackgroundImage(item.bgImages)})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    opacity: 1
+                  }}
+                />
+              )}
 
-            <h3 className="absolute top-4 left-6 text-lg font-semibold text-gray-700 dark:text-gray-200 z-10">{item.label}</h3>
-            <div className="relative z-10">
-              <ProductUpload
-                id={item.id}
-                label={item.label}
-                imageUrl={imageUrls[item.id]}
-                onFileUpload={onFileUpload}
-              />
+              <h3 className={`absolute top-4 left-6 text-lg font-semibold z-10 ${hasImage ? 'text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-200'}`}>{item.label}</h3>
+              <div className="relative z-10">
+                <ProductUpload
+                  id={item.id}
+                  label={item.label}
+                  imageUrl={imageUrls[item.id]}
+                  onFileUpload={onFileUpload}
+                />
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Sample Clothing Gallery */}
