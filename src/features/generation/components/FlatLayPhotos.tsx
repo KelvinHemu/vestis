@@ -95,6 +95,50 @@ export function FlatLayPhotos() {
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
   const [selectedGalleryTop, setSelectedGalleryTop] = useState<string | undefined>();
   const [selectedGalleryBottom, setSelectedGalleryBottom] = useState<string | undefined>();
+  // iOS Safari (especially iPhone 15 Pro Max) can fail to render cross-origin images.
+  // Only converts to blob URL on error — zero overhead on normal browsers.
+  const [fallbackBlobUrl, setFallbackBlobUrl] = useState<string | null>(null);
+  const blobUrlRef = useRef<string | null>(null);
+
+  // Reset fallback blob URL when generated image changes
+  useEffect(() => {
+    setFallbackBlobUrl(null);
+    if (blobUrlRef.current) {
+      URL.revokeObjectURL(blobUrlRef.current);
+      blobUrlRef.current = null;
+    }
+  }, [generatedImageUrl]);
+
+  // Cleanup blob URL on unmount
+  useEffect(() => {
+    return () => {
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+    };
+  }, []);
+
+  // Called only when <img> fails to load — fetches as blob for iOS Safari
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const target = e.target as HTMLImageElement;
+    // If we already tried the blob fallback, give up
+    if (fallbackBlobUrl || !generatedImageUrl) return;
+    // Don't retry data/blob URLs
+    if (generatedImageUrl.startsWith('data:') || generatedImageUrl.startsWith('blob:')) return;
+
+    fetch(generatedImageUrl, { mode: 'cors' })
+      .then(res => {
+        if (!res.ok) throw new Error('fetch failed');
+        return res.blob();
+      })
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        blobUrlRef.current = url;
+        setFallbackBlobUrl(url);
+      })
+      .catch(() => {
+        // Nothing more we can do
+        console.warn('iOS image fallback also failed for:', generatedImageUrl);
+      });
+  };
 
   // Sync generation store error with local error state
   useEffect(() => {
@@ -541,9 +585,11 @@ export function FlatLayPhotos() {
                     onDoubleClick={() => setIsFullscreenOpen(true)}
                   >
                     <img
-                      src={generatedImageUrl}
+                      src={fallbackBlobUrl || generatedImageUrl}
                       alt="Generated Flatlay"
+                      crossOrigin="anonymous"
                       className="w-full h-full object-cover"
+                      onError={handleImageError}
                     />
 
                     {/* Image Feedback Actions */}

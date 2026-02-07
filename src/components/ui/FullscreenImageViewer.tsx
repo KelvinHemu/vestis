@@ -88,6 +88,7 @@ export const FullscreenImageViewer: React.FC<FullscreenImageViewerProps> = ({
         <img
           src={imageUrl}
           alt="Fullscreen view"
+          crossOrigin="anonymous"
           className="max-w-full max-h-[90vh] object-contain animate-in fade-in zoom-in duration-300"
           onClick={(e) => e.stopPropagation()}
         />

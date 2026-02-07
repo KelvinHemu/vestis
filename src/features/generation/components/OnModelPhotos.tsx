@@ -14,7 +14,7 @@ import { FullscreenImageViewer } from '@/components/ui/FullscreenImageViewer';
 import { useOnModelGeneration } from '@/hooks/useOnModelGeneration';
 import { useInvalidateGenerations } from '@/hooks/useGenerations';
 import { useInvalidateOnModel } from '@/hooks/useOnModel';
-import { useOnModelStore } from '@/contexts/featureStores';
+import { useOnModelStore, useFlatLayStore } from '@/contexts/featureStores';
 import { chatService } from '@/services/chatService';
 import type { ModelPhoto } from '@/types/onModel';
 import type { Model } from '@/types/model';
@@ -38,8 +38,6 @@ export function OnModelPhotos() {
     prompt,
     isEditMode,
     generationHistory,
-    aspectRatio,
-    resolution,
     generatedImageUrl: storedGeneratedImageUrl,
     setCurrentStep,
     setMaxUnlockedStep,
@@ -49,11 +47,12 @@ export function OnModelPhotos() {
     setPrompt,
     setIsEditMode,
     setGenerationHistory,
-    setAspectRatio,
-    setResolution,
     setGeneratedImageUrl: setStoredGeneratedImageUrl,
     resetOnModel,
   } = useOnModelStore();
+
+  // Read aspect ratio & resolution from shared FlatLay store (controlled via Profile settings)
+  const { aspectRatio, resolution, setAspectRatio, setResolution } = useFlatLayStore();
 
   // Local (non-persisted) state
   const [selectedModel, setSelectedModel] = useState<Model | null>(null);
@@ -438,16 +437,16 @@ export function OnModelPhotos() {
 
         {/* Selected Items and Button at the bottom */}
         <div className="space-y-4 md:space-y-6">
-          {/* Aspect Ratio Selector */}
-          <div>
+          {/* Aspect Ratio Selector - visible on desktop only */}
+          <div className="hidden md:block">
             <AspectRatio
               value={aspectRatio}
               onValueChange={setAspectRatio}
             />
           </div>
 
-          {/* Resolution Selector */}
-          <div>
+          {/* Resolution Selector - visible on desktop only */}
+          <div className="hidden md:block">
             <Resolution
               value={resolution}
               onValueChange={setResolution}
@@ -568,7 +567,7 @@ export function OnModelPhotos() {
       <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 dark:border-gray-700 overflow-hidden">
         {/* Left Component - full width on phone, flex-1 on tablet+ */}
         <div className="flex-1 bg-white dark:bg-[#1A1A1A] md:border-r-2 border-gray-300 dark:border-gray-700 m-0 overflow-y-auto relative min-h-0 pb-44 md:pb-0">
-          <div className="border-b-2 border-gray-300 dark:border-gray-700">
+          <div className="hidden md:block border-b-2 border-gray-300 dark:border-gray-700">
             <Steps
               steps={steps}
               currentStep={currentStep}
@@ -576,7 +575,7 @@ export function OnModelPhotos() {
               onStepChange={setCurrentStep}
             />
           </div>
-          <div className="p-8">
+          <div className="p-4 pt-8 md:p-8 md:pt-8">
             {renderStepContent()}
           </div>
 
@@ -592,9 +591,11 @@ export function OnModelPhotos() {
           )}
         </div>
 
-        {/* Right Component - fixed bottom bar on phone, sidebar on tablet+ */}
-        <div className="fixed bottom-0 left-0 right-0 md:static md:w-80 lg:w-96 bg-white dark:bg-[#1A1A1A] p-4 sm:p-6 m-0 md:overflow-y-auto flex flex-col border-t-2 md:border-t-0 border-gray-300 dark:border-gray-700 shrink-0 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none">
-          {renderRightPanel()}
+        {/* Right Component - floating button on phone, sidebar on tablet+ */}
+        <div className="fixed bottom-0 left-0 right-0 md:static md:w-80 lg:w-96 bg-transparent md:bg-white md:dark:bg-[#1A1A1A] p-4 sm:p-6 m-0 md:overflow-y-auto flex flex-col border-t-0 md:border-t-0 border-gray-300 dark:border-gray-700 shrink-0 z-50 shadow-none md:shadow-none pointer-events-none md:pointer-events-auto">
+          <div className="pointer-events-auto">
+            {renderRightPanel()}
+          </div>
         </div>
       </div>
     </MainContent>

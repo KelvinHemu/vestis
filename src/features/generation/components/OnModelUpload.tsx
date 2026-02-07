@@ -25,19 +25,19 @@ export function OnModelUpload({ photos, onFileUpload, onClear, onSelectSample, s
   const hasAnyPhotos = Object.keys(photos).length > 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 md:pt-0 pt-[8vh]">
       <UploadHeader
         title="On-Model Photos"
         onClearAll={onClear}
         showClearButton={hasAnyPhotos}
       />
 
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-4 justify-center md:justify-start">
         {Array.from({ length: photoCount }).map((_, index) => {
           const hasImage = !!photos[index];
 
           return (
-            <div key={index} className="relative w-60 pb-4">
+            <div key={index} className={`relative pb-4 ${index === 0 ? 'w-[85vw] max-w-[360px] md:w-60' : 'hidden md:block w-60'}`}>
               <input
                 type="file"
                 id={`photo-${index}`}
@@ -105,9 +105,9 @@ export function OnModelUpload({ photos, onFileUpload, onClear, onSelectSample, s
           );
         })}
 
-        {/* Add More Photos Button */}
+        {/* Add More Photos Button - desktop only */}
         {photoCount < 10 && (
-          <div className="relative w-60 pb-4">
+          <div className="relative w-60 pb-4 hidden md:block">
             <button
               onClick={handleAddPhoto}
               className="block border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 transition-colors relative overflow-hidden"
