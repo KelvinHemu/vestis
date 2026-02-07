@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ProductUpload } from './ProductUpload';
 import { CustomDropdown } from '@/components/shared/CustomDropdown';
 import { UploadHeader } from './UploadHeader';
@@ -34,6 +35,9 @@ export function ProductSelector({
     }
   };
 
+  // Mobile: which side is currently shown (Front or Back)
+  const [mobileView, setMobileView] = useState<'front' | 'back'>('front');
+
   const isFullBody = selectionType.length === 2 &&
     selectionType.includes('top') &&
     selectionType.includes('bottom');
@@ -66,8 +70,8 @@ export function ProductSelector({
         showClearButton={Object.keys(imageUrls).length > 0}
       />
 
-      {/* Selection Type Options - custom dropdown */}
-      <div className="flex justify-between items-center gap-3">
+      {/* Selection Type Options - custom dropdown + Front/Back toggle on mobile */}
+      <div className="flex items-center gap-3">
         <CustomDropdown
           value={getCurrentValue()}
           onChange={handleSelectChange}
@@ -76,8 +80,24 @@ export function ProductSelector({
             { value: 'bottom', label: 'Bottom' },
             { value: 'fullbody', label: 'Full Body' }
           ]}
-          className="w-full sm:w-48"
+          className="flex-1 sm:w-48 sm:flex-none"
         />
+
+        {/* Mobile Front/Back toggle */}
+        <div className="flex md:hidden items-center bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+          <button
+            onClick={() => setMobileView('front')}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${mobileView === 'front' ? 'bg-black dark:bg-white text-white dark:text-black' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+          >
+            Front
+          </button>
+          <button
+            onClick={() => setMobileView('back')}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${mobileView === 'back' ? 'bg-black dark:bg-white text-white dark:text-black' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+          >
+            Back
+          </button>
+        </div>
       </div>
 
       {/* Check if any card has an image - used for consistent sizing on mobile */}
@@ -105,49 +125,90 @@ export function ProductSelector({
         ];
         
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 w-full items-stretch">
-            {/* Product cards */}
-            {cards.map((item) => {
-              const hasImage = !!imageUrls[item.id];
-              return (
-                <div
-                  key={item.id}
-                  className={`rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm relative flex items-center justify-center w-full max-w-[550px] mx-auto md:mx-0 transition-colors duration-300 ${hasImage ? 'bg-white dark:bg-gray-900' : ''}`}
-                  style={{
-                    // On mobile: if any card has image, use min-height instead of fixed aspect ratio for flexibility
-                    // On desktop (side by side): always use aspect ratio
-                    aspectRatio: anyHasImage ? undefined : '16/9',
-                    minHeight: anyHasImage ? '200px' : undefined,
-                    backgroundColor: hasImage ? undefined : '#e5e7eb'
-                  }}
-                >
-              {/* Background Image Layer - hidden when image is selected */}
-              {!hasImage && (
-                <div
-                  className="absolute inset-0 rounded-2xl dark:opacity-80"
-                  style={{
-                    backgroundImage: `url(${getBackgroundImage(item.bgImages)})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    opacity: 1
-                  }}
-                />
-              )}
+          <>
+            {/* Mobile: single card with Front/Back toggle */}
+            <div className="md:hidden w-full">
+              {cards
+                .filter((item) => mobileView === 'front' ? item.id === 1 : item.id === 2)
+                .map((item) => {
+                  const hasImage = !!imageUrls[item.id];
+                  return (
+                    <div
+                      key={item.id}
+                      className={`rounded-2xl p-3 shadow-sm relative flex items-center justify-center w-full mx-auto transition-colors duration-300 ${hasImage ? 'bg-white dark:bg-gray-900' : ''}`}
+                      style={{
+                        aspectRatio: anyHasImage ? undefined : '3/4',
+                        minHeight: anyHasImage ? '180px' : undefined,
+                        backgroundColor: hasImage ? undefined : '#e5e7eb'
+                      }}
+                    >
+                      {!hasImage && (
+                        <div
+                          className="absolute inset-0 rounded-2xl dark:opacity-80"
+                          style={{
+                            backgroundImage: `url(${getBackgroundImage(item.bgImages)})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                            opacity: 1
+                          }}
+                        />
+                      )}
 
-              <h3 className={`absolute top-4 left-6 text-lg font-semibold z-10 ${hasImage ? 'text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-200'}`}>{item.label}</h3>
-              <div className="relative z-10">
-                <ProductUpload
-                  id={item.id}
-                  label={item.label}
-                  imageUrl={imageUrls[item.id]}
-                  onFileUpload={onFileUpload}
-                />
-              </div>
+                      <div className="relative z-10">
+                        <ProductUpload
+                          id={item.id}
+                          label={item.label}
+                          imageUrl={imageUrls[item.id]}
+                          onFileUpload={onFileUpload}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
             </div>
-              );
-            })}
-          </div>
+
+            {/* Desktop: side by side cards */}
+            <div className="hidden md:grid grid-cols-2 gap-4 md:gap-6 lg:gap-8 w-full items-stretch">
+              {cards.map((item) => {
+                const hasImage = !!imageUrls[item.id];
+                return (
+                  <div
+                    key={item.id}
+                    className={`rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm relative flex items-center justify-center w-full max-w-[550px] mx-auto md:mx-0 transition-colors duration-300 ${hasImage ? 'bg-white dark:bg-gray-900' : ''}`}
+                    style={{
+                      aspectRatio: anyHasImage ? undefined : '16/9',
+                      minHeight: anyHasImage ? '200px' : undefined,
+                      backgroundColor: hasImage ? undefined : '#e5e7eb'
+                    }}
+                  >
+                    {!hasImage && (
+                      <div
+                        className="absolute inset-0 rounded-2xl dark:opacity-80"
+                        style={{
+                          backgroundImage: `url(${getBackgroundImage(item.bgImages)})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat',
+                          opacity: 1
+                        }}
+                      />
+                    )}
+
+                    <h3 className={`absolute top-4 left-6 text-lg font-semibold z-10 ${hasImage ? 'text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-200'}`}>{item.label}</h3>
+                    <div className="relative z-10">
+                      <ProductUpload
+                        id={item.id}
+                        label={item.label}
+                        imageUrl={imageUrls[item.id]}
+                        onFileUpload={onFileUpload}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         );
       })()}
 
