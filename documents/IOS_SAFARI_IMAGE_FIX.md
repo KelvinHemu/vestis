@@ -84,33 +84,43 @@ const handleImageError = () => {
 
 ### Download Fix
 
-**Strategy:** Detect iOS and open the image in a new tab instead of using `link.click()`.
+**Strategy:** Try the standard download first, fall back only on iOS after a delay.
 
 ```tsx
+const response = await fetch(generatedImageUrl);
+const blob = await response.blob();
+const url = window.URL.createObjectURL(blob);
+
+// 1. Always try standard download first
+const link = document.createElement('a');
+link.href = url;
+link.download = 'flatlay-image.png';
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
+
+// 2. iOS Safari silently ignores link.click() — no error, no download.
+//    After 1.5s, detect iOS and open in new tab as fallback.
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
 if (isIOS) {
-  // Opens image in new tab → user long-presses → "Save to Photos"
-  window.open(blobUrl, '_blank');
-  setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+  setTimeout(() => {
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }, 1500);
 } else {
-  // Standard download for non-iOS
-  const link = document.createElement('a');
-  link.href = blobUrl;
-  link.download = 'flatlay-image.png';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
 }
 ```
 
-**Why this works:**
-- `window.open()` is not blocked by iOS Safari's download restrictions.
-- The user sees the full image in a new tab and can long-press → "Add to Photos" or use the native share sheet.
-- `revokeObjectURL` is deferred (60s on iOS, 1s on others) so the blob stays alive long enough for the new tab to load.
-- If the `fetch()` itself fails, the catch block falls back to `window.open(originalUrl, '_blank')`.
+**How the flow works:**
+
+1. `link.click()` fires — on Chrome/Firefox/Android this triggers an immediate file download. Done.
+2. On iOS Safari, `link.click()` does nothing (silently ignored).
+3. After a 1.5-second delay, the iOS fallback kicks in and opens the image in a new tab.
+4. The user can then long-press → "Add to Photos" or use the native share sheet.
+5. If `fetch()` itself fails, the catch block opens the original URL directly in a new tab.
 
 ---
 
