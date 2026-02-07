@@ -115,12 +115,28 @@ export function Sidebar() {
         />
       )}
 
-      {/* Mobile Slide-out Menu */}
+      {/* Mobile Slide-out Menu - Full Height */}
       <div className={cn(
-        "fixed top-14 right-0 bottom-0 w-64 bg-white dark:bg-[#1A1A1A] border-l border-gray-200 dark:border-gray-700 z-[70] transform transition-transform duration-300 ease-in-out md:hidden",
+        "fixed top-0 right-0 bottom-0 w-3/4 bg-white dark:bg-[#1A1A1A] border-l border-gray-200 dark:border-gray-700 z-[70] transform transition-transform duration-300 ease-in-out md:hidden flex flex-col",
         isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
       )}>
-        <nav className="flex flex-col p-4 space-y-2">
+        {/* Menu Header */}
+        <div className="flex items-center justify-between px-4 h-14 border-b border-gray-200 dark:border-gray-700 shrink-0">
+          <Link href="/dashboard" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
+            <NextImage src="/Vestis.svg" alt="Vestis Logo" width={24} height={24} className="w-6 h-6" />
+            <span className="font-semibold text-gray-900 dark:text-white">Vestis</span>
+            <span className="text-[8px] font-bold text-amber-500">Beta</span>
+          </Link>
+          <button
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Close menu"
+          >
+            <X className="w-6 h-6 text-gray-900 dark:text-white" />
+          </button>
+        </div>
+
+        <nav className="flex flex-col p-4 space-y-2 flex-1 overflow-y-auto">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.path;
@@ -150,7 +166,7 @@ export function Sidebar() {
         </nav>
 
         {/* Profile Section at Bottom of Mobile Menu */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 shrink-0">
           <Link
             href="/profile"
             onClick={() => setIsMobileMenuOpen(false)}
