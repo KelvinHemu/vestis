@@ -227,57 +227,78 @@ class AuthService {
 
   /**
    * Refresh authentication token
-   * Uses the refresh token to get a new access token without logging out
+   * Uses the refresh token to get a new access token without logging out.
+   * IMPORTANT: This method does NOT call logout() — callers decide what to do on failure.
    */
   async refreshToken(): Promise<string> {
-    try {
-      const refreshToken = this.getRefreshToken();
+    const refreshToken = this.getRefreshToken();
 
-      if (!refreshToken) {
-        this.logout();
-        throw new Error('Session expired');
-      }
-
-      const response = await fetch(`${API_BASE_URL}/v1/auth/refresh`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-        body: JSON.stringify({ refresh_token: refreshToken }),
-      });
-
-      if (!response.ok) {
-        // Refresh token expired or invalid - logout
-        this.logout();
-        throw new Error('Session expired');
-      }
-
-      const data = await response.json();
-
-      // Handle both 'token' and 'access_token' response formats
-      const newAccessToken = data.access_token || data.token;
-
-      if (!newAccessToken) {
-        this.logout();
-        throw new Error('Invalid refresh response');
-      }
-
-      // Store the new access token
-      this.storeToken(newAccessToken);
-
-      // Store new refresh token if provided
-      if (data.refresh_token) {
-        this.storeRefreshToken(data.refresh_token);
-      }
-
-      console.log('✅ Token refreshed successfully');
-      return newAccessToken;
-    } catch (error) {
-      // Don't log here - will be handled by apiClient with proper redirect
-      throw error;
+    if (!refreshToken) {
+      const err = new Error('No refresh token available');
+      (err as any).isAuthError = true;
+      throw err;
     }
+
+    // Retry up to 2 times for transient network failures
+    let lastError: Error | null = null;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/v1/auth/refresh`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          body: JSON.stringify({ refresh_token: refreshToken }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+          // Refresh token itself is invalid/expired — no point retrying
+          const err = new Error('Refresh token expired');
+          (err as any).isAuthError = true;
+          throw err;
+        }
+
+        if (!response.ok) {
+          // Server error (5xx) or other — may be transient, allow retry
+          throw new Error(`Refresh request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Handle both 'token' and 'access_token' response formats
+        const newAccessToken = data.access_token || data.token;
+
+        if (!newAccessToken) {
+          throw new Error('Invalid refresh response — no token in payload');
+        }
+
+        // Store the new access token
+        this.storeToken(newAccessToken);
+
+        // Rotate refresh token if backend returns a new one
+        if (data.refresh_token) {
+          this.storeRefreshToken(data.refresh_token);
+        }
+
+        logger.info('Token refreshed successfully');
+        return newAccessToken;
+      } catch (error: any) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+        // If it's a definitive auth error, don't retry
+        if (lastError && (lastError as any).isAuthError) {
+          throw lastError;
+        }
+        // Wait briefly before retry (only if we'll retry)
+        if (attempt < 1) {
+          await new Promise((r) => setTimeout(r, 1000));
+        }
+      }
+    }
+
+    // All retries exhausted
+    throw lastError || new Error('Token refresh failed after retries');
   }
 
   /**

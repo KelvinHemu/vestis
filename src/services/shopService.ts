@@ -1,4 +1,5 @@
-import { API_BASE_URL, STORAGE_KEYS } from '@/config/api';
+import { API_BASE_URL } from '@/config/api';
+import { fetchWithAuth } from '@/utils/apiInterceptor';
 import type {
   Shop,
   ShopItem,
@@ -21,11 +22,9 @@ import type {
 
 class ShopService {
   private getAuthHeaders(): HeadersInit {
-    const token = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.authToken) : null;
     return {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
     };
   }
 
@@ -54,7 +53,7 @@ class ShopService {
    * Create a new shop for the authenticated user
    */
   async createShop(data: CreateShopRequest): Promise<Shop> {
-    const response = await fetch(`${API_BASE_URL}/v1/shops`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/v1/shops`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(data),
@@ -73,7 +72,7 @@ class ShopService {
    * Get the current user's shop
    */
   async getMyShop(): Promise<Shop | null> {
-    const response = await fetch(`${API_BASE_URL}/v1/shops/my-shop`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/v1/shops/my-shop`, {
       method: 'GET',
       headers: this.getAuthHeaders(),
     });
@@ -95,7 +94,7 @@ class ShopService {
    * Update the current user's shop
    */
   async updateMyShop(data: UpdateShopRequest): Promise<Shop> {
-    const response = await fetch(`${API_BASE_URL}/v1/shops/my-shop`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/v1/shops/my-shop`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(data),
@@ -114,7 +113,7 @@ class ShopService {
    * Delete the current user's shop
    */
   async deleteMyShop(): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/v1/shops/my-shop`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/v1/shops/my-shop`, {
       method: 'DELETE',
       headers: this.getAuthHeaders(),
     });
@@ -129,15 +128,11 @@ class ShopService {
    * Upload shop logo
    */
   async uploadShopLogo(file: File): Promise<Shop> {
-    const token = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.authToken) : null;
     const formData = new FormData();
     formData.append('logo', file);
 
-    const response = await fetch(`${API_BASE_URL}/v1/shops/my-shop/logo`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/v1/shops/my-shop/logo`, {
       method: 'POST',
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
       body: formData,
     });
 
@@ -154,15 +149,11 @@ class ShopService {
    * Upload shop banner
    */
   async uploadShopBanner(file: File): Promise<Shop> {
-    const token = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.authToken) : null;
     const formData = new FormData();
     formData.append('banner', file);
 
-    const response = await fetch(`${API_BASE_URL}/v1/shops/my-shop/banner`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/v1/shops/my-shop/banner`, {
       method: 'POST',
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
       body: formData,
     });
 
@@ -179,7 +170,7 @@ class ShopService {
    * Check if a slug is available
    */
   async checkSlugAvailability(slug: string): Promise<SlugCheckResponse> {
-    const response = await fetch(`${API_BASE_URL}/v1/shops/check-slug?slug=${encodeURIComponent(slug)}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/v1/shops/check-slug?slug=${encodeURIComponent(slug)}`, {
       method: 'GET',
       headers: this.getAuthHeaders(),
     });
@@ -206,7 +197,7 @@ class ShopService {
     if (filters?.category) params.append('category', filters.category);
     if (filters?.catalog) params.append('catalog', filters.catalog);
 
-    const response = await fetch(`${API_BASE_URL}/v1/shops/my-shop/items?${params}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/v1/shops/my-shop/items?${params}`, {
       method: 'GET',
       headers: this.getAuthHeaders(),
     });
@@ -223,7 +214,7 @@ class ShopService {
    * List catalogs in user's shop (protected)
    */
   async listMyCatalogs(): Promise<CatalogsResponse> {
-    const response = await fetch(`${API_BASE_URL}/v1/shops/my-shop/catalogs`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/v1/shops/my-shop/catalogs`, {
       method: 'GET',
       headers: this.getAuthHeaders(),
     });
@@ -240,7 +231,7 @@ class ShopService {
    * Create a new shop item
    */
   async createShopItem(data: CreateShopItemRequest): Promise<ShopItem> {
-    const response = await fetch(`${API_BASE_URL}/v1/shops/my-shop/items`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/v1/shops/my-shop/items`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(data),
@@ -259,7 +250,7 @@ class ShopService {
    * Create a shop item from an existing generation
    */
   async createItemFromGeneration(generationId: number, data: CreateItemFromGenerationRequest): Promise<ShopItem> {
-    const response = await fetch(`${API_BASE_URL}/v1/shops/my-shop/items/from-generation/${generationId}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/v1/shops/my-shop/items/from-generation/${generationId}`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(data),
@@ -278,7 +269,7 @@ class ShopService {
    * Get a specific shop item
    */
   async getMyShopItem(itemId: number): Promise<ShopItem> {
-    const response = await fetch(`${API_BASE_URL}/v1/shops/my-shop/items/${itemId}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/v1/shops/my-shop/items/${itemId}`, {
       method: 'GET',
       headers: this.getAuthHeaders(),
     });
@@ -296,7 +287,7 @@ class ShopService {
    * Update a shop item
    */
   async updateShopItem(itemId: number, data: UpdateShopItemRequest): Promise<ShopItem> {
-    const response = await fetch(`${API_BASE_URL}/v1/shops/my-shop/items/${itemId}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/v1/shops/my-shop/items/${itemId}`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(data),
@@ -315,7 +306,7 @@ class ShopService {
    * Delete a shop item
    */
   async deleteShopItem(itemId: number): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/v1/shops/my-shop/items/${itemId}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/v1/shops/my-shop/items/${itemId}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders(),
     });
@@ -330,17 +321,13 @@ class ShopService {
    * Upload images for a shop item
    */
   async uploadShopItemImages(itemId: number, files: File[]): Promise<ShopItem> {
-    const token = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.authToken) : null;
     const formData = new FormData();
     files.forEach((file) => {
       formData.append('images', file);
     });
 
-    const response = await fetch(`${API_BASE_URL}/v1/shops/my-shop/items/${itemId}/images`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/v1/shops/my-shop/items/${itemId}/images`, {
       method: 'POST',
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
       body: formData,
     });
 

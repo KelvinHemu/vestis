@@ -5,7 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { shopService, formatPrice, generateWhatsAppLink } from "@/services/shopService";
 import { useAuthStore } from "@/contexts/authStore";
-import { API_BASE_URL, STORAGE_KEYS } from "@/config/api";
+import { API_BASE_URL } from "@/config/api";
+import { fetchWithAuth } from "@/utils/apiInterceptor";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -189,15 +190,10 @@ export default function TryOnStudioPage() {
       const formData = new FormData();
       formData.append("user_photo", userPhoto);
 
-      const authToken = token || localStorage.getItem(STORAGE_KEYS.authToken);
-
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${API_BASE_URL}/v1/shop/${slug}/items/${itemId}/tryon`,
         {
           method: "POST",
-          headers: {
-            ...(authToken && { Authorization: `Bearer ${authToken}` }),
-          },
           body: formData,
         }
       );

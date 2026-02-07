@@ -2,18 +2,58 @@ import authService from '../services/authService';
 import { useAuthStore } from '../contexts/authStore';
 import { API_BASE_URL } from '@/config/api';
 import { logger } from '@/utils/logger';
+import { isTokenExpired } from '@/utils/tokenHelper';
 
 interface FetchOptions extends RequestInit {
   skipAuth?: boolean;
 }
 
-// Track token refresh to prevent concurrent refresh attempts
-let tokenRefreshPromise: Promise<string> | null = null;
-let isRefreshing = false;
+// ── Concurrency-safe token refresh queue ──
+// Only ONE refresh runs at a time; all other callers wait for the same promise.
+let refreshPromise: Promise<string> | null = null;
 
 /**
- * Enhanced fetch wrapper with automatic token handling
- * Automatically adds Authorization header and handles token expiration
+ * Obtain a fresh access token. If a refresh is already in-flight every caller
+ * receives the same promise so only a single network request is made.
+ */
+async function ensureFreshToken(): Promise<string> {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = authService
+    .refreshToken()
+    .then((newToken) => {
+      // Sync Zustand store with the new token
+      useAuthStore.getState().updateToken(newToken);
+      return newToken;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
+}
+
+/**
+ * Full session teardown — only called when the refresh token itself is invalid
+ * and there is truly no way to recover.
+ */
+function forceLogout() {
+  authService.logout();
+  useAuthStore.getState().logout();
+  if (typeof window !== 'undefined') {
+    window.location.href = '/login';
+  }
+}
+
+/**
+ * Enhanced fetch wrapper with automatic token handling.
+ *
+ * 1. Before every request the access token is checked; if it is about to expire
+ *    a silent refresh is attempted **proactively** (no 401 needed).
+ * 2. If the server still returns 401 the token is refreshed and the request is
+ *    retried **once**.
+ * 3. Logout only happens when the refresh token itself is definitively invalid
+ *    (401/403 from /auth/refresh).
  */
 export async function apiFetch(
   endpoint: string,
@@ -21,10 +61,8 @@ export async function apiFetch(
 ): Promise<Response> {
   const { skipAuth = false, ...fetchOptions } = options;
 
-  // Add base URL if not already present
   const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
 
-  // Add default headers
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -32,9 +70,18 @@ export async function apiFetch(
     ...(fetchOptions.headers as Record<string, string>),
   };
 
-  // Add Authorization header if not skipped and token exists
+  // ── Proactive refresh: swap token before it expires ──
   if (!skipAuth) {
-    const token = authService.getToken();
+    let token = authService.getToken();
+    if (token && isTokenExpired(token)) {
+      try {
+        logger.info('Access token expired/expiring — refreshing proactively…');
+        token = await ensureFreshToken();
+      } catch {
+        // Proactive refresh failed — still try the request with the old token;
+        // the server may have a longer grace window than our 30-second buffer.
+      }
+    }
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -44,101 +91,55 @@ export async function apiFetch(
     const response = await fetch(url, {
       ...fetchOptions,
       headers,
-      cache: 'no-store', // Prevent Next.js from caching API responses
+      cache: 'no-store',
     });
 
-    // Handle 401 Unauthorized - token expired or invalid
+    // ── Reactive refresh: server said 401 ──
     if (response.status === 401 && !skipAuth) {
-      logger.warn('Received 401 Unauthorized. Attempting token refresh...');
-      
-      // Prevent concurrent token refresh requests
-      if (isRefreshing) {
-        // Wait for ongoing refresh to complete
-        if (tokenRefreshPromise) {
-          await tokenRefreshPromise;
-        }
-        
-        // Retry with the refreshed token
-        const newToken = authService.getToken();
-        if (newToken) {
-          const retryHeaders: Record<string, string> = {
-            ...headers,
-            'Authorization': `Bearer ${newToken}`,
-          };
-          
-          return await fetch(url, {
-            ...fetchOptions,
-            headers: retryHeaders,
-            cache: 'no-store', // Prevent caching on retry
-          });
-        }
-      }
-      
-      // Start token refresh
-      isRefreshing = true;
+      logger.warn('Received 401 — attempting token refresh…');
+
       try {
-        tokenRefreshPromise = authService.refreshToken();
-        const newToken = await tokenRefreshPromise;
-        
-        if (newToken) {
-          // Update the auth store with the new token
-          const updateToken = useAuthStore.getState().updateToken;
-          updateToken(newToken);
-          
-          // Retry the original request with new token
-          const retryHeaders: Record<string, string> = {
-            ...headers,
-            'Authorization': `Bearer ${newToken}`,
-          };
-          
-          const retryResponse = await fetch(url, {
-            ...fetchOptions,
-            headers: retryHeaders,
-            cache: 'no-store', // Prevent caching on retry
-          });
-          
-          // If retry still fails with 401, session is invalid
-          if (retryResponse.status === 401) {
-            authService.logout();
-            const logout = useAuthStore.getState().logout;
-            logout();
-            window.location.href = '/login';
-            throw new Error('Session expired');
-          }
-          
-          return retryResponse;
+        const newToken = await ensureFreshToken();
+
+        // Retry the original request with the fresh token
+        const retryResponse = await fetch(url, {
+          ...fetchOptions,
+          headers: { ...headers, Authorization: `Bearer ${newToken}` },
+          cache: 'no-store',
+        });
+
+        // If the retry STILL returns 401, the refresh token itself is bad
+        if (retryResponse.status === 401) {
+          logger.warn('Retry after refresh still 401 — forcing logout');
+          forceLogout();
+          const err = new Error('Session expired. Please login again.');
+          (err as any).status = 401;
+          throw err;
         }
-      } catch (refreshError) {
-        // Token refresh failed - logout and redirect
-        logger.warn('🔒 Token refresh failed, logging out...');
-        authService.logout();
-        const logout = useAuthStore.getState().logout;
-        logout();
-        
-        // Only redirect if we're in a browser context
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+
+        return retryResponse;
+      } catch (refreshError: any) {
+        // Definitive auth error from the refresh endpoint → logout
+        if (refreshError?.isAuthError) {
+          logger.warn('Refresh token invalid — forcing logout');
+          forceLogout();
+          const err = new Error('Session expired. Please login again.');
+          (err as any).status = 401;
+          throw err;
         }
-        
-        // Throw a specific error for authentication failure
-        const authError = new Error('Session expired. Please login again.');
-        (authError as any).status = 401;
-        throw authError;
-      } finally {
-        isRefreshing = false;
-        tokenRefreshPromise = null;
+        // Transient error (network down, 5xx, etc.) — do NOT logout.
+        // Surface the error so the UI can show a "network error" message instead
+        // of silently booting the user.
+        logger.warn('Token refresh failed (transient) — NOT logging out');
+        throw refreshError;
       }
     }
 
     return response;
   } catch (error) {
-    // Suppress error logging for authentication failures (user will be redirected)
     if (error instanceof Error && (error as any).status === 401) {
-      // Silent fail - redirect will happen
-      throw error;
+      throw error; // Already handled above
     }
-    
-    // Log other network errors
     if (!skipAuth && error instanceof Error && error.message.includes('fetch')) {
       console.error('🔴 Network error:', error);
     }

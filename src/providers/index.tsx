@@ -1,39 +1,73 @@
 "use client";
 
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { queryClient } from "@/lib/queryClient";
 import { useAuthStore } from "@/contexts/authStore";
 import { ClarityProvider } from "@/components/shared/ClarityProvider";
 import { ThemeProvider } from "./theme-provider";
+import authService from "@/services/authService";
+import { getTokenExpiration } from "@/utils/tokenHelper";
 
 /* ============================================
    Auth Provider - Initializes auth state
    Waits for Zustand persist hydration before
-   calling initializeAuth to prevent race conditions
+   calling initializeAuth to prevent race conditions.
+   Also schedules a silent background refresh so
+   users are never logged out unexpectedly.
    ============================================ */
 function AuthProvider({ children }: { children: ReactNode }) {
   const initializeAuth = useAuthStore((state) => state.initializeAuth);
   const _hasHydrated = useAuthStore((state) => state._hasHydrated);
   const isInitialized = useAuthStore((state) => state.isInitialized);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const token = useAuthStore((state) => state.token);
+  const updateToken = useAuthStore((state) => state.updateToken);
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Initialize auth state ONLY AFTER Zustand persist has hydrated
-  // This prevents race conditions where we check auth before
-  // localStorage state has been restored
   useEffect(() => {
-    // Wait for hydration to complete
     if (!_hasHydrated) {
-      console.log('⏳ Waiting for Zustand hydration...');
       return;
     }
-
-    // Only initialize if not already initialized
     if (!isInitialized) {
-      console.log('🔄 Initializing auth state...');
       initializeAuth();
     }
   }, [_hasHydrated, isInitialized, initializeAuth]);
+
+  // ── Background token refresh scheduler ──
+  // Schedules a silent refresh 60 seconds before the access token expires.
+  useEffect(() => {
+    // Clear any existing timer
+    if (refreshTimerRef.current) {
+      clearTimeout(refreshTimerRef.current);
+      refreshTimerRef.current = null;
+    }
+
+    if (!isAuthenticated || !token) return;
+
+    const expiry = getTokenExpiration(token);
+    if (!expiry) return;
+
+    // Refresh 60 seconds before expiry (minimum 5 seconds from now)
+    const msUntilRefresh = Math.max(expiry.getTime() - Date.now() - 60_000, 5_000);
+
+    refreshTimerRef.current = setTimeout(async () => {
+      try {
+        const newToken = await authService.refreshToken();
+        updateToken(newToken);
+      } catch {
+        // Silently fail — the next API call will handle refresh reactively
+      }
+    }, msUntilRefresh);
+
+    return () => {
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
+      }
+    };
+  }, [isAuthenticated, token, updateToken]);
 
   return <>{children}</>;
 }

@@ -1,33 +1,68 @@
 import authService from '../services/authService';
+import { useAuthStore } from '../contexts/authStore';
+import { isTokenExpired } from '@/utils/tokenHelper';
+
+// ── Shared concurrency-safe refresh queue ──
+let refreshPromise: Promise<string> | null = null;
+
+async function ensureFreshToken(): Promise<string> {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = authService
+    .refreshToken()
+    .then((newToken) => {
+      useAuthStore.getState().updateToken(newToken);
+      return newToken;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
+}
+
+function forceLogout() {
+  authService.logout();
+  useAuthStore.getState().logout();
+  if (typeof window !== 'undefined') {
+    window.location.href = '/login';
+  }
+}
 
 /**
  * Enhanced fetch wrapper that automatically handles token refresh
- * and adds authentication headers to requests
+ * and adds authentication headers to requests.
+ *
+ * - Proactively refreshes tokens that are about to expire.
+ * - Reactively refreshes on 401 and retries the request once.
+ * - Only logs out when the refresh token itself is definitively invalid.
  */
 export async function fetchWithAuth(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  const token = authService.getToken();
-  
-  // Add auth header if token exists
+  // ── Proactive refresh ──
+  let token = authService.getToken();
+  if (token && isTokenExpired(token)) {
+    try {
+      token = await ensureFreshToken();
+    } catch {
+      // Will try with old token; server may still accept it
+    }
+  }
+
   const headers = {
     ...options.headers,
     ...(token && { 'Authorization': `Bearer ${token}` }),
   };
 
-  let response = await fetch(url, {
-    ...options,
-    headers,
-  });
+  let response = await fetch(url, { ...options, headers });
 
-  // If we get a 401 (Unauthorized), try to refresh the token
+  // ── Reactive refresh on 401 ──
   if (response.status === 401) {
     try {
-      // Attempt to refresh the token
-      const newToken = await authService.refreshToken();
-      
-      // Retry the original request with the new token
+      const newToken = await ensureFreshToken();
+
       response = await fetch(url, {
         ...options,
         headers: {
@@ -35,11 +70,19 @@ export async function fetchWithAuth(
           'Authorization': `Bearer ${newToken}`,
         },
       });
-    } catch {
-      // If refresh fails, logout and redirect to login
-      authService.logout();
-      window.location.href = '/login';
-      throw new Error('Session expired. Please login again.');
+
+      // Retry still 401 → refresh token is bad
+      if (response.status === 401) {
+        forceLogout();
+        throw new Error('Session expired. Please login again.');
+      }
+    } catch (err: any) {
+      if (err?.isAuthError) {
+        forceLogout();
+        throw new Error('Session expired. Please login again.');
+      }
+      // Transient error — do NOT logout
+      throw err;
     }
   }
 
