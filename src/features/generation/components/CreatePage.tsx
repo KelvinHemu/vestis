@@ -184,7 +184,7 @@ export const CreatePage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen pb-32 sm:pb-28">
+    <div className="flex flex-col h-[calc(100dvh-3.5rem)] md:block md:relative md:min-h-screen md:h-auto">
       {/* Insufficient Credits Dialog */}
       <InsufficientCreditsDialog
         isOpen={showInsufficientCreditsDialog}
@@ -204,12 +204,14 @@ export const CreatePage: React.FC = () => {
         />
       )}
 
+      {/* Scrollable content area - contained on mobile, normal flow on desktop */}
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain md:overflow-visible md:flex-none md:pb-28">
       {isGenerating ? (
-        <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-12rem)] p-4 sm:p-8">
+        <div className="flex items-center justify-center h-full md:min-h-[calc(100vh-12rem)] p-4 sm:p-8">
           <LoadingSpinner />
         </div>
       ) : generatedImage ? (
-        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-12rem)] px-4 py-6 sm:p-8 gap-4 sm:gap-6">
+        <div className="flex flex-col items-center justify-center h-full md:min-h-[calc(100vh-12rem)] px-4 py-6 sm:p-8 gap-4 sm:gap-6">
           {/* Action buttons row - responsive layout */}
           <div className="flex items-center justify-between w-full max-w-md sm:max-w-none sm:justify-center gap-2 sm:gap-4">
             {/* Start Over button */}
@@ -267,7 +269,7 @@ export const CreatePage: React.FC = () => {
 
         </div>
       ) : error ? (
-        <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-12rem)] p-4 sm:p-8">
+        <div className="flex items-center justify-center h-full md:min-h-[calc(100vh-12rem)] p-4 sm:p-8">
           <div className="text-center px-4">
             <p className="text-red-600 dark:text-red-400 font-medium mb-2 text-sm sm:text-base">Generation Failed</p>
             <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">{error}</p>
@@ -276,7 +278,7 @@ export const CreatePage: React.FC = () => {
       ) : uploadedImages.length > 0 ? (
         <UploadedImagesGrid images={uploadedImages} onRemoveImage={handleRemoveImage} />
       ) : (
-        <div className="container mx-auto px-4 py-6 sm:p-4 md:p-8 pb-28 sm:pb-32">
+        <div className="container mx-auto px-4 py-6 sm:p-4 md:p-8 md:pb-32">
           <div className="max-w-7xl mx-auto">
             {/* Feature Cards Grid - Single column on mobile, 2 on tablet, 4 on desktop */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-4 md:gap-5">
@@ -287,10 +289,11 @@ export const CreatePage: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
 
-      {/* Fixed FloatingAskBar at bottom - responsive positioning */}
-      <div className="fixed bottom-0 left-0 md:left-20 right-0 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 sm:px-6 sm:pt-4 sm:pb-[max(1rem,env(safe-area-inset-bottom))] bg-gradient-to-t from-gray-100 dark:from-gray-950 via-gray-100/95 dark:via-gray-950/95 to-transparent pointer-events-none z-30">
-        <div className="w-full max-w-3xl mx-auto pointer-events-auto">
+      {/* FloatingAskBar - in document flow on mobile, fixed on desktop */}
+      <div className="shrink-0 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 sm:px-6 sm:pt-4 sm:pb-[max(1rem,env(safe-area-inset-bottom))] bg-gradient-to-t from-gray-100 dark:from-gray-950 via-gray-100/95 dark:via-gray-950/95 to-transparent md:fixed md:bottom-0 md:left-20 md:right-0 md:pointer-events-none z-30">
+        <div className="w-full max-w-3xl mx-auto md:pointer-events-auto">
           <FloatingAskBar
             onFilesSelected={handleFilesSelected}
             onSubmit={handleChatSubmit}
