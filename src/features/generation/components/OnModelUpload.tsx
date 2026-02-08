@@ -49,12 +49,12 @@ export function OnModelUpload({ photos, onFileUpload, onClear, onSelectSample, s
                 className="hidden"
               />
               <div
-                className={`block border-2 rounded-lg transition-colors relative overflow-hidden ${hasImage ? 'border-white dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600' : 'border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800'
+                className={`block border-2 rounded-lg transition-colors relative overflow-hidden ${hasImage ? 'border-white dark:border-border hover:border-gray-200 dark:hover:border-border' : 'border-dashed border-gray-300 dark:border-border bg-gray-50 dark:bg-secondary'
                   }`}
                 style={{ aspectRatio: '3/4', width: '100%' }}
               >
                 {hasImage ? (
-                  <div className="relative w-full h-full bg-white dark:bg-gray-800 cursor-pointer group">
+                    <div className="relative w-full h-full bg-white dark:bg-secondary cursor-pointer group">
                     <label htmlFor={`photo-${index}`} className="block w-full h-full cursor-pointer">
                       <img
                         src={photos[index]}
@@ -86,7 +86,7 @@ export function OnModelUpload({ photos, onFileUpload, onClear, onSelectSample, s
                     </label>
                   </div>
                 ) : (
-                  <label htmlFor={`photo-${index}`} className="w-full h-full bg-gray-50 dark:bg-gray-800 rounded-lg cursor-pointer flex flex-col items-center justify-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-750 transition-colors">
+                  <label htmlFor={`photo-${index}`} className="w-full h-full bg-gray-50 dark:bg-secondary rounded-lg cursor-pointer flex flex-col items-center justify-center gap-3 hover:bg-gray-100 dark:hover:bg-secondary transition-colors">
                     <Upload className="w-12 h-12 md:w-10 md:h-10 text-gray-400 dark:text-gray-500" />
                     <span className="text-sm md:text-xs text-gray-500 dark:text-gray-400 font-medium">Upload Photo</span>
                   </label>
@@ -97,7 +97,7 @@ export function OnModelUpload({ photos, onFileUpload, onClear, onSelectSample, s
                   htmlFor={`photo-${index}`}
                   className="absolute bottom-0 left-1/2 -translate-x-1/2 cursor-pointer"
                 >
-                  <div className="bg-white dark:bg-gray-800 rounded-full p-2 shadow-lg border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
+                    <div className="bg-white dark:bg-secondary rounded-full p-2 shadow-lg border-2 border-gray-300 dark:border-border hover:bg-gray-50 dark:hover:bg-accent hover:border-gray-400 dark:hover:border-border transition-colors">
                     <svg className="w-4 h-4 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
                     </svg>
@@ -113,7 +113,7 @@ export function OnModelUpload({ photos, onFileUpload, onClear, onSelectSample, s
           <div className="relative w-60 pb-4 hidden md:block">
             <button
               onClick={handleAddPhoto}
-              className="block border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 transition-colors relative overflow-hidden"
+              className="block border-2 border-dashed border-gray-300 dark:border-border rounded-lg hover:border-gray-400 dark:hover:border-border transition-colors relative overflow-hidden"
               style={{ aspectRatio: '3/4', width: '100%', backgroundColor: 'transparent' }}
             >
               <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">

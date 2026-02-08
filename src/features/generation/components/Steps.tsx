@@ -28,8 +28,8 @@ export function Steps({ steps, onStepChange, currentStep = 0, maxUnlockedStep = 
                 currentStep === index
                   ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-sm'
                   : index <= maxUnlockedStep
-                  ? 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer'
-                  : 'text-gray-400 dark:text-gray-600 pointer-events-none opacity-50'
+                  ? 'text-gray-600 dark:text-muted-foreground hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-secondary cursor-pointer'
+                  : 'text-gray-400 dark:text-muted-foreground pointer-events-none opacity-50'
               }`}
             >
               {step}
@@ -56,8 +56,8 @@ export function Steps({ steps, onStepChange, currentStep = 0, maxUnlockedStep = 
                     : index < currentStep
                     ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
                     : index <= maxUnlockedStep
-                    ? 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 opacity-50'
+                    ? 'bg-gray-200 dark:bg-accent text-gray-600 dark:text-muted-foreground'
+                    : 'bg-gray-100 dark:bg-secondary text-gray-400 dark:text-muted-foreground opacity-50'
                 }`}
               >
                 {index < currentStep ? (
@@ -70,14 +70,14 @@ export function Steps({ steps, onStepChange, currentStep = 0, maxUnlockedStep = 
                 <div className={`w-6 h-0.5 ${
                   index < currentStep 
                     ? 'bg-gray-900 dark:bg-white' 
-                    : 'bg-gray-200 dark:bg-gray-700'
+                    : 'bg-gray-200 dark:bg-accent'
                 }`} />
               )}
             </div>
           ))}
         </div>
         {/* Current step label */}
-        <p className="text-center text-sm font-medium text-gray-900 dark:text-white mt-2">
+        <p className="text-center text-sm font-medium text-gray-900 dark:text-foreground mt-2">
           {steps[currentStep]}
         </p>
       </div>

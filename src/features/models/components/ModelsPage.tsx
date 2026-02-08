@@ -65,7 +65,7 @@ export function ModelsPage() {
   // Render Component
   // ============================================================================
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black p-4 sm:p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-background p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Gender Selection */}
         <div className="flex flex-wrap items-center gap-2 mb-6">
@@ -73,7 +73,7 @@ export function ModelsPage() {
             onClick={() => setActiveCategory('female')}
             className={`py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm font-medium transition-all ${activeCategory === 'female'
               ? 'bg-black dark:bg-white text-white dark:text-black'
-              : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+              : 'bg-white dark:bg-secondary text-gray-700 dark:text-muted-foreground hover:bg-gray-100 dark:hover:bg-accent border border-gray-200 dark:border-border'
               }`}
           >
             Female Models
@@ -82,7 +82,7 @@ export function ModelsPage() {
             onClick={() => setActiveCategory('male')}
             className={`py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm font-medium transition-all ${activeCategory === 'male'
               ? 'bg-black dark:bg-white text-white dark:text-black'
-              : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+              : 'bg-white dark:bg-secondary text-gray-700 dark:text-muted-foreground hover:bg-gray-100 dark:hover:bg-accent border border-gray-200 dark:border-border'
               }`}
           >
             Male Models
@@ -105,9 +105,9 @@ export function ModelsPage() {
         {customModels && customModels.length > 0 && (
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
-              <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">My Models</h2>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
+              <User className="w-5 h-5 text-gray-600 dark:text-muted-foreground" />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-foreground">My Models</h2>
+              <span className="text-sm text-gray-500 dark:text-muted-foreground">
                 ({customModels.length})
               </span>
             </div>
@@ -144,9 +144,9 @@ export function ModelsPage() {
             </div>
 
             {/* Divider */}
-            <div className="mt-8 mb-6 border-t border-gray-200 dark:border-gray-700" />
+            <div className="mt-8 mb-6 border-t border-gray-200 dark:border-border" />
 
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-foreground mb-4">
               All {activeCategory === 'female' ? 'Female' : 'Male'} Models
             </h2>
           </div>
@@ -161,7 +161,7 @@ export function ModelsPage() {
             </div>
             <div className="flex gap-4">
               {[1, 2].map((i) => (
-                <div key={i} className="w-48 h-64 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse" />
+                <div key={i} className="w-48 h-64 bg-gray-200 dark:bg-secondary rounded-lg animate-pulse" />
               ))}
             </div>
           </div>
@@ -173,8 +173,8 @@ export function ModelsPage() {
           {isLoading && (
             <div className="flex items-center justify-center py-20">
               <div className="flex flex-col items-center gap-3">
-                <div className="w-10 h-10 border-4 border-gray-200 dark:border-gray-700 border-t-black dark:border-t-white rounded-full animate-spin"></div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Loading models...</p>
+                <div className="w-10 h-10 border-4 border-gray-200 dark:border-border border-t-black dark:border-t-foreground rounded-full animate-spin"></div>
+                <p className="text-gray-600 dark:text-muted-foreground text-sm">Loading models...</p>
               </div>
             </div>
           )}
@@ -225,12 +225,12 @@ export function ModelsPage() {
           {!isLoading && !error && currentModels.length === 0 && (
             <div className="text-center py-20">
               <div className="flex flex-col items-center gap-3">
-                <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
+                <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-secondary flex items-center justify-center">
                   <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
-                <p className="text-gray-500 dark:text-gray-400 font-medium text-lg">No models available in this category.</p>
+                <p className="text-gray-500 dark:text-muted-foreground font-medium text-lg">No models available in this category.</p>
                 <p className="text-gray-400 dark:text-gray-500">Try selecting a different category.</p>
               </div>
             </div>

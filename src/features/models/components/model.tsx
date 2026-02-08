@@ -17,16 +17,16 @@ function ModelCardInfo({ name, age, size }: ModelCardInfoProps) {
     <div className="px-2 sm:px-3 py-1">
       <div className="flex flex-wrap items-center justify-between gap-1 sm:gap-2">
         {/* Name - Left */}
-        <div className="font-medium text-gray-900 dark:text-white text-sm sm:text-base truncate max-w-[45%] sm:max-w-none">
+        <div className="font-medium text-gray-900 dark:text-foreground text-sm sm:text-base truncate max-w-[45%] sm:max-w-none">
           {name}
         </div>
 
         {/* Age and Size - Right */}
         <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-          <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 px-1.5 sm:px-2.5 py-0.5 rounded-full border border-gray-300 dark:border-gray-600 whitespace-nowrap">
+          <span className="text-xs sm:text-sm text-gray-600 dark:text-muted-foreground px-1.5 sm:px-2.5 py-0.5 rounded-full border border-gray-300 dark:border-border whitespace-nowrap">
             {age}
           </span>
-          <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 px-1.5 sm:px-2.5 py-0.5 rounded-full border border-gray-300 dark:border-gray-600 whitespace-nowrap">
+          <span className="text-xs sm:text-sm text-gray-600 dark:text-muted-foreground px-1.5 sm:px-2.5 py-0.5 rounded-full border border-gray-300 dark:border-border whitespace-nowrap">
             {size}
           </span>
         </div>
@@ -82,7 +82,7 @@ export function ModelCard({
   return (
     <Card
       onClick={onClick}
-      className={`relative cursor-pointer overflow-hidden transition-all bg-white dark:bg-gray-800 group ${isSelected
+      className={`relative cursor-pointer overflow-hidden transition-all bg-white dark:bg-secondary group ${isSelected
         ? 'ring-2 ring-black dark:ring-white shadow-lg'
         : 'hover:shadow-md'
         }`}
@@ -154,7 +154,7 @@ export function ModelCard({
       ) : (
         // Simple name-only display for custom models
         <div className="px-2 sm:px-3 py-2">
-          <div className="font-medium text-gray-900 dark:text-white text-sm sm:text-base truncate">
+          <div className="font-medium text-gray-900 dark:text-foreground text-sm sm:text-base truncate">
             {name}
           </div>
         </div>

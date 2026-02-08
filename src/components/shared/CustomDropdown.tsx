@@ -47,7 +47,7 @@ export function CustomDropdown({ value, options, onChange, className = '' }: Cus
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg text-gray-700 dark:text-gray-200 font-medium text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-gray-50 dark:bg-secondary rounded-lg text-gray-700 dark:text-foreground font-medium text-sm hover:bg-gray-100 dark:hover:bg-accent transition-colors"
       >
         <span>{selectedOption?.label || 'Select'}</span>
         <ChevronDown
@@ -56,13 +56,13 @@ export function CustomDropdown({ value, options, onChange, className = '' }: Cus
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-secondary rounded-lg shadow-lg border border-gray-200 dark:border-border py-1 z-50">
           {options.map((option) => (
             <button
               key={option.value}
               type="button"
               onClick={() => handleSelect(option.value)}
-              className={`w-full px-3 py-2 text-left text-gray-700 dark:text-gray-200 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${option.value === value ? 'bg-gray-50 dark:bg-gray-700 font-medium' : ''
+              className={`w-full px-3 py-2 text-left text-gray-700 dark:text-foreground text-sm hover:bg-gray-50 dark:hover:bg-accent transition-colors ${option.value === value ? 'bg-gray-50 dark:bg-accent font-medium' : ''
                 }`}
             >
               {option.label}

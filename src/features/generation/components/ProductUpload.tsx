@@ -53,7 +53,7 @@ export function ProductUpload({ id, label, imageUrl, onFileUpload }: ProductUplo
         style={{ aspectRatio: '3/4', width: '100%', backgroundColor: 'transparent' }}
       >
         {hasImage ? (
-          <div className="relative w-full h-full bg-white dark:bg-gray-800 cursor-pointer group">
+          <div className="relative w-full h-full bg-white dark:bg-secondary cursor-pointer group">
             <label htmlFor={`product-${id}`} className="block w-full h-full cursor-pointer">
               <img
                 src={imageUrl}
@@ -80,8 +80,8 @@ export function ProductUpload({ id, label, imageUrl, onFileUpload }: ProductUplo
           htmlFor={`product-${id}`}
           className="absolute bottom-0 left-1/2 -translate-x-1/2 cursor-pointer"
         >
-          <div className="bg-white dark:bg-gray-800 rounded-full p-2 shadow-md border border-gray-200 dark:border-gray-600">
-            <svg className="w-4 h-4 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white dark:bg-secondary rounded-full p-2 shadow-md border border-gray-200 dark:border-border">
+            <svg className="w-4 h-4 text-gray-700 dark:text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
             </svg>
           </div>

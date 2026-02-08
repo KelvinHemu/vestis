@@ -36,23 +36,23 @@ const Resolution: React.FC<ResolutionProps> = ({
 
   return (
     <div className={`space-y-1.5 md:space-y-2.5 ${className}`}>
-      <Label htmlFor="resolution" className="text-xs md:text-sm font-semibold text-gray-900 dark:text-white">
+      <Label htmlFor="resolution" className="text-xs md:text-sm font-semibold text-gray-900 dark:text-foreground">
         {label}
       </Label>
       <div className="relative">
         <Select value={value} onValueChange={onValueChange} onOpenChange={setIsOpen}>
           <SelectTrigger 
             id="resolution" 
-            className="w-full h-9 md:h-11 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 focus:border-gray-400 dark:focus:border-gray-500 focus:ring-0 focus:ring-offset-0 transition-colors rounded-xl [&>svg]:hidden text-gray-900 dark:text-white text-sm"
+            className="w-full h-9 md:h-11 bg-white dark:bg-secondary border-gray-300 dark:border-border hover:border-gray-400 dark:hover:border-border focus:border-gray-400 dark:focus:border-border focus:ring-0 focus:ring-offset-0 transition-colors rounded-xl [&>svg]:hidden text-gray-900 dark:text-foreground text-sm"
           >
             <SelectValue placeholder="Select resolution" />
           </SelectTrigger>
-          <SelectContent className="max-h-[300px] rounded-xl bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+          <SelectContent className="max-h-[300px] rounded-xl bg-white dark:bg-secondary border-gray-200 dark:border-border">
             {resolutionOptions.map((option) => (
               <SelectItem 
                 key={option.value} 
                 value={option.value}
-                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 rounded-lg text-gray-900 dark:text-white"
+                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-accent focus:bg-gray-100 dark:focus:bg-accent rounded-lg text-gray-900 dark:text-foreground"
               >
                 <span className="font-medium">{option.label}</span>
               </SelectItem>

@@ -102,9 +102,9 @@ export const PricingCard: React.FC<PricingCardProps> = ({ package: pkg, isSelect
     <Card 
       onClick={onSelect}
       className={`
-        relative cursor-pointer transition-all bg-white dark:bg-gray-900
+        relative cursor-pointer transition-all bg-white dark:bg-card
         ${isSelected ? 'scale-[1.02] ring-2 ring-primary' : 'hover:shadow-md'}
-        ${pkg.recommended ? 'border-2 border-primary shadow-lg shadow-primary/10' : 'border border-gray-200 dark:border-gray-700'}
+        ${pkg.recommended ? 'border-2 border-primary shadow-lg shadow-primary/10' : 'border border-gray-200 dark:border-border'}
       `}
     >
       {/* Most Popular Badge */}
@@ -122,11 +122,11 @@ export const PricingCard: React.FC<PricingCardProps> = ({ package: pkg, isSelect
       )}
 
       <CardHeader>
-        <CardTitle className="font-medium text-gray-900 dark:text-white">{pkg.name}</CardTitle>
-        <span className="my-3 block text-3xl font-bold text-gray-900 dark:text-white">
-          {isBusiness ? 'Custom' : `${pkg.price_tzs.toLocaleString()} TZS`} <span className="text-base font-normal text-gray-500 dark:text-gray-400">{isBusiness ? 'pricing' : '/ mo'}</span>
+        <CardTitle className="font-medium text-gray-900 dark:text-foreground">{pkg.name}</CardTitle>
+        <span className="my-3 block text-3xl font-bold text-gray-900 dark:text-foreground">
+          {isBusiness ? 'Custom' : `${pkg.price_tzs.toLocaleString()} TZS`} <span className="text-base font-normal text-gray-500 dark:text-muted-foreground">{isBusiness ? 'pricing' : '/ mo'}</span>
         </span>
-        <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
+        <CardDescription className="text-sm text-gray-600 dark:text-muted-foreground">
           {description}
         </CardDescription>
         <Button
@@ -141,13 +141,13 @@ export const PricingCard: React.FC<PricingCardProps> = ({ package: pkg, isSelect
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <hr className="border-dashed border-gray-200 dark:border-gray-700" />
-        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">
+        <hr className="border-dashed border-gray-200 dark:border-border" />
+        <p className="text-xs text-gray-500 dark:text-muted-foreground font-medium uppercase tracking-wide">
           What&apos;s included
         </p>
         <ul className="list-outside space-y-3 text-sm">
           {features.map((feature, index) => (
-            <li key={index} className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+            <li key={index} className="flex items-center gap-2 text-gray-700 dark:text-muted-foreground">
               <Check className="size-3 text-primary shrink-0" />
               <span>{feature}</span>
             </li>

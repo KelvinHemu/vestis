@@ -84,16 +84,16 @@ export function ProductSelector({
         />
 
         {/* Mobile Front/Back toggle */}
-        <div className="flex md:hidden items-center bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div className="flex md:hidden items-center bg-gray-100 dark:bg-secondary rounded-lg overflow-hidden border border-gray-200 dark:border-border">
           <button
             onClick={() => setMobileView('front')}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${mobileView === 'front' ? 'bg-black dark:bg-white text-white dark:text-black' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${mobileView === 'front' ? 'bg-black dark:bg-white text-white dark:text-black' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-accent'}`}
           >
             Front
           </button>
           <button
             onClick={() => setMobileView('back')}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${mobileView === 'back' ? 'bg-black dark:bg-white text-white dark:text-black' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${mobileView === 'back' ? 'bg-black dark:bg-white text-white dark:text-black' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-accent'}`}
           >
             Back
           </button>
@@ -135,7 +135,7 @@ export function ProductSelector({
                   return (
                     <div
                       key={item.id}
-                      className={`rounded-2xl p-3 shadow-sm relative flex items-center justify-center w-full mx-auto transition-colors duration-300 ${hasImage ? 'bg-white dark:bg-gray-900' : ''}`}
+                      className={`rounded-2xl p-3 shadow-sm relative flex items-center justify-center w-full mx-auto transition-colors duration-300 ${hasImage ? 'bg-white dark:bg-card' : ''}`}
                       style={{
                         aspectRatio: anyHasImage ? undefined : '3/4',
                         minHeight: anyHasImage ? '180px' : undefined,
@@ -175,7 +175,7 @@ export function ProductSelector({
                 return (
                   <div
                     key={item.id}
-                    className={`rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm relative flex items-center justify-center w-full max-w-[550px] mx-auto md:mx-0 transition-colors duration-300 ${hasImage ? 'bg-white dark:bg-gray-900' : ''}`}
+                    className={`rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm relative flex items-center justify-center w-full max-w-[550px] mx-auto md:mx-0 transition-colors duration-300 ${hasImage ? 'bg-white dark:bg-card' : ''}`}
                     style={{
                       aspectRatio: anyHasImage ? undefined : '16/9',
                       minHeight: anyHasImage ? '200px' : undefined,

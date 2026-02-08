@@ -23,7 +23,7 @@ interface BackgroundCardProps {
 
 function BackgroundCard({ id, name, image, onDelete, isDeleting, showDelete }: BackgroundCardProps) {
     return (
-        <div className="relative group rounded-lg overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
+        <div className="relative group rounded-lg overflow-hidden bg-white dark:bg-secondary border border-gray-200 dark:border-border shadow-sm hover:shadow-md transition-all">
             <div className="aspect-[4/3] relative">
                 <img
                     src={image}
@@ -32,7 +32,7 @@ function BackgroundCard({ id, name, image, onDelete, isDeleting, showDelete }: B
                 />
             </div>
             <div className="p-3">
-                <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-foreground truncate">
                     {name}
                 </h3>
             </div>
@@ -116,11 +116,11 @@ export function BackgroundsPage() {
     // Render Component
     // ============================================================================
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-black p-6">
+        <div className="min-h-screen bg-gray-50 dark:bg-background p-6">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground">
                         Backgrounds
                     </h1>
 
@@ -140,9 +140,9 @@ export function BackgroundsPage() {
                 {customBackgrounds && customBackgrounds.length > 0 && (
                     <div className="mb-8">
                         <div className="flex items-center gap-2 mb-4">
-                            <ImageIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">My Backgrounds</h2>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                            <ImageIcon className="w-5 h-5 text-gray-600 dark:text-muted-foreground" />
+                            <h2 className="text-lg font-semibold text-gray-900 dark:text-foreground">My Backgrounds</h2>
+                            <span className="text-sm text-gray-500 dark:text-muted-foreground">
                                 ({customBackgrounds.length})
                             </span>
                         </div>
@@ -162,7 +162,7 @@ export function BackgroundsPage() {
                         </div>
 
                         {/* Divider */}
-                        <div className="mt-8 mb-6 border-t border-gray-200 dark:border-gray-700" />
+                        <div className="mt-8 mb-6 border-t border-gray-200 dark:border-border" />
                     </div>
                 )}
 
@@ -175,7 +175,7 @@ export function BackgroundsPage() {
                         </div>
                         <div className="flex gap-4">
                             {[1, 2].map((i) => (
-                                <div key={i} className="w-48 h-36 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse" />
+                                <div key={i} className="w-48 h-36 bg-gray-200 dark:bg-secondary rounded-lg animate-pulse" />
                             ))}
                         </div>
                     </div>
@@ -188,8 +188,8 @@ export function BackgroundsPage() {
                     {/* Section Header with Category Tabs */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                         <div className="flex items-center gap-2">
-                            <Palette className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            <Palette className="w-5 h-5 text-gray-600 dark:text-muted-foreground" />
+                            <h2 className="text-lg font-semibold text-gray-900 dark:text-foreground">
                                 Vestis Backgrounds
                             </h2>
                        
@@ -204,7 +204,7 @@ export function BackgroundsPage() {
                                     className={`py-1.5 px-3 rounded text-xs font-medium transition-all ${
                                         activeCategory === category.id
                                             ? 'bg-black dark:bg-white text-white dark:text-black'
-                                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                            : 'bg-gray-100 dark:bg-secondary text-gray-700 dark:text-muted-foreground hover:bg-gray-200 dark:hover:bg-accent'
                                     }`}
                                 >
                                     {category.label}
@@ -217,8 +217,8 @@ export function BackgroundsPage() {
                     {isLoadingSystem && (
                         <div className="flex items-center justify-center py-20">
                             <div className="flex flex-col items-center gap-3">
-                                <div className="w-10 h-10 border-4 border-gray-200 dark:border-gray-700 border-t-black dark:border-t-white rounded-full animate-spin"></div>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm">Loading backgrounds...</p>
+                                <div className="w-10 h-10 border-4 border-gray-200 dark:border-border border-t-black dark:border-t-foreground rounded-full animate-spin"></div>
+                                <p className="text-gray-600 dark:text-muted-foreground text-sm">Loading backgrounds...</p>
                             </div>
                         </div>
                     )}
@@ -257,10 +257,10 @@ export function BackgroundsPage() {
                     {!isLoadingSystem && !systemError && filteredSystemBackgrounds && filteredSystemBackgrounds.length === 0 && (
                         <div className="text-center py-20">
                             <div className="flex flex-col items-center gap-3">
-                                <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
+                                <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-secondary flex items-center justify-center">
                                     <Palette className="w-10 h-10 text-gray-400" />
                                 </div>
-                                <p className="text-gray-500 dark:text-gray-400 font-medium text-lg">
+                                <p className="text-gray-500 dark:text-muted-foreground font-medium text-lg">
                                     No {activeCategory.toLowerCase()} backgrounds available.
                                 </p>
                             </div>

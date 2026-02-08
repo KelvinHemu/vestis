@@ -98,7 +98,7 @@ export const StripeCheckoutPage: React.FC<StripeCheckoutPageProps> = ({
             </div>
 
             {/* Right Panel - Clean & Business Focused */}
-            <div className="w-full md:w-3/5 lg:w-1/2 bg-white dark:bg-gray-900 flex flex-col">
+            <div className="w-full md:w-3/5 lg:w-1/2 bg-white dark:bg-card flex flex-col">
                 <div className="flex-1 flex flex-col justify-center px-8 py-12 lg:px-24">
                     <div className="max-w-md mx-auto w-full">
                         {/* Mobile Package Summary - Only visible on mobile */}
@@ -136,23 +136,23 @@ export const StripeCheckoutPage: React.FC<StripeCheckoutPageProps> = ({
                         <div className="space-y-8">
                             {/* Header */}
                             <div>
-                                <h1 className="text-2xl font-light text-gray-900 dark:text-white">Payment details</h1>
+                                <h1 className="text-2xl font-light text-gray-900 dark:text-foreground">Payment details</h1>
                             </div>
 
                             {/* Payment Method Label */}
                             <div>
-                                <label className="block text-sm font-normal text-gray-600 dark:text-gray-400 mb-3">
+                                <label className="block text-sm font-normal text-gray-600 dark:text-muted-foreground mb-3">
                                     Payment method
                                 </label>
-                                <div className="flex items-center gap-3 p-4 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800">
-                                    <CreditCard className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                                    <span className="text-sm font-normal text-gray-900 dark:text-white">Card Payment</span>
+                                <div className="flex items-center gap-3 p-4 border border-gray-300 dark:border-border rounded-lg bg-gray-50 dark:bg-secondary">
+                                    <CreditCard className="h-5 w-5 text-gray-600 dark:text-muted-foreground" />
+                                    <span className="text-sm font-normal text-gray-900 dark:text-foreground">Card Payment</span>
                                     <div className="ml-auto flex items-center gap-2">
                                         <img src="/images/icons/visa.svg" alt="Visa" className="h-6 w-auto object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
                                         <img src="/images/icons/mastercard.svg" alt="Mastercard" className="h-6 w-auto object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
                                     </div>
                                 </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                <p className="text-xs text-gray-500 dark:text-muted-foreground mt-2">
                                     You&apos;ll be redirected to Stripe to complete your payment securely.
                                 </p>
                             </div>
@@ -192,14 +192,14 @@ export const StripeCheckoutPage: React.FC<StripeCheckoutPageProps> = ({
                 </div>
 
                 {/* Footer with Terms */}
-                <div className="px-8 py-6 lg:px-24 border-t border-gray-100 dark:border-gray-800">
-                    <p className="text-center text-xs text-gray-500 dark:text-gray-400 mb-3 font-light">
+                <div className="px-8 py-6 lg:px-24 border-t border-gray-100 dark:border-border">
+                    <p className="text-center text-xs text-gray-500 dark:text-muted-foreground mb-3 font-light">
                         {billingType === 'subscription'
                             ? 'By subscribing, you authorize Vestis to charge you monthly until you cancel.'
                             : 'By proceeding, you agree to Vestis terms of service.'}
                     </p>
                     <div className="flex items-center justify-center gap-1 text-xs text-gray-400 dark:text-gray-500 font-light">
-                        <span>Powered by <span className="font-normal text-gray-600 dark:text-gray-400">Stripe</span></span>
+                        <span>Powered by <span className="font-normal text-gray-600 dark:text-muted-foreground">Stripe</span></span>
                         <span className="mx-2">|</span>
                         <a href="#" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">Terms</a>
                         <span>·</span>
