@@ -319,7 +319,7 @@ export function AddCustomModelPage() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="flex-1 flex flex-col px-5 pb-32 pt-6 overflow-y-auto scrollbar-hide"
+                    className="flex-1 flex flex-col px-5 pb-24 pt-6 overflow-y-auto scrollbar-hide"
                 >
                     <div className="text-center mb-8">
                          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Upload Photo</h2>
@@ -427,7 +427,7 @@ export function AddCustomModelPage() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
-                    className="flex-1 flex flex-col px-5 pb-32 pt-6 overflow-y-auto scrollbar-hide"
+                    className="flex-1 flex flex-col px-5 pb-24 pt-6 overflow-y-auto scrollbar-hide"
                 >
                     <div className="text-center mb-8">
                          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Model Details</h2>
@@ -535,8 +535,8 @@ export function AddCustomModelPage() {
             )}
           </AnimatePresence>
 
-          {/* Fixed Bottom Button */}
-          <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-[#1A1A1A]/90 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 z-[101] safe-area-pb">
+          {/* Floating Bottom Button - Transparent background like flatlay feature */}
+          <div className="fixed bottom-4 left-3 right-3 p-0 bg-transparent z-[101]">
             {currentStep === 1 ? (
                  <Button
                     onClick={() => setCurrentStep(2)}
