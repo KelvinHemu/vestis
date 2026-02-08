@@ -200,6 +200,14 @@ export function BackgroundChange() {
     }
   };
 
+  const handleSelectHistory = (imageUrl: string, index: number) => {
+    if (!generatedImageUrl) return;
+    const allImages = [...generationHistory, generatedImageUrl];
+    const newHistory = allImages.filter((_, i) => i !== index);
+    setGeneratedImageUrl(imageUrl);
+    setGenerationHistory(newHistory);
+  };
+
   const canProceedToNextStep = (): boolean => {
     switch (currentStep) {
       case 0: // Upload Photos
@@ -258,6 +266,7 @@ export function BackgroundChange() {
               onReset={resetGeneration}
               onUndo={handleUndoEdit}
               onStartOver={handleStartOver}
+              onSelectHistory={handleSelectHistory}
               aspectRatio={getAspectRatioValue(aspectRatio)}
               onImageDoubleClick={() => setIsFullscreenOpen(true)}
             />

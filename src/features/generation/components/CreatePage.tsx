@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Download, Share2 } from 'lucide-react';
 import { FeatureCard, features } from '@/components/shared/FeatureCard';
 import { FloatingAskBar } from './FloatingAskBar';
 import { UploadedImagesGrid } from './UploadedImagesGrid';
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
+import { GeneratingShimmer } from './GeneratingShimmer';
+import { EditHistoryThumbnails } from './EditHistoryThumbnails';
 import { InsufficientCreditsDialog } from '@/components/ui/InsufficientCreditsDialog';
 import { FullscreenImageViewer } from '@/components/ui/FullscreenImageViewer';
 import { chatService } from '@/services/chatService';
@@ -31,6 +32,8 @@ export const CreatePage: React.FC = () => {
   const [creditsInfo, setCreditsInfo] = useState({ available: 0, required: 1 });
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [revealComplete, setRevealComplete] = useState(!!generatedImage);
+  const preEditUrlRef = useRef<string | null>(null);
 
   // Detect mobile keyboard visibility for proper input positioning
   const { isKeyboardVisible, keyboardHeight, barRef } = useKeyboardVisible();
@@ -50,6 +53,14 @@ export const CreatePage: React.FC = () => {
       sessionStorage.removeItem('editImage'); // Clean up
     }
   }, []);
+
+  // Reset reveal state when generation starts and capture the current URL
+  useEffect(() => {
+    if (isGenerating) {
+      preEditUrlRef.current = generatedImage;
+      setRevealComplete(false);
+    }
+  }, [isGenerating]);
 
   const handleFilesSelected = (files: File[]) => {
     const newImages: UploadedImage[] = files.map((file) => ({
@@ -130,6 +141,7 @@ export const CreatePage: React.FC = () => {
     setIsEditMode(false);
     setGenerationHistory([]);
     setError(null);
+    setRevealComplete(false);
   };
 
   const handleImageDoubleClick = () => {
@@ -142,6 +154,14 @@ export const CreatePage: React.FC = () => {
       setGeneratedImage(previousImage);
       setGenerationHistory(prev => prev.slice(0, -1));
     }
+  };
+
+  const handleSelectHistory = (imageUrl: string, index: number) => {
+    if (!generatedImage) return;
+    const allImages = [...generationHistory, generatedImage];
+    const newHistory = allImages.filter((_, i) => i !== index);
+    setGeneratedImage(imageUrl);
+    setGenerationHistory(newHistory);
   };
 
   const handleInputFocusChange = useCallback((focused: boolean) => {
@@ -222,14 +242,22 @@ export const CreatePage: React.FC = () => {
           flex-1 min-h-0 overflow-y-auto overscroll-contain pb-20
           md:overflow-visible md:flex-none md:pb-28
           transition-all duration-200 ease-out
-          ${isTyping ? 'max-h-0 opacity-0 overflow-hidden pointer-events-none md:max-h-none md:opacity-100 md:overflow-visible md:pointer-events-auto' : ''}
+          ${isTyping && !isGenerating && !generatedImage ? 'max-h-0 opacity-0 overflow-hidden pointer-events-none md:max-h-none md:opacity-100 md:overflow-visible md:pointer-events-auto' : ''}
         `}
       >
-      {isGenerating ? (
-        <div className="flex items-center justify-center h-full md:min-h-[calc(100vh-12rem)] p-4 sm:p-8">
-          <LoadingSpinner />
+      {(isGenerating || (generatedImage && !revealComplete && !error)) ? (
+        <div className="flex flex-col items-center justify-center h-full md:min-h-[calc(100vh-12rem)] p-4 sm:p-8">
+          <GeneratingShimmer
+            images={[
+              ...(preEditUrlRef.current ? [preEditUrlRef.current] : []),
+              ...uploadedImages.map(img => img.url),
+            ]}
+            aspectRatio="3/4"
+            generatedImageUrl={generatedImage !== preEditUrlRef.current ? generatedImage : null}
+            onRevealComplete={() => setRevealComplete(true)}
+          />
         </div>
-      ) : generatedImage ? (
+      ) : generatedImage && revealComplete ? (
         <div className="relative flex flex-col items-center justify-center h-full md:min-h-[calc(100vh-12rem)] px-4 py-4 sm:p-8 gap-2 sm:gap-6">
           {/* Desktop: Download and Share buttons - fixed top right */}
           <div className="hidden md:flex fixed top-4 right-6 gap-2 z-20">
@@ -284,16 +312,28 @@ export const CreatePage: React.FC = () => {
             Start Over
           </button>
 
-          <div
-            className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer w-full max-w-[90vw] min-[375px]:max-w-[88vw] min-[425px]:max-w-[85vw] sm:max-w-[380px] md:max-w-[420px]"
-            style={{ aspectRatio: '3/4' }}
-            onDoubleClick={handleImageDoubleClick}
-          >
-            <img
-              src={generatedImage}
-              alt="Generated Image"
-              className="w-full h-full object-cover"
+          <div className="flex flex-col md:flex-row items-center md:justify-center gap-0 md:gap-4 w-full max-w-[90vw] min-[375px]:max-w-[88vw] min-[425px]:max-w-[85vw] sm:max-w-[380px] md:max-w-none">
+            {/* Desktop: thumbnails on the left */}
+            <EditHistoryThumbnails
+              history={generationHistory}
+              currentImage={generatedImage}
+              onSelect={handleSelectHistory}
             />
+
+            <div className="w-full md:w-auto md:max-w-[420px]">
+              <div
+                className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer"
+                style={{ aspectRatio: '3/4' }}
+                onDoubleClick={handleImageDoubleClick}
+              >
+                <img
+                  src={generatedImage}
+                  alt="Generated Image"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+            </div>
           </div>
 
           {/* Undo button below image */}

@@ -26,6 +26,8 @@ import { useFeatureGeneration } from '@/contexts/generationStore';
 import type { ProductImage } from '@/types/flatlay';
 import type { Background } from '@/types/background';
 import { RotateCw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { GeneratingShimmer } from './GeneratingShimmer';
+import { EditHistoryThumbnails } from './EditHistoryThumbnails';
 import AspectRatio from '@/components/shared/aspectRatio';
 import Resolution from '@/components/shared/resolution';
 import { FeatureEvents } from '@/utils/analytics';
@@ -87,12 +89,23 @@ export function FlatLayPhotos() {
     resetFlatLay();
     resetGeneration();
     setGenerationError(null);
+    setRevealComplete(false);
   };
 
   // Local (non-persisted) state for transient UI states
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [insufficientCredits, setInsufficientCredits] = useState<{ available: number; required: number } | null>(null);
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+  const [revealComplete, setRevealComplete] = useState(!!generatedImageUrl);
+  const preEditUrlRef = useRef<string | null>(null);
+
+  // Reset reveal state when a new generation starts and capture the current URL
+  useEffect(() => {
+    if (isGenerating) {
+      preEditUrlRef.current = generatedImageUrl;
+      setRevealComplete(false);
+    }
+  }, [isGenerating]);
   const [selectedGalleryTop, setSelectedGalleryTop] = useState<string | undefined>();
   const [selectedGalleryBottom, setSelectedGalleryBottom] = useState<string | undefined>();
   // iOS Safari (especially iPhone 15 Pro Max) can fail to render cross-origin images.
@@ -332,6 +345,17 @@ export function FlatLayPhotos() {
     }
   };
 
+  // Handle selecting a specific history image
+  const handleSelectHistory = (imageUrl: string, index: number) => {
+    if (!generatedImageUrl) return;
+    // Build full list: history + current
+    const allImages = [...generationHistory, generatedImageUrl];
+    // Set clicked image as current, rest becomes new history
+    const newHistory = allImages.filter((_, i) => i !== index);
+    setGeneratedImageUrl(imageUrl);
+    setGenerationHistory(newHistory);
+  };
+
   // Generate flatlay image
   const handleGenerateImage = async () => {
     if (!selectedModel || !selectedBackground) {
@@ -527,30 +551,22 @@ export function FlatLayPhotos() {
         return (
           <div className="space-y-6">
 
-            <div className="flex flex-col items-center justify-center min-h-[400px] w-full gap-3 sm:gap-4 md:gap-6">
-              {isGenerating ? (
-                <div className="flex items-center justify-center">
-                  <style>{`
-                    @keyframes l4 {
-                      to { width: 25px; aspect-ratio: 1; }
-                    }
-                    .custom-loader {
-                      width: 60px;
-                      aspect-ratio: 4;
-                      --c: #000 90%, #0000;
-                      background: 
-                        radial-gradient(circle closest-side at left 6px top 50%, var(--c)),
-                        radial-gradient(circle closest-side, var(--c)),
-                        radial-gradient(circle closest-side at right 6px top 50%, var(--c));
-                      background-size: 100% 100%;
-                      background-repeat: no-repeat;
-                      animation: l4 1s infinite alternate;
-                    }
-                  `}</style>
-                  <div className="custom-loader"></div>
-                </div>
+            <div className="flex flex-col items-center justify-center min-h-[400px] w-full">
+              {(isGenerating || (generatedImageUrl && !revealComplete && !generationError)) ? (
+                <GeneratingShimmer
+                  images={[
+                    ...(preEditUrlRef.current ? [preEditUrlRef.current] : []),
+                    ...Object.values(topImages),
+                    ...Object.values(bottomImages),
+                    ...(selectedModelImage ? [selectedModelImage] : []),
+                    ...(selectedBackgroundImage ? [selectedBackgroundImage] : []),
+                  ]}
+                  aspectRatio={getAspectRatioValue(aspectRatio)}
+                  generatedImageUrl={generatedImageUrl !== preEditUrlRef.current ? generatedImageUrl : null}
+                  onRevealComplete={() => setRevealComplete(true)}
+                />
               ) : generationError ? (
-                <div className="text-center max-w-md">
+                <div className="text-center max-w-md mt-6">
                   <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
                     <svg className="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -574,35 +590,44 @@ export function FlatLayPhotos() {
                   {/* Start Over button */}
                   <button
                     onClick={handleStartOver}
-                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-medium transition-colors text-xs sm:text-sm"
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-medium transition-colors text-xs sm:text-sm mt-4 mb-3"
                   >
                     Start Over
                   </button>
 
-                  <div
-                    className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 mx-auto cursor-pointer w-full max-w-[92%] sm:max-w-[360px] md:max-w-[400px] lg:max-w-[440px] xl:max-w-[480px] mb-20"
-                    style={{ aspectRatio: getAspectRatioValue(aspectRatio) }}
-                    onDoubleClick={() => setIsFullscreenOpen(true)}
-                  >
-                    <img
-                      src={fallbackBlobUrl || generatedImageUrl}
-                      alt="Generated Flatlay"
-                      crossOrigin="anonymous"
-                      className="w-full h-full object-cover"
-                      onError={handleImageError}
+                  <div className="flex flex-col md:flex-row items-center md:justify-center gap-0 md:gap-4 w-full">
+                    <EditHistoryThumbnails
+                      history={generationHistory}
+                      currentImage={generatedImageUrl}
+                      onSelect={handleSelectHistory}
                     />
 
-                    {/* Image Feedback Actions */}
-                    <ImageFeedbackActions
-                      onUndo={handleUndoEdit}
-                      onThumbsUp={() => console.log('Thumbs up')}
-                      onThumbsDown={() => console.log('Thumbs down')}
-                      showUndo={generationHistory.length > 0}
-                    />
+                    <div className="w-full max-w-[92%] sm:max-w-[360px] md:max-w-[400px] lg:max-w-[440px] xl:max-w-[480px] mx-auto">
+                      <div
+                        className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer mb-20"
+                        style={{ aspectRatio: getAspectRatioValue(aspectRatio) }}
+                        onDoubleClick={() => setIsFullscreenOpen(true)}
+                      >
+                        <img
+                          src={fallbackBlobUrl || generatedImageUrl}
+                          alt="Generated Flatlay"
+                          crossOrigin="anonymous"
+                          className="w-full h-full object-cover"
+                          onError={handleImageError}
+                        />
+
+                        <ImageFeedbackActions
+                          onUndo={handleUndoEdit}
+                          onThumbsUp={() => console.log('Thumbs up')}
+                          onThumbsDown={() => console.log('Thumbs down')}
+                          showUndo={generationHistory.length > 0}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </>
               ) : (
-                <div className="w-full px-4 md:hidden">
+                <div className="w-full px-4 md:hidden mt-6">
                   {(() => {
                     // Collect all product images
                     const allProductImages = [
