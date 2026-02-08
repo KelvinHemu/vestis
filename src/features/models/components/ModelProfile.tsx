@@ -40,15 +40,15 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
 
   // Navigation handlers
   const nextImage = () => {
-    if (allImages.length <= 2) return;
-    setCurrentImageIndex(prev => (prev + 2) % allImages.length);
+    if (allImages.length <= 1) return;
+    setCurrentImageIndex(prev => (prev + 1) % allImages.length);
   };
 
   const prevImage = () => {
-    if (allImages.length <= 2) return;
+    if (allImages.length <= 1) return;
     setCurrentImageIndex(prev => {
-      const newIndex = prev - 2;
-      return newIndex < 0 ? allImages.length + newIndex : newIndex;
+      const newIndex = prev - 1;
+      return newIndex < 0 ? allImages.length - 1 : newIndex;
     });
   };
 
@@ -93,7 +93,7 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
   }
 
   // Get current pair of images to display
-  const firstImage = allImages[currentImageIndex];
+  const currentImage = allImages[currentImageIndex];
   const secondImageIndex = (currentImageIndex + 1) % allImages.length;
   const secondImage = allImages.length > 1 ? allImages[secondImageIndex] : null;
 
@@ -168,12 +168,56 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
           </div>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="flex flex-col lg:flex-row gap-12 items-start relative justify-center">
+        {/* Mobile Layout - Image First, Info Below (visible on mobile only) */}
+        <div className="flex flex-col items-center md:hidden">
 
-          {/* Left Sidebar - Stats */}
-          <div className="lg:w-48 flex-shrink-0 lg:sticky lg:top-32">
-            <div className="grid grid-cols-2 gap-x-8 gap-y-4 lg:block lg:space-y-4 text-xs tracking-widest uppercase">
+          {/* Image Section */}
+          <div className="w-full max-w-md relative group">
+            {/* Navigation Arrows */}
+            {allImages.length > 1 && (
+              <>
+                <button
+                  onClick={prevImage}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors opacity-100 bg-white/80 dark:bg-black/80"
+                >
+                  <ChevronLeft className="w-8 h-8 text-gray-900 dark:text-gray-100" />
+                </button>
+                <button
+                  onClick={nextImage}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors opacity-100 bg-white/80 dark:bg-black/80"
+                >
+                  <ChevronRight className="w-8 h-8 text-gray-900 dark:text-gray-100" />
+                </button>
+              </>
+            )}
+
+            {/* Single Image */}
+            <div className="bg-gray-100 dark:bg-gray-800 relative overflow-hidden">
+              <img
+                src={currentImage}
+                alt={`${model.name}`}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+
+            {/* Pagination Dots */}
+            {allImages.length > 1 && (
+              <div className="flex justify-center gap-2 mt-6">
+                {allImages.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentImageIndex(idx)}
+                    className={`w-1.5 h-1.5 rounded-full transition-colors ${currentImageIndex === idx ? 'bg-black dark:bg-white' : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+                      }`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Info Section - Below Image */}
+          <div className="w-full max-w-md mt-8">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-xs tracking-widest uppercase">
               <div>
                 <span className="block font-bold text-gray-900 dark:text-gray-100 mb-1">Gender</span>
                 <span className="text-gray-500 dark:text-gray-400">{model.gender}</span>
@@ -182,7 +226,36 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
                 <span className="block font-bold text-gray-900 dark:text-gray-100 mb-1">Age</span>
                 <span className="text-gray-500 dark:text-gray-400">{modelService.formatAgeRange(model.age_range)}</span>
               </div>
-              {/* Placeholder stats */}
+              <div>
+                <span className="block font-bold text-gray-900 dark:text-gray-100 mb-1">Height</span>
+                <span className="text-gray-400 dark:text-gray-500">175 cm</span>
+              </div>
+              <div>
+                <span className="block font-bold text-gray-900 dark:text-gray-100 mb-1">Eyes</span>
+                <span className="text-gray-400 dark:text-gray-500">Brown</span>
+              </div>
+              <div>
+                <span className="block font-bold text-gray-900 dark:text-gray-100 mb-1">Hair</span>
+                <span className="text-gray-400 dark:text-gray-500">Dark Brown</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop/Tablet Layout - Stats Left, Images Center (hidden on mobile) */}
+        <div className="hidden md:flex md:flex-row gap-12 items-start relative justify-center">
+
+          {/* Left Sidebar - Stats */}
+          <div className="lg:w-48 flex-shrink-0 lg:sticky lg:top-32">
+            <div className="block space-y-4 text-xs tracking-widest uppercase">
+              <div>
+                <span className="block font-bold text-gray-900 dark:text-gray-100 mb-1">Gender</span>
+                <span className="text-gray-500 dark:text-gray-400">{model.gender}</span>
+              </div>
+              <div>
+                <span className="block font-bold text-gray-900 dark:text-gray-100 mb-1">Age</span>
+                <span className="text-gray-500 dark:text-gray-400">{modelService.formatAgeRange(model.age_range)}</span>
+              </div>
               <div>
                 <span className="block font-bold text-gray-900 dark:text-gray-100 mb-1">Height</span>
                 <span className="text-gray-400 dark:text-gray-500">175 cm</span>
@@ -222,7 +295,7 @@ export function ModelProfile({ modelId }: ModelProfileProps) {
               {/* Image 1 */}
               <div className="bg-gray-100 dark:bg-gray-800 relative overflow-hidden h-full">
                 <img
-                  src={firstImage}
+                  src={currentImage}
                   alt={`${model.name} 1`}
                   className="w-full h-full object-cover"
                 />
