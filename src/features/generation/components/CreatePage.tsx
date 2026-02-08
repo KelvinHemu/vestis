@@ -230,39 +230,62 @@ export const CreatePage: React.FC = () => {
           <LoadingSpinner />
         </div>
       ) : generatedImage ? (
-        <div className="flex flex-col items-center justify-center h-full md:min-h-[calc(100vh-12rem)] px-4 py-6 sm:p-8 gap-4 sm:gap-6">
-          {/* Action buttons row - matched to image width */}
-          <div className="flex items-center justify-between w-full max-w-[85vw] sm:max-w-[380px] md:max-w-[420px]">
-            {/* Start Over button */}
+        <div className="relative flex flex-col items-center justify-center h-full md:min-h-[calc(100vh-12rem)] px-4 py-4 sm:p-8 gap-2 sm:gap-6">
+          {/* Desktop: Download and Share buttons - fixed top right */}
+          <div className="hidden md:flex fixed top-4 right-6 gap-2 z-20">
             <button
-              onClick={handleStartOver}
-              className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full font-medium transition-colors text-sm sm:text-base"
+              onClick={handleDownload}
+              className="p-3 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full transition-all shadow-lg border border-gray-200 dark:border-gray-700"
+              title="Download image"
             >
-              Start Over
+              <Download className="h-5 w-5" />
             </button>
 
-            {/* Download and Share buttons */}
-            <div className="flex gap-2">
-              <button
-                onClick={handleDownload}
-                className="p-2 sm:p-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full transition-all shadow-sm"
-                title="Download image"
-              >
-                <Download className="h-4 w-4 sm:h-5 sm:w-5" />
-              </button>
-
-              <button
-                onClick={handleShare}
-                className="p-2 sm:p-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full transition-all shadow-sm"
-                title="Share image"
-              >
-                <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
-              </button>
-            </div>
+            <button
+              onClick={handleShare}
+              className="p-3 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full transition-all shadow-lg border border-gray-200 dark:border-gray-700"
+              title="Share image"
+            >
+              <Share2 className="h-5 w-5" />
+            </button>
           </div>
 
+          {/* Desktop: Start Over button - centered above image */}
+          <button
+            onClick={handleStartOver}
+            className="hidden md:block px-6 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full font-medium transition-colors text-base shadow-lg border border-gray-200 dark:border-gray-700"
+          >
+            Start Over
+          </button>
+
+          {/* Mobile: Share button - fixed top left */}
+          <button
+            onClick={handleShare}
+            className="md:hidden fixed top-[4.5rem] left-3 p-2 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full transition-all shadow-md border border-gray-200 dark:border-gray-700 z-20"
+            title="Share image"
+          >
+            <Share2 className="h-4 w-4" />
+          </button>
+
+          {/* Mobile: Download button - fixed top right */}
+          <button
+            onClick={handleDownload}
+            className="md:hidden fixed top-[4.5rem] right-3 p-2 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full transition-all shadow-md border border-gray-200 dark:border-gray-700 z-20"
+            title="Download image"
+          >
+            <Download className="h-4 w-4" />
+          </button>
+
+          {/* Mobile: Start Over button - centered above image */}
+          <button
+            onClick={handleStartOver}
+            className="md:hidden px-5 py-2 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full font-medium transition-colors text-sm shadow-md border border-gray-200 dark:border-gray-700"
+          >
+            Start Over
+          </button>
+
           <div
-            className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer w-full max-w-[85vw] sm:max-w-[380px] md:max-w-[420px]"
+            className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer w-full max-w-[90vw] min-[375px]:max-w-[88vw] min-[425px]:max-w-[85vw] sm:max-w-[380px] md:max-w-[420px]"
             style={{ aspectRatio: '3/4' }}
             onDoubleClick={handleImageDoubleClick}
           >
