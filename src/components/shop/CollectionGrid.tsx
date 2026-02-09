@@ -56,8 +56,6 @@ export function CollectionGrid({
               key={item.id}
               item={item} 
               shopSlug={shopSlug} 
-              showCategory={true}
-              showColors={true}
             />
           ))}
         </div>

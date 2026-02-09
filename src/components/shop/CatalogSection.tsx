@@ -104,8 +104,6 @@ export function CatalogSection({
                 <ProductCard 
                   item={item} 
                   shopSlug={shopSlug} 
-                  showCategory={true}
-                  showColors={true}
                 />
               </div>
             ))}
