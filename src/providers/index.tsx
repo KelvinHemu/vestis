@@ -88,8 +88,8 @@ export function Providers({ children }: { children: ReactNode }) {
       <AuthProvider>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
           storageKey="vestis-theme"
         >
