@@ -59,13 +59,13 @@ export function EditHistoryThumbnails({
   return (
     <>
       {/* Desktop — vertical strip, rendered as a column sibling */}
-      <div className="hidden md:flex flex-col gap-2 items-center justify-center">
-        {allImages.map((url, i) => renderThumbnail(url, i, 'w-14 h-14 lg:w-16 lg:h-16'))}
+      <div className="hidden md:flex flex-col gap-2 items-center justify-start flex-shrink-0 py-2">
+        {allImages.map((url, i) => renderThumbnail(url, i, 'w-14 h-14 lg:w-16 lg:h-16 xl:w-18 xl:h-18'))}
       </div>
 
       {/* Mobile — horizontal strip, below image */}
-      <div className="flex md:hidden gap-2 justify-center py-3">
-        {allImages.map((url, i) => renderThumbnail(url, i, 'w-11 h-11'))}
+      <div className="flex md:hidden gap-2 justify-center py-2 flex-wrap">
+        {allImages.map((url, i) => renderThumbnail(url, i, 'w-11 h-11 sm:w-12 sm:h-12'))}
       </div>
     </>
   );

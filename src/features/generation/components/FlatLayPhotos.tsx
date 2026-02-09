@@ -551,7 +551,7 @@ export function FlatLayPhotos() {
         return (
           <div className="space-y-6">
 
-            <div className="flex flex-col items-center justify-center min-h-[400px] w-full">
+            <div className="flex flex-col items-center justify-center min-h-[50vh] md:min-h-[400px] w-full">
               {(isGenerating || (generatedImageUrl && !revealComplete && !generationError)) ? (
                 <GeneratingShimmer
                   images={[
@@ -595,16 +595,16 @@ export function FlatLayPhotos() {
                     Start Over
                   </button>
 
-                  <div className="flex flex-col md:flex-row items-center md:justify-center gap-0 md:gap-4 w-full">
+                  <div className="flex flex-col-reverse md:flex-row items-center md:items-start md:justify-center gap-3 md:gap-4 w-full max-w-3xl mx-auto">
                     <EditHistoryThumbnails
                       history={generationHistory}
                       currentImage={generatedImageUrl}
                       onSelect={handleSelectHistory}
                     />
 
-                    <div className="w-full max-w-[92%] sm:max-w-[360px] md:max-w-[400px] lg:max-w-[440px] xl:max-w-[480px] mx-auto">
+                    <div className="w-full max-w-[90%] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto flex-1 min-w-0">
                       <div
-                        className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer mb-20"
+                        className="relative rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all shadow-xl animate-in fade-in duration-500 cursor-pointer"
                         style={{ aspectRatio: getAspectRatioValue(aspectRatio) }}
                         onDoubleClick={() => setIsFullscreenOpen(true)}
                       >
@@ -941,7 +941,7 @@ export function FlatLayPhotos() {
       {/* Content Area with Left and Right Sections */}
       <div className="flex flex-col md:flex-row gap-0 h-full border-2 border-gray-300 dark:border-gray-700 overflow-hidden">
         {/* Left Component - full width on phone, flex-1 on tablet+ */}
-        <div className="flex-1 bg-white dark:bg-[#1A1A1A] md:border-r-2 border-gray-300 dark:border-gray-700 m-0 relative min-h-0 pb-20 md:pb-0 flex flex-col">
+        <div className="flex-1 bg-white dark:bg-[#1A1A1A] md:border-r-2 border-gray-300 dark:border-gray-700 m-0 relative min-h-0 pb-24 md:pb-0 flex flex-col">
           {/* Desktop Steps */}
           <div className="hidden md:block border-b-2 border-gray-300 dark:border-gray-700">
             <Steps
@@ -1012,7 +1012,7 @@ export function FlatLayPhotos() {
         </div>
 
         {/* Right Component - fixed bottom bar on phone, sidebar on tablet+ */}
-        <div className="fixed bottom-4 left-3 right-3 md:static md:w-80 lg:w-96 bg-transparent md:bg-white md:dark:bg-[#1A1A1A] p-0 md:p-6 m-0 md:overflow-y-auto flex flex-col md:border-t-0 border-gray-300 dark:border-gray-700 shrink-0 z-50 md:max-h-none overflow-y-auto">
+        <div className="fixed bottom-4 left-3 right-3 md:static md:w-72 lg:w-80 xl:w-96 bg-transparent md:bg-white md:dark:bg-[#1A1A1A] p-0 md:p-5 lg:p-6 m-0 md:overflow-y-auto flex flex-col md:border-t-0 border-gray-300 dark:border-gray-700 shrink-0 z-50 md:max-h-none overflow-y-auto">
           {renderRightPanel()}
         </div>
       </div>
