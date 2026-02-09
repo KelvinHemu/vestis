@@ -3,11 +3,11 @@
 /**
  * CartDrawer - Slide-out cart panel
  * 
- * Clean, minimal design inspired by NOOON
+ * Clean, minimal design inspired by NOOON.
  * - Slides in from the right
  * - Shows cart items with thumbnails
- * - Quantity controls
- * - Subtotal and checkout
+ * - Variant-aware quantity controls (same product, different size/color)
+ * - Subtotal and checkout via WhatsApp
  */
 
 import { useEffect } from "react";
@@ -33,13 +33,17 @@ interface CartDrawerProps {
 // ============================================================================
 
 export function CartDrawer({ shopSlug, shop }: CartDrawerProps) {
+  // Pull state and actions from the cart store
   const { isOpen, closeCart, getShopItems, getShopSubtotal, updateQuantity, removeItem } = useCartStore();
   
+  // Get only the items that belong to this shop
   const items = getShopItems(shopSlug);
   const subtotal = getShopSubtotal(shopSlug);
+
+  // Default currency from the first item, or fallback to USD
   const currency = items[0]?.item.currency || "USD";
 
-  // Prevent body scroll when cart is open
+  // Lock body scroll when the drawer is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -51,7 +55,9 @@ export function CartDrawer({ shopSlug, shop }: CartDrawerProps) {
     };
   }, [isOpen]);
 
-  // Build checkout message for WhatsApp
+  // -------------------------------------------------------------------------
+  // Build the WhatsApp checkout message (itemised list + total)
+  // -------------------------------------------------------------------------
   const buildCheckoutMessage = () => {
     let msg = `Hi! I'd like to order from ${shop?.name || "your shop"}:\n\n`;
     
@@ -67,6 +73,9 @@ export function CartDrawer({ shopSlug, shop }: CartDrawerProps) {
     return msg;
   };
 
+  // -------------------------------------------------------------------------
+  // Checkout handler — opens WhatsApp with the pre-filled order message
+  // -------------------------------------------------------------------------
   const handleCheckout = () => {
     if (shop?.whatsapp) {
       const link = generateWhatsAppLink(shop.whatsapp, buildCheckoutMessage());
@@ -78,7 +87,7 @@ export function CartDrawer({ shopSlug, shop }: CartDrawerProps) {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop — click to dismiss */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -88,7 +97,7 @@ export function CartDrawer({ shopSlug, shop }: CartDrawerProps) {
             onClick={closeCart}
           />
 
-          {/* Cart Panel */}
+          {/* Cart Panel — slides in from the right */}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
@@ -113,6 +122,7 @@ export function CartDrawer({ shopSlug, shop }: CartDrawerProps) {
             {/* Cart Items */}
             <div className="flex-1 overflow-y-auto">
               {items.length === 0 ? (
+                /* ── Empty state ── */
                 <div className="flex flex-col items-center justify-center h-full text-center px-6">
                   <ShoppingBag className="h-16 w-16 text-neutral-300 mb-4" />
                   <p className="text-lg font-medium text-neutral-600 mb-2">
@@ -123,9 +133,10 @@ export function CartDrawer({ shopSlug, shop }: CartDrawerProps) {
                   </p>
                 </div>
               ) : (
+                /* ── Item list ── */
                 <ul className="divide-y divide-neutral-100">
                   {items.map((cartItem) => (
-                    <li key={`${cartItem.item.id}-${cartItem.selectedSize}-${cartItem.selectedColor}`} className="p-4">
+                    <li key={cartItem.cartItemKey} className="p-4">
                       <div className="flex gap-4">
                         {/* Product Image */}
                         <div className="relative w-20 h-24 bg-neutral-100 flex-shrink-0">
@@ -150,7 +161,7 @@ export function CartDrawer({ shopSlug, shop }: CartDrawerProps) {
                             {cartItem.item.name}
                           </h3>
                           
-                          {/* Size/Color info */}
+                          {/* Size / Color info */}
                           {(cartItem.selectedSize || cartItem.selectedColor) && (
                             <p className="text-xs text-neutral-500 mt-1">
                               {cartItem.selectedSize && `Size: ${cartItem.selectedSize}`}
@@ -164,21 +175,26 @@ export function CartDrawer({ shopSlug, shop }: CartDrawerProps) {
                             {formatPrice(cartItem.item.price, cartItem.item.currency)}
                           </p>
 
-                          {/* Quantity Controls */}
+                          {/* Quantity Controls — uses cartItemKey for variant-safe ops */}
                           <div className="flex items-center justify-between mt-3">
                             <div className="flex items-center border border-neutral-200">
+                              {/* Decrement (removes entry when quantity hits 0) */}
                               <button
-                                onClick={() => updateQuantity(cartItem.item.id, cartItem.quantity - 1)}
+                                onClick={() => updateQuantity(cartItem.cartItemKey, cartItem.quantity - 1)}
                                 className="p-2 hover:bg-neutral-100 transition-colors"
                                 aria-label="Decrease quantity"
                               >
                                 <Minus className="h-3 w-3" />
                               </button>
+
+                              {/* Current quantity */}
                               <span className="px-4 text-sm font-medium">
                                 {cartItem.quantity}
                               </span>
+
+                              {/* Increment */}
                               <button
-                                onClick={() => updateQuantity(cartItem.item.id, cartItem.quantity + 1)}
+                                onClick={() => updateQuantity(cartItem.cartItemKey, cartItem.quantity + 1)}
                                 className="p-2 hover:bg-neutral-100 transition-colors"
                                 aria-label="Increase quantity"
                               >
@@ -188,7 +204,7 @@ export function CartDrawer({ shopSlug, shop }: CartDrawerProps) {
 
                             {/* Remove Button */}
                             <button
-                              onClick={() => removeItem(cartItem.item.id)}
+                              onClick={() => removeItem(cartItem.cartItemKey)}
                               className="p-2 text-neutral-400 hover:text-neutral-900 transition-colors"
                               aria-label="Remove item"
                             >
@@ -203,7 +219,7 @@ export function CartDrawer({ shopSlug, shop }: CartDrawerProps) {
               )}
             </div>
 
-            {/* Footer - Subtotal & Checkout */}
+            {/* Footer — Subtotal & Checkout */}
             {items.length > 0 && (
               <div className="border-t border-neutral-200 px-6 py-5 space-y-4 bg-white">
                 {/* Subtotal */}
