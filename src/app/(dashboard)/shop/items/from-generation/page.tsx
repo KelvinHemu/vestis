@@ -83,7 +83,10 @@ export default function AddFromGenerationPage() {
     }
     createMutation.mutate({
       generationId: selectedGeneration.id,
-      data: formData,
+      data: {
+        ...formData,
+        name: formData.name.trim().toUpperCase(),
+      },
     });
   };
 

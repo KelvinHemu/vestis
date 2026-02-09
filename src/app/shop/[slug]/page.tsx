@@ -1,142 +1,136 @@
 "use client";
 
-import { useMemo } from "react";
+/**
+ * Public Shop Page - Clean minimal design inspired by NOOON
+ * 
+ * Features:
+ * - Clean header with brand name and cart
+ * - Product grid: 3 columns on desktop, 2 on mobile
+ * - LARGE product cards that fill the viewport like NOOON
+ * - Cart drawer functionality
+ */
+
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { 
-  shopService,
-  isThisWeek,
-  isNewCollection,
-  groupItemsExclusive
-} from "@/services/shopService";
+import { shopService } from "@/services/shopService";
 import { Loader2 } from "lucide-react";
 import { ShopHeader } from "@/components/shop/ShopHeader";
-import { HeroSection } from "@/components/shop/HeroSection";
-import { CatalogSection } from "@/components/shop/CatalogSection";
-import { CollectionGrid } from "@/components/shop/CollectionGrid";
+import { ProductCard } from "@/components/shop/ProductCard";
 import { ShopFooter } from "@/components/shop/ShopFooter";
+import { CartDrawer } from "@/components/shop/CartDrawer";
+import { SHOP_CURSOR_STYLE } from "@/components/shop/shopCursor";
+
+// ============================================================================
+// Page Component
+// ============================================================================
 
 export default function PublicShopPage() {
   const params = useParams();
   const slug = params.slug as string;
 
   // Fetch shop data
-  const { data: shop, isLoading: shopLoading, error: shopError } = useQuery({
+  const { 
+    data: shop, 
+    isLoading: shopLoading, 
+    error: shopError 
+  } = useQuery({
     queryKey: ["public-shop", slug],
     queryFn: () => shopService.getPublicShop(slug),
   });
 
   // Fetch shop items
-  const { data: itemsResponse, isLoading: itemsLoading } = useQuery({
+  const { 
+    data: itemsResponse, 
+    isLoading: itemsLoading 
+  } = useQuery({
     queryKey: ["public-shop-items", slug],
     queryFn: () => shopService.getPublicShopItems(slug, { 
-      available_only: true 
+      available_only: false // Show all items, sold out will be marked
     }),
     enabled: !!shop,
   });
 
   const items = itemsResponse?.items || [];
 
-  // Get items for different sections
-  const newCollectionItems = useMemo(() => 
-    items.filter((item) => isNewCollection(item.created_at)),
-    [items]
-  );
-
-  const thisWeekItems = useMemo(() => 
-    items.filter((item) => isThisWeek(item.created_at)),
-    [items]
-  );
-
-  // Group items by catalog
-  const catalogGroups = useMemo(() => {
-    return groupItemsExclusive(items);
-  }, [items]);
-
-  // Get remaining items (older items not in special groups)
-  const olderItems = useMemo(() => {
-    const newIds = new Set(newCollectionItems.map(i => i.id));
-    const weekIds = new Set(thisWeekItems.map(i => i.id));
-    return items.filter(item => !newIds.has(item.id) && !weekIds.has(item.id));
-  }, [items, newCollectionItems, thisWeekItems]);
-
+  // -------------------------------------------------------------------------
+  // Loading State
+  // -------------------------------------------------------------------------
   if (shopLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#e8e8e5]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <Loader2 className="h-6 w-6 animate-spin text-neutral-400" />
       </div>
     );
   }
 
+  // -------------------------------------------------------------------------
+  // Error State
+  // -------------------------------------------------------------------------
   if (shopError || !shop) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen px-4 bg-[#e8e8e5]">
-        <h1 className="text-2xl font-bold mb-2">Shop Not Found</h1>
-        <p className="text-muted-foreground text-center">
-          The shop you're looking for doesn't exist or has been removed.
+      <div className="flex flex-col items-center justify-center min-h-screen px-4 bg-white">
+        <h1 className="text-lg font-medium tracking-wide uppercase mb-2">
+          Shop Not Found
+        </h1>
+        <p className="text-sm text-neutral-500 text-center">
+          The shop you&apos;re looking for doesn&apos;t exist.
         </p>
       </div>
     );
   }
 
+  // -------------------------------------------------------------------------
+  // Render
+  // -------------------------------------------------------------------------
   return (
-    <div 
-      className="min-h-screen bg-[#e8e8e5]" 
-      style={{ fontFamily: "'Beatrice Deck Trial', sans-serif" }}
-    >
-      {/* Shop Header */}
-      <ShopHeader shopSlug={slug} shopName={shop.name} />
-
-      {/* Hero Section with New Collection */}
-      <HeroSection 
+    <div className="min-h-screen bg-white flex flex-col" style={{ fontFamily: "'Beatrice Deck Trial', sans-serif", ...SHOP_CURSOR_STYLE }}>
+      {/* Header */}
+      <ShopHeader 
         shopSlug={slug} 
-        items={newCollectionItems.length > 0 ? newCollectionItems : items.slice(0, 6)} 
+        shopName={shop.name}
+        tagline={shop.tagline || shop.bio}
       />
 
-      {/* New This Week Section */}
-      {thisWeekItems.length > 0 && (
-        <CatalogSection
-          title="NEW THIS WEEK"
-          items={thisWeekItems}
-          shopSlug={slug}
-          itemCount={thisWeekItems.length}
-          showSeeAll={thisWeekItems.length > 4}
-        />
-      )}
-
-      {/* User Catalogs */}
-      {catalogGroups?.userCatalogs.map((catalog) => (
-        <CatalogSection
-          key={catalog.name}
-          title={catalog.displayName}
-          items={catalog.items}
-          shopSlug={slug}
-          itemCount={catalog.items.length}
-          showSeeAll={catalog.items.length > 4}
-        />
-      ))}
-
-      {/* Collections Grid - Show all remaining items */}
-      {olderItems.length > 0 && (
-        <CollectionGrid
-          title={`${shop.name} COLLECTIONS`}
-          subtitle="23-24"
-          items={olderItems}
-          shopSlug={slug}
-        />
-      )}
-
-      {/* If no items at all, show a message */}
-      {items.length === 0 && !itemsLoading && (
-        <div className="py-24 text-center">
-          <p className="text-muted-foreground text-lg">
-            No products available yet. Check back soon!
-          </p>
+      {/* Main Content - Minimal padding like NOOON to maximize image size */}
+      <main className="flex-1 px-2 sm:px-4 md:px-6 lg:px-8 pb-16">
+        <div className="max-w-[1800px] mx-auto">
+          {/* Product Grid */}
+          {itemsLoading ? (
+            <div className="flex items-center justify-center py-32">
+              <Loader2 className="h-6 w-6 animate-spin text-neutral-400" />
+            </div>
+          ) : items.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-32 text-center">
+              <p className="text-sm text-neutral-500 uppercase tracking-wide">
+                No products available yet
+              </p>
+            </div>
+          ) : (
+            // NOOON-style grid: minimal gaps, images fill the space
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-1 gap-y-8 sm:gap-x-2 sm:gap-y-10 md:gap-x-4 md:gap-y-12">
+              {items.map((item) => (
+                <ProductCard 
+                  key={item.id} 
+                  item={item} 
+                  shopSlug={slug} 
+                />
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </main>
 
       {/* Footer */}
-      <ShopFooter shopName={shop.name} />
+      <ShopFooter 
+        shopName={shop.name} 
+        shopSlug={slug}
+      />
+
+      {/* Cart Drawer */}
+      <CartDrawer 
+        shopSlug={slug} 
+        shop={shop} 
+      />
     </div>
   );
 }

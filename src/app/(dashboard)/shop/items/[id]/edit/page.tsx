@@ -150,7 +150,10 @@ export default function EditShopItemPage() {
       toast.error("At least one image is required");
       return;
     }
-    updateMutation.mutate(formData);
+    updateMutation.mutate({
+      ...formData,
+      name: formData.name?.trim().toUpperCase(),
+    });
   };
 
   const toggleSize = (size: string) => {
